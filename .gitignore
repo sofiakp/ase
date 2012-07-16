@@ -1,0 +1,10 @@
+# Temporary files
+*~
+\#*\#
+
+# Object files
+.o
+.a
+
+# Makefiles
+Makefile

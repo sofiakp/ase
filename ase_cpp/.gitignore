@@ -1,0 +1,18 @@
+# CMake stuff
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# Data and test dirs
+.*.swp
+DebugRna
+*.gtf
+*.fa
+*.gff
+*.bam
+*.bai
+test_data/
+*.history
+play/
