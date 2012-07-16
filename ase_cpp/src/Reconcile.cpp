@@ -120,9 +120,17 @@ int main_reconcile(const vector<string> &all_args)
         
         if ((!bam1_f.IsMapped() || !bam1_l.IsMapped()) && (!bam2_f.IsMapped() || !bam2_l.IsMapped()))
         {
-            bam_ptr_f = &bam1_f;
-            bam_ptr_l = &bam1_l;
-            bam_ptr_f->RemoveTag("XC");
+	    if (lrand48() % 2 == 0)
+	    {
+	      bam_ptr_f = &bam1_f;
+	      bam_ptr_l = &bam1_l;
+	    }
+	    else
+	    {
+	      bam_ptr_f = &bam2_f;
+	      bam_ptr_l = &bam2_l;
+	    }
+	    bam_ptr_f->RemoveTag("XC");
             bam_ptr_f->AddTag("XC", "Z", "both_unmap");
             bam_ptr_l->RemoveTag("XC");
             bam_ptr_l->AddTag("XC", "Z", "both_unmap");
