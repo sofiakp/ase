@@ -1,0 +1,71 @@
+#!/bin/bash
+
+usage()
+{
+cat <<EOF
+usage: `basename $0` options
+Reconciles a maternal and a paternal bam into one file.
+OPTIONS:
+   -h           Show this message and exit
+   --indir DIR  [Required] Input directory.
+   --outdir DIR [Required] Output directory.
+   --sample STR [Required] Sample name. Input files are read from <indir>/<sample>_[mp]aternal.bam and output is written in <outdir>/<sample>_reconcile.bam.
+   -c           Overwrite output files [0]
+EOF
+}
+
+ARGS=`getopt -o "hc" -l "indir:,outdir:,sample:" -- "$@"`
+eval set -- "$ARGS"
+
+CLEAN=0
+INDIR=
+OUTDIR=
+SAMPLE=
+while [ $# -gt 0 ]; do
+    case $1 in
+	-h) usage; exit;;
+	--indir) INDIR=$2; shift 2;;
+	--outdir) OUTDIR=$2; shift 2;;
+	--sample) SAMPLE=$2; shift 2;;
+	-c) CLEAN=1; shift;;
+	--) shift; break;;
+	*) usage; exit 1;;
+    esac	    
+done
+
+if [ $# -ne 0 ]; then
+    usage; exit 1;
+fi
+
+if [[ -z $INDIR || -z $OUTDIR || -z $SAMPLE ]]; then
+    usage; exit 1;
+fi
+
+if [ ! -d $OUTDIR ]; then
+    mkdir -p $OUTDIR
+fi
+
+tmpdir="${TMP}/tmp_${SAMPLE}_${RANDOM}"
+if [ ! -d $tmpdir ]; then
+    mkdir $tmpdir
+fi
+tmppref=${tmpdir}/tmp
+inpref=${INDIR}/${SAMPLE}
+outpref=${OUTDIR}/${SAMPLE}_reconcile
+
+if [[ ( ! -s ${inpref}_maternal.bam ) || ( ! -s ${inpref}_paternal.bam ) ]]; then
+    echo "Maternal and/or paternal bam file missin. Aborting..." 1>&2; exit 1;
+fi
+
+if [[ $CLEAN -eq 1 || ! -f ${outpref}.bam ]]; then
+    ${MAYAROOT}/src/ase_cpp/bin/Ase reconcile rg1=paternal rg2=maternal ${inpref}_paternal.bam ${inpref}_maternal.bam ${tmppref}.bam
+   samtools sort -m 2000000000 ${tmppref}.bam ${outpref}
+   samtools index ${outpref}.bam
+   java -jar ${PICARD}/MarkDuplicates.jar I=${outpref}.bam O=${outpref}.dedup.bam M=${outpref}.dedup.stats AS=true TMP_DIR=${tmpdir} VALIDATION_STRINGENCY=LENIENT MAX_RECORDS_IN_RAM=1000000 
+   #REMOVE_DUPLICATES=true
+   samtools index ${outpref}.dedup.bam
+fi
+
+if [ -d $tmpdir ]; then
+    rm -r $tmpdir
+fi

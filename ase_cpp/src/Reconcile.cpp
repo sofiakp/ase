@@ -27,7 +27,7 @@ namespace Reconcile
     BamReader bam_reader2;
     BamWriter bam_writer;
     
-    const string readgroup_ambig = "amb";
+    const string readgroup_ambig = "ambiguous";
     
     void ProcessCmdLine(const vector<string> &all_args)
     {
@@ -64,10 +64,22 @@ namespace Reconcile
         SamHeader header = bam_reader1.GetHeader();
         SamHeader header2 = bam_reader2.GetHeader();
         
-        header.ReadGroups.Clear();
-        header.ReadGroups.Add(readgroup_1);
-        header.ReadGroups.Add(readgroup_2);
-        header.ReadGroups.Add(readgroup_ambig);
+	SamReadGroup rg1_obj;
+	rg1_obj.ID = readgroup_1;
+        rg1_obj.Sample = readgroup_1;
+	rg1_obj.Library = readgroup_1;
+	SamReadGroup rg2_obj;
+	rg2_obj.ID = readgroup_2;
+        rg2_obj.Sample = readgroup_2;
+	rg2_obj.Library = readgroup_2;
+	SamReadGroup rgamb_obj;
+	rgamb_obj.ID = readgroup_ambig;
+        rgamb_obj.Sample = readgroup_ambig;
+	rgamb_obj.Library = readgroup_ambig;
+	header.ReadGroups.Clear();
+        header.ReadGroups.Add(rg1_obj);
+        header.ReadGroups.Add(rg2_obj);
+        header.ReadGroups.Add(rgamb_obj);
         
         OpenBam(bam_writer, out_bam_file, header, bam_reader1.GetReferenceData());
         
