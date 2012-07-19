@@ -104,10 +104,10 @@ namespace AseQuantMultiRG
         
         op.AddOpt(min_map_qual, 'm', "min-map-qual", "INT", "Min mapping qual to use [" + ToStr(min_map_qual) + "]");
         op.AddOpt(min_base_qual, 'b', "min-base-qual", "INT", "Min base qual to vote or be counted [" + ToStr(min_base_qual) + "]");
-        op.AddOpt(min_ref_reads, 'r', "min-ref-reads", "INT", "Min reads required for ref allele [" + ToStr(min_ref_reads) + "]");
-        op.AddOpt(min_alt_reads, 'a', "min-alt-reads", "INT", "Min reads required for alt allele [" + ToStr(min_alt_reads) + "]");
+        //op.AddOpt(min_ref_reads, 'r', "min-ref-reads", "INT", "Min reads required for ref allele [" + ToStr(min_ref_reads) + "]");
+        //op.AddOpt(min_alt_reads, 'a', "min-alt-reads", "INT", "Min reads required for alt allele [" + ToStr(min_alt_reads) + "]");
         op.AddOpt(ascii_offset, 'a', "ascii-offset", "INT", "Ascii offset of the BAM's read qualities (note: bam transforms qualities to ascii33) [" + ToStr(ascii_offset) + "]");
-        op.AddOpt(min_cover, 'c', "min-cover", "INT", "Minimum number of reads overlapping a SNP to print the entry [" + ToStr(min_cover) + "]");
+        //op.AddOpt(min_cover, 'c', "min-cover", "INT", "Minimum number of reads overlapping a SNP to print the entry [" + ToStr(min_cover) + "]");
         
         if (!op.Parse(all_args, args, 2) || args.size() < 3)
         {
@@ -256,7 +256,7 @@ int main_asequantmultirg(const vector<string> &all_args)
         // Output counts
         for (int s = 0; s < snps.size(); ++s)
         {
-            outfile << chrom << "\t" << snps[s].pos << "\t" << snps[s].ref << "\t" << snps[s].alt;
+            outfile << chrom << "\t" << snps[s].pos + 1 << "\t" << snps[s].ref << "\t" << snps[s].alt;
             for (vector<string>::iterator it = readGroupVector.begin(); it != readGroupVector.end(); it ++)
             {
                 map<string, Counts>::iterator searchIt = snps[s].fwd.find(*it);

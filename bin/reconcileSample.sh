@@ -46,7 +46,9 @@ if [ ! -d $OUTDIR ]; then
 fi
 
 tmpdir="${TMP}/tmp_${SAMPLE}_${RANDOM}"
-if [ ! -d $tmpdir ]; then
+if [ -d $tmpdir ]; then
+    echo "Existing temporary directory! Aborting..." 1>&2; exit 1;
+else
     mkdir $tmpdir
 fi
 tmppref=${tmpdir}/tmp
@@ -54,15 +56,14 @@ inpref=${INDIR}/${SAMPLE}
 outpref=${OUTDIR}/${SAMPLE}_reconcile
 
 if [[ ( ! -s ${inpref}_maternal.bam ) || ( ! -s ${inpref}_paternal.bam ) ]]; then
-    echo "Maternal and/or paternal bam file missin. Aborting..." 1>&2; exit 1;
+    echo "Maternal and/or paternal bam file missing. Aborting..." 1>&2; exit 1;
 fi
 
 if [[ $CLEAN -eq 1 || ! -f ${outpref}.bam ]]; then
     ${MAYAROOT}/src/ase_cpp/bin/Ase reconcile rg1=paternal rg2=maternal ${inpref}_paternal.bam ${inpref}_maternal.bam ${tmppref}.bam
    samtools sort -m 2000000000 ${tmppref}.bam ${outpref}
    samtools index ${outpref}.bam
-   java -jar ${PICARD}/MarkDuplicates.jar I=${outpref}.bam O=${outpref}.dedup.bam M=${outpref}.dedup.stats AS=true TMP_DIR=${tmpdir} VALIDATION_STRINGENCY=LENIENT MAX_RECORDS_IN_RAM=1000000 
-   #REMOVE_DUPLICATES=true
+   java -jar ${PICARD}/MarkDuplicates.jar I=${outpref}.bam O=${outpref}.dedup.bam M=${outpref}.dedup.stats AS=true TMP_DIR=${tmpdir} VALIDATION_STRINGENCY=LENIENT MAX_RECORDS_IN_RAM=1000000 REMOVE_DUPLICATES=true
    samtools index ${outpref}.dedup.bam
 fi
 

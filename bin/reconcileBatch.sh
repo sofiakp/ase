@@ -48,17 +48,16 @@ if [ ! -d $INDIR ]; then
 fi
 
 while read -r sample ; do
-    sample=${sample^^} # This will convert to uppercase
-    if [[ "$sample" =~ ^[0-9]+$ ]]; then # Correct HapMap names
-	indiv="GM"$indiv
-	sample="GM"$sample
-    fi
     if [[ "$sample" =~ ^SNYDER_HG19_ ]]; then
 	sample=$sample
     else
+	sample=${sample^^} # This will convert to uppercase
+	if [[ "$sample" =~ ^[0-9]+ ]]; then # Correct HapMap names
+	    sample="GM"$sample
+	fi
 	sample="SNYDER_HG19_${sample}"
     fi
 
-    bsub -J ${sample}_reconcile -eo ${OUTDIR}/${sample}_reconcile.err -oo ${OUTDIR}/${sample}_reconcile.out -n 1 -q research-rh6 -W 24:00 -M 8192 -R "rusage[mem=8192]" ${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN
+    bsub -J ${sample}_reconcile -e /dev/null -oo ${OUTDIR}/${sample}_reconcile.out -n 1 -q research-rh6 -W 24:00 -M 8192 -R "rusage[mem=8192]" "${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN"
 
 done < "${LIST:-/proc/${$}/fd/0}"
