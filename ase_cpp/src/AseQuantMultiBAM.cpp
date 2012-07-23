@@ -60,7 +60,6 @@ namespace AseQuantMultiBAM
     
     // Program vars
     map<string, vector<Snp> > snps_by_chrom;
-    ofstream outputfile;
     
     void ReadVcf()
     {
@@ -99,8 +98,8 @@ namespace AseQuantMultiBAM
     {
         VecS args;
         
-        string prog_desc = "Counts alleles at SNPs. Inputs should be mulitiple bam files. Outputs VCF-like file with counts of SNPs for each bam file in one column. The counts are seperated by ',' and the order for each column is REF_FORWART_STRAND_COUNTS, ALT_FORWART_STRAND_COUNTS, OTHER_FORWART_STRAND_COUNTS,REF_REVERSE_STRAND_COUNTS, ALT_REVERSE_STRAND_COUNTS, OTHER_REVERSE_STRAND_COUNTS";
-        Swak::OptionParser op("<bam> ... <bam> <known_snps.vcf> <output_file_name>", prog_desc);
+        string prog_desc = "Counts alleles at SNPs. Inputs should be mulitiple bam files. Outputs VCF-like file with counts of SNPs for each bam file in one column. The counts are seperated by ',' and the order for each column is REF_FORWART_STRAND_COUNTS, ALT_FORWART_STRAND_COUNTS, OTHER_FORWART_STRAND_COUNTS,REF_REVERSE_STRAND_COUNTS, ALT_REVERSE_STRAND_COUNTS, OTHER_REVERSE_STRAND_COUNTS.\nOutput is stdout.";
+        Swak::OptionParser op("<bam> ... <bam> <known_snps.vcf>", prog_desc);
         
         op.AddOpt(min_map_qual, 'm', "min-map-qual", "INT", "Min mapping qual to use [" + ToStr(min_map_qual) + "]");
         op.AddOpt(min_base_qual, 'b', "min-base-qual", "INT", "Min base qual to vote or be counted [" + ToStr(min_base_qual) + "]");
@@ -109,17 +108,17 @@ namespace AseQuantMultiBAM
         op.AddOpt(ascii_offset, 'a', "ascii-offset", "INT", "Ascii offset of the BAM's read qualities (note: bam transforms qualities to ascii33) [" + ToStr(ascii_offset) + "]");
         //op.AddOpt(min_cover, 'c', "min-cover", "INT", "Minimum number of reads overlapping a SNP to print the entry [" + ToStr(min_cover) + "]");
         
-        if (!op.Parse(all_args, args, 2) || args.size() < 3)
+        if (!op.Parse(all_args, args, 2) || args.size() < 2)
         {
             op.PrintUsage();
             exit(1);
         }
         
-        for (int i = 0; i < args.size() - 2; i++)
+        for (int i = 0; i < args.size() - 1; i++)
         {
             bam_files.push_back(args[i]);
         }
-        snp_file = args[args.size() - 2];
+        snp_file = args[args.size() - 1];
         
         ReadVcf();
         
@@ -134,7 +133,6 @@ namespace AseQuantMultiBAM
                 subIt -> rev.resize(bam_files.size());
             }
         }
-        outputfile.open(args[args.size() - 1].c_str());
     }
 };
 
@@ -227,23 +225,23 @@ int main_asequantmultibam(const vector<string> &all_args)
     }
     
     // Output counts 
-    outputfile << "#CHROM" << "\t" << "POS" << "\t" << "REF" << "\t" << "ALT";
+    cout << "#CHROM" << "\t" << "POS" << "\t" << "REF" << "\t" << "ALT";
     for (vector<string>::iterator it = bam_files.begin(); it != bam_files.end(); it ++)
     {
-        outputfile << "\t" << *it;
+        cout << "\t" << *it;
     }
-    outputfile << endl;
+    cout << endl;
     for (map<string, vector<Snp> >::iterator it = snps_by_chrom.begin(); it != snps_by_chrom.end(); it ++)
     {
         for (vector<Snp>::iterator subIt = it -> second.begin(); subIt != it -> second.end(); subIt ++)
         {
-            outputfile << it -> first << "\t" << subIt -> pos + 1 << "\t" << subIt -> ref << "\t" << subIt -> alt;
+            cout << it -> first << "\t" << subIt -> pos + 1 << "\t" << subIt -> ref << "\t" << subIt -> alt;
             for (int bam_output_index = 0; bam_output_index < bam_files.size(); ++bam_output_index)
             {
-                outputfile << "\t" << subIt -> fwd[bam_output_index].num_ref << "," << subIt -> fwd[bam_output_index].num_alt << "," << subIt -> fwd[bam_output_index].num_other << ",";
-                outputfile << subIt -> rev[bam_output_index].num_ref << "," << subIt -> rev[bam_output_index].num_alt << "," << subIt -> rev[bam_output_index].num_other;
+                cout << "\t" << subIt -> fwd[bam_output_index].num_ref << "," << subIt -> fwd[bam_output_index].num_alt << "," << subIt -> fwd[bam_output_index].num_other << ",";
+                cout << subIt -> rev[bam_output_index].num_ref << "," << subIt -> rev[bam_output_index].num_alt << "," << subIt -> rev[bam_output_index].num_other;
             }
-            outputfile << endl;
+            cout << endl;
         }
     }
     
@@ -251,3 +249,4 @@ int main_asequantmultibam(const vector<string> &all_args)
     
     return 0;
 }
+

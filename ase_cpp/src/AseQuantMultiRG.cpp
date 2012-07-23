@@ -60,7 +60,6 @@ namespace AseQuantMultiRG
     // Program vars
     BamReader bam_reader;
     map<string, vector<Snp> > snps_by_chrom;
-    ofstream outfile;
     
     void ReadVcf()
     {
@@ -99,8 +98,8 @@ namespace AseQuantMultiRG
     {
         VecS args;
         
-        string prog_desc = "Counts alleles at SNPs for each Readgroup. Outputs VCF-like file with counts of SNPs. The counts are seperated by ',' and the order for each column is REF_FORWART_STRAND_COUNTS, ALT_FORWART_STRAND_COUNTS, OTHER_FORWART_STRAND_COUNTS, REF_REVERSE_STRAND_COUNTS, ALT_REVERSE_STRAND_COUNTS,OTHER_REVERSE_STRAND_COUNTS.";
-        Swak::OptionParser op("<bam> <known_snps.vcf> <outfile_name>", prog_desc);
+        string prog_desc = "Counts alleles at SNPs for each Readgroup. Outputs VCF-like file with counts of SNPs. The counts are seperated by ',' and the order for each column is REF_FORWART_STRAND_COUNTS, ALT_FORWART_STRAND_COUNTS, OTHER_FORWART_STRAND_COUNTS, REF_REVERSE_STRAND_COUNTS, ALT_REVERSE_STRAND_COUNTS,OTHER_REVERSE_STRAND_COUNTS.\nOutput is directed to stdout.";
+        Swak::OptionParser op("<bam> <known_snps.vcf>", prog_desc);
         
         op.AddOpt(min_map_qual, 'm', "min-map-qual", "INT", "Min mapping qual to use [" + ToStr(min_map_qual) + "]");
         op.AddOpt(min_base_qual, 'b', "min-base-qual", "INT", "Min base qual to vote or be counted [" + ToStr(min_base_qual) + "]");
@@ -109,7 +108,7 @@ namespace AseQuantMultiRG
         op.AddOpt(ascii_offset, 'a', "ascii-offset", "INT", "Ascii offset of the BAM's read qualities (note: bam transforms qualities to ascii33) [" + ToStr(ascii_offset) + "]");
         //op.AddOpt(min_cover, 'c', "min-cover", "INT", "Minimum number of reads overlapping a SNP to print the entry [" + ToStr(min_cover) + "]");
         
-        if (!op.Parse(all_args, args, 2) || args.size() < 3)
+        if (!op.Parse(all_args, args, 2) || args.size() < 2)
         {
             op.PrintUsage();
             exit(1);
@@ -122,7 +121,6 @@ namespace AseQuantMultiRG
         
         StlForMap(string, vector<Snp>, iter, snps_by_chrom)
         cerr << "* Found " << iter->second.size() << " snps on " << iter->first << endl;
-        outfile.open(args[2].c_str());
     }
 };
 
@@ -147,12 +145,12 @@ int main_asequantmultirg(const vector<string> &all_args)
     
     vector<RefData> chroms = bam_reader.GetReferenceData();
     
-    outfile << "#CHROM" << "\t" << "POS" << "\t" << "REF" << "\t" << "ALT";
+    cout << "#CHROM" << "\t" << "POS" << "\t" << "REF" << "\t" << "ALT";
     for (vector<string>::iterator it = readGroupVector.begin(); it != readGroupVector.end(); it ++)
     {
-        outfile << "\t" << *it;
+        cout << "\t" << *it;
     }
-    outfile << endl;
+    cout << endl;
     
     StlFor(chrom_idx, chroms)
     {
@@ -256,29 +254,29 @@ int main_asequantmultirg(const vector<string> &all_args)
         // Output counts
         for (int s = 0; s < snps.size(); ++s)
         {
-            outfile << chrom << "\t" << snps[s].pos + 1 << "\t" << snps[s].ref << "\t" << snps[s].alt;
+            cout << chrom << "\t" << snps[s].pos + 1 << "\t" << snps[s].ref << "\t" << snps[s].alt;
             for (vector<string>::iterator it = readGroupVector.begin(); it != readGroupVector.end(); it ++)
             {
                 map<string, Counts>::iterator searchIt = snps[s].fwd.find(*it);
                 if (searchIt != snps[s].fwd.end())
                 {
-                    outfile << "\t" << searchIt -> second.num_ref << "," << searchIt -> second.num_alt << "," << searchIt -> second.num_other << ",";
+                    cout << "\t" << searchIt -> second.num_ref << "," << searchIt -> second.num_alt << "," << searchIt -> second.num_other << ",";
                 }
                 else
                 {
-                    outfile << "\t" << "0,0,0,";
+                    cout << "\t" << "0,0,0,";
                 }
                 searchIt = snps[s].rev.find(*it);
                 if (searchIt != snps[s].rev.end())
                 {
-                    outfile << searchIt -> second.num_ref << "," << searchIt -> second.num_alt << "," << searchIt -> second.num_other;
+                    cout << searchIt -> second.num_ref << "," << searchIt -> second.num_alt << "," << searchIt -> second.num_other;
                 }
                 else
                 {
-                    outfile << "0,0,0";
+                    cout << "0,0,0";
                 }
             }
-            outfile << endl;
+            cout << endl;
         }
     }
     
@@ -286,3 +284,4 @@ int main_asequantmultirg(const vector<string> &all_args)
     
     return 0;
 }
+
