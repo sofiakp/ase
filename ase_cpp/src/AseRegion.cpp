@@ -74,7 +74,7 @@ namespace AseRegion
     {
         VecS args;
         
-        string prog_desc = "Count reads that overlapping each regions from a BED file for each Readgroup in a BAM file. Output into stdout BED-like file with extra columns indicating counts for positive strand and negative strand for each readgroup respectively. Both BED file and bam file should be sorted by position.";
+        string prog_desc = "Count reads that overlapping each regions from a BED file for each Readgroup in a BAM file. Output into stdout BED-like file with extra columns indicating counts for forward strand and reverse strand in order grouped by different readgroups. Both BED file and bam file should be sorted by position.";
         Swak::OptionParser op("<bam> <bed>", prog_desc);
         
         op.AddOpt(min_map_qual, 'm', "min-map-qual", "INT", "Min mapping qual to use [" + ToStr(min_map_qual) + "]");
@@ -204,7 +204,7 @@ int main_aseregion(const vector<string> &all_args)
                 }
             }
             count ++;
-            if (count % 5000 == 0)
+            if (count % 1000 == 0)
                 cerr << "Processed" << "\t" << count << endl;
         }
         
