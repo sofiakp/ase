@@ -9,6 +9,7 @@ int main(int argc, char ** argv)
   DeclarePolyExe(main, reconcile, "Chooses the best alignment between mappings to parallel genomes (eg. b6 and cast)");
   DeclarePolyExe(main, asequantmultirg, "Counts alleles for one BAM file with multiple RGs");
   DeclarePolyExe(main, asequantmultibam, "Counts alleles for multiple BAM files");
+  DeclarePolyExe(main, aseregion, "Counts reads for each region in a BED file");
 
   if (argc <= 1 || string(argv[1]) == string("-h") || !PolyExe::HaveMain(argv[1]))
   {
