@@ -57,7 +57,13 @@ while read -r sample ; do
 	fi
 	sample="SNYDER_HG19_${sample}"
     fi
-
-    bsub -J ${sample}_reconcile -e /dev/null -oo ${OUTDIR}/${sample}_reconcile.out -n 1 -q research-rh6 -W 24:00 -M 8192 -R "rusage[mem=8192]" "${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN"
-
+    inpref=${INDIR}/${sample}
+    if [[ ( ! -s ${inpref}_maternal.bam ) || ( ! -s ${inpref}_paternal.bam ) ]]; then
+	echo "Skipping $sample. Maternal and/or paternal bam file missing." 1>&2; continue;
+    fi
+    if [[ $CLEAN == "-c" || ! -f ${OUTDIR}/dedup/${sample}_reconcile.dedup.bam ]]; then
+	bsub -J ${sample}_reconcile -e /dev/null -oo ${OUTDIR}/${sample}_reconcile.out -n 1 -q research-rh6 -W 24:00 -M 16384 -R "rusage[mem=16384]" "${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN"
+    else
+	echo "Skipping $sample. Output file exists." 1>&2; continue;
+    fi
 done < "${LIST:-/proc/${$}/fd/0}"
