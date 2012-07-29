@@ -8,6 +8,13 @@ binom.val <- function(x, y, p = 0.5){
   return(1.0)
 }
 
+usage <- function(){
+  cat('Rscript simpleAse.r [options] [infile]\n', file = stderr())
+  cat('Computes some basic statistics on allele counts.\nIf input file is missing it will read from stdin.\n', file = stderr())
+  cat('Options:\n', file =stderr())
+  cat('-h\tPrint this message and exit\n', file = stderr())
+  cat('-n INT\tNumber of lines to process\n', file = stderr())
+}
 args <- commandArgs(trailingOnly = T)
 max.nlines <- Inf
 infile <- ''
@@ -16,6 +23,9 @@ for(arg in args){
     arg.split <- unlist(strsplit(arg, '='))
     if(length(arg.split) != 2) stop(paste('Invalid option', arg))
     max.nlines <- int(arg.split[2])
+  }else if(grepl('^-h', arg)){
+    usage()
+    stop('', call = F)
   }else if(grepl('^-', arg)){
     stop(paste('Invalid option', arg))
   }else{
@@ -51,13 +61,14 @@ while(length(line <- readLines(infile, n = 1, warn = F)) > 0){
     counts[i, ] = as.numeric(unlist(strsplit(fields[4 + i], ',')))
   }
   flags <- ''
-  # Overall, what fraction of reads comes from the fwd strand?
-  sb <- binom.val(sum(counts[, fwd.idx]), sum(counts))
   tot = sum(counts[c(1,2), ])
   pval = binom.val(sum(counts[1, ]), tot) # How many come from one parent vs total?
-  oth <- ifelse(tot > 0, sum(counts[, oth.idx]) / tot, 0) # Fraction in other
+  tot = sum(counts)
+  # Overall, what fraction of reads comes from the fwd strand?
+  sb <- binom.val(sum(counts[, fwd.idx]), tot)
+  oth <- sum(counts[, oth.idx]) # Reads in other allele
   # Maximum overlap of alleles between maternal and paternal
-  diff = sum(apply(counts[c(1,2), ], 2, function(x) min(x)))
+  diff = sum(apply(counts[c(1,2), cbind(t(ref.idx), t(alt.idx))], 2, function(x) min(x)))
   #flags <- ifelse(sum(diff), '', 'ALLELES_OV')
   #if(flags == '') flags <- 'PASS'
   
