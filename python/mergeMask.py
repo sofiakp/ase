@@ -7,7 +7,7 @@ def outputBEDline(chrom, startCord, endCord):
 outfile = open('mergedMask.bed','w')
 chromNum = range(1, 23)
 chromNum.append('X')
-effMask = ['L', 'H', 'Z', 'Q']
+effMask = {'L', 'H', 'Z', 'Q'}
 for chrom in chromNum:
     print '* On chromesome {}.'.format(chrom)
     fileName = 'chr' + str(chrom) + '.pilot_style_mask.fasta'
@@ -30,12 +30,11 @@ for chrom in chromNum:
                 if line[j] == formerChar:
                     continue
                 else:
-                    endCord = cord - 1
-                    outputBEDline(chrom, startCord, endCord)
                     if line[j] in effMask:
-                        formerChar = line[j]
-                        startCord = cord
+                        continue
                     else:
                         formerChar = '#'
+                        endCord = cord
+                        outputBEDline(chrom, startCord, endCord)
     if formerChar != '#':
-        outputBEDline(chrom, startCord, cord)
+        outputBEDline(chrom, startCord, cord + 1)
