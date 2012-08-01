@@ -1,5 +1,5 @@
 rm(list=ls())
-datafiles <- list.files('/media/fusion10/work/chromatinVariation/src/rscripts/utils/', pattern = '\\.[rR]', full.name = T)
+datafiles <- list.files(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/'), pattern = '\\.[rR]', full.name = T)
 for(f in seq(length(datafiles))) source(datafiles[f])
 
 usage <- function(){

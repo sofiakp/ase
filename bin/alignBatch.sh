@@ -72,7 +72,11 @@ while read -r sample indiv fq1 fq2; do
     fqfile2=${FQDIR}/$(basename $fq2)
     if [[ -s $fqfile1 && -s $fqfile2 ]]; then
 	for par in 'maternal' 'paternal'; do
-	    bsub -J ${sample}_${par} -o /dev/null -eo ${BAMDIR}/${sample}_${par}_align.err -n 4 -q research-rh6 -W 96:00 -M 12288 -R "rusage[mem=12288]" "${MAYAROOT}/src/bin/alignSample.sh --fq1 $fqfile1 --fq2 $fqfile2 --bamdir $BAMDIR --seqpref ${seqpref}.${par} --sample ${sample}_${par} $CLEAN"
+	    if [[ $CLEAN == '-c' || ! -f ${BAMDIR}/${sample}_${par}.bam ]]; then
+		bsub -J ${sample}_${par} -o /dev/null -eo ${BAMDIR}/${sample}_${par}_align.err -n 4 -q research-rh6 -W 96:00 -M 12288 -R "rusage[mem=12288]" "${MAYAROOT}/src/bin/alignSample.sh --fq1 $fqfile1 --fq2 $fqfile2 --bamdir $BAMDIR --seqpref ${seqpref}.${par} --sample ${sample}_${par} $CLEAN"
+	    else
+		echo "Skipping ${sample}_${par}. Output file exists" 1>&2
+	    fi
 	done
     else
 	echo "Could not find fastq files for $sample. Skipping..." 1>&2; continue;
