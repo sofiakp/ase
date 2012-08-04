@@ -1,6 +1,6 @@
 rm(list=ls())
-datafiles <- list.files(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/'), pattern = '\\.[rR]', full.name = T)
-for(f in seq(length(datafiles))) source(datafiles[f])
+source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
+source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
 
 usage <- function(){
   cat('Rscript createAseData.r [options]\n', file = stderr())
@@ -63,7 +63,7 @@ if(maskfile != '' && sample == '') stop('Missing sample name')
 #}
 
 # Get sample info
-sample <- sample.info(infile)
+sample <- sample.info(infile, '.counts')
 
 cat('Reading allele counts\n', file = stderr())
 tab <- read.table(infile, header = T, sep = '\t', comment.char = '')
