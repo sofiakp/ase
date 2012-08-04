@@ -8,7 +8,8 @@ usage <- function(){
   cat('Options:\n', file =stderr())
   cat('-h\tPrint this message and exit\n', file = stderr())
   cat('-i=FILE\tInput file.\n', file = stderr())
-  cat('-m=FILE\tMask file. SNPs in this file will not be included in q-value computation.\n', file = stderr())
+  cat('-m=FILE\tSNP info file (an R data file). Has information about phased and masked SNPs\n', file = stderr())
+  cat('-s=STR\tSample name (to select the right columns from the SNP info file).\n', file = stderr())
   cat('-o=FILE\tOutput file.\n', file = stderr())
   cat('-q\tCompute q-values\n', file  = stderr())
 }
@@ -16,6 +17,7 @@ usage <- function(){
 args <- commandArgs(trailingOnly = T)
 infile <- ''
 maskfile <- ''
+sample = ''
 outfile <- ''
 get.q <- F
 for(arg in args){
@@ -23,6 +25,10 @@ for(arg in args){
     arg.split <- unlist(strsplit(arg, '='))
     if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
     maskfile <- arg.split[2]
+  }else if(grepl('^-s=', arg)){
+    arg.split <- unlist(strsplit(arg, '='))
+    if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
+    sample <- arg.split[2]
   }else if(grepl('^-i=', arg)){
     arg.split <- unlist(strsplit(arg, '='))
     if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
@@ -42,17 +48,19 @@ for(arg in args){
 }
 
 if(infile == '') stop('Missing input file')
-if(maskfile == '') stop('Missing mask file')
 if(outfile == '') stop('Missing output file')
+if(maskfile != '' && sample == '') stop('Missing sample name')
 
 # Read filtered regions
-cat('Reading mask file\n', file = stderr())
-pass.tab <- read.table(maskfile, header = F, sep = '\t', comment.char = '#')
-name.map <- new.env(hash = T)
-names <- paste(pass.tab[,1], pass.tab[,2], sep = ':')
-for(i in seq(length(names))){
-  name.map[[names[i]]] <- T
-}
+#if(maskfile != ''){
+#  cat('Reading mask file\n', file = stderr())
+#  pass.tab <- read.table(maskfile, header = F, sep = '\t', comment.char = '#')
+#  name.map <- new.env(hash = T)
+#  names <- paste(pass.tab[,1], pass.tab[,2], sep = ':')
+#  for(i in seq(length(names))){
+#    name.map[[names[i]]] <- T
+#  }
+#}
 
 # Get sample info
 sample <- sample.info(infile)
@@ -87,9 +95,13 @@ sb <- binom.val(fwd.tot, tot)
 tot.unamb <- rowSums(ref[,c(mat.idx, pat.idx),] + alt[,c(mat.idx, pat.idx),] + oth[,c(mat.idx, pat.idx),]) # Total reads in mat or pat
 pval <- binom.val(rowSums(ref[,mat.idx,] + alt[,mat.idx,] + oth[,mat.idx,]), tot.unamb)
 
-# Indicators of which SNPs are in the filter file
-pass <- array(F, dim = c(nrows, 1))
-for(i in 1:nrows) pass[i] <- !is.null(name.map[[paste(tab$X.CHROM[i], tab$POS[i], sep = ':')]])
+# Indicators of which SNPs should be filtered out
+pass <- array(T, dim = c(nrows, 1))
+if(maskfile != ''){
+  load(maskfile)
+  # Keep only heterozygous not masked SNPs
+  pass = !geno.info[[paste(sample, 'mask', sep = '.')]] & geno.info[[paste(sample, 'pat', sep = '.')]] != geno.info[[paste(sample, 'mat', sep = '.')]]
+}
 
 qval <- array(1, dim = dim(pass))
 if(get.q){
