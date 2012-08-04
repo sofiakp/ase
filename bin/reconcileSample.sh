@@ -57,15 +57,21 @@ outpref=${OUTDIR}/${SAMPLE}_reconcile
 dedpref=${OUTDIR}/dedup/${SAMPLE}_reconcile.dedup
 
 if [[ ( ! -s ${inpref}_maternal.bam ) || ( ! -s ${inpref}_paternal.bam ) ]]; then
-	echo "Skipping $SAMPLE. Maternal and/or paternal bam file missing." 1>&2; exit 1;
+    echo "Skipping $SAMPLE. Maternal and/or paternal bam file missing." 1>&2; exit 1;
+fi
+
+if [[ $CLEAN -eq 1 || ! -f ${outpref}.bam ]]; then
+    ${MAYAROOT}/src/ase_cpp/bin/Ase reconcile rg1=paternal rg2=maternal ${inpref}_paternal.bam ${inpref}_maternal.bam ${tmppref}.bam > ${outpref}.out
+    echo "Sorting reconciled file..." 1>&2;
+    samtools sort -m 2000000000 ${tmppref}.bam ${outpref}
+    echo "Indexing reconciled file..." 1>&2;
+    samtools index ${outpref}.bam
 fi
 
 if [[ $CLEAN -eq 1 || ! -f ${dedpref}.bam ]]; then
-    ${MAYAROOT}/src/ase_cpp/bin/Ase reconcile rg1=paternal rg2=maternal ${inpref}_paternal.bam ${inpref}_maternal.bam ${tmppref}.bam
-   samtools sort -m 2000000000 ${tmppref}.bam ${outpref}
-   samtools index ${outpref}.bam
-   java -jar ${PICARD}/MarkDuplicates.jar I=${outpref}.bam O=${dedpref}.bam M=${dedpref}.stats AS=true TMP_DIR=${tmpdir} VALIDATION_STRINGENCY=LENIENT MAX_RECORDS_IN_RAM=1000000 REMOVE_DUPLICATES=true
-   samtools index ${dedpref}.bam
+    echo "Removing duplicates..." 1>&2;
+    java -Xmx8g -jar ${PICARD}/MarkDuplicates.jar I=${outpref}.bam O=${dedpref}.bam M=${dedpref}.stats AS=true TMP_DIR=${tmpdir} VALIDATION_STRINGENCY=LENIENT MAX_RECORDS_IN_RAM=1000000 REMOVE_DUPLICATES=true
+    samtools index ${dedpref}.bam
 fi
 
 if [ -d $tmpdir ]; then
