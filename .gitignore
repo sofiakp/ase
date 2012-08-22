@@ -1,10 +1,14 @@
 # Temporary files
 *~
 \#*\#
+._*
+
+# Mac files 
+*.DS_Store
 
 # Object files
-.o
-.a
+*.o
+*.a
 
 # Makefiles
 Makefile
