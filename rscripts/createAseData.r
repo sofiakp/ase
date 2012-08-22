@@ -9,7 +9,6 @@ usage <- function(){
   cat('-h\tPrint this message and exit\n', file = stderr())
   cat('-i=FILE\tInput file.\n', file = stderr())
   cat('-m=FILE\tSNP info file (an R data file). Has information about phased and masked SNPs\n', file = stderr())
-  cat('-s=STR\tSample name (to select the right columns from the SNP info file).\n', file = stderr())
   cat('-o=FILE\tOutput file.\n', file = stderr())
   cat('-q\tCompute q-values\n', file  = stderr())
 }
@@ -17,7 +16,6 @@ usage <- function(){
 args <- commandArgs(trailingOnly = T)
 infile <- ''
 maskfile <- ''
-sample = ''
 outfile <- ''
 get.q <- F
 for(arg in args){
@@ -25,10 +23,6 @@ for(arg in args){
     arg.split <- unlist(strsplit(arg, '='))
     if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
     maskfile <- arg.split[2]
-  }else if(grepl('^-s=', arg)){
-    arg.split <- unlist(strsplit(arg, '='))
-    if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
-    sample <- arg.split[2]
   }else if(grepl('^-i=', arg)){
     arg.split <- unlist(strsplit(arg, '='))
     if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
@@ -49,7 +43,6 @@ for(arg in args){
 
 if(infile == '') stop('Missing input file')
 if(outfile == '') stop('Missing output file')
-if(maskfile != '' && sample == '') stop('Missing sample name')
 
 # Read filtered regions
 #if(maskfile != ''){
@@ -98,17 +91,18 @@ pval <- binom.val(rowSums(ref[,mat.idx,] + alt[,mat.idx,] + oth[,mat.idx,]), tot
 # Indicators of which SNPs should be filtered out
 pass <- array(T, dim = c(nrows, 1))
 if(maskfile != ''){
+  cat('Reading mask\n', file = stderr())
   load(maskfile)
-  # Keep only heterozygous not masked SNPs
-  pass = !geno.info[[paste(sample, 'mask', sep = '.')]] & geno.info[[paste(sample, 'pat', sep = '.')]] != geno.info[[paste(sample, 'mat', sep = '.')]]
+  print(geno.info[1:10,])
+  # Keep only heterozygous not masked SNPs (notice that these might still be unphased)
+  pass = !geno.info[[paste(sample$indiv, 'mask', sep = '.')]] & geno.info[[paste(sample$indiv, 'pat', sep = '.')]] != geno.info[[paste(sample$indiv, 'mat', sep = '.')]]
 }
 
-qval <- array(1, dim = dim(pass))
+qval <- array(1, dim = c(nrows, 1))
 if(get.q){
   cat('Computing q-values\n', file = stderr())
   qval[pass] <- p.adjust(pval[pass], method = 'BH')
 }
-
 headers <- array('', dim = c(1, 6))
 headers[mat.idx + c(0, 3)] <- 'mat'  
 headers[pat.idx + c(0, 3)] <- 'pat'  

@@ -13,6 +13,7 @@ OPTIONS:
    -d STR Genome dictionary. Default is \$MAYAROOT/rawdata/genomes/hg19/hg19noM.fa.fai.
    -s DIR Dir with fa files, one per chromosome. Default is \$SEQDIR/encodeHg19Male
    -f     Set this option if the individual is a female.
+   -r     Set this option if the VCF does NOT have chr in the chromosome names.
 EOF
 }
 
@@ -22,7 +23,8 @@ OUTDIR=${MAYAROOT}/rawdata/genomes
 DICT=${MAYAROOT}/rawdata/genomes/hg19/hg19noM.fa.fai
 SDIR=${SEQDIR}/encodeHg19Male
 FEMALE=''
-while getopts "hi:o:d:v:f" opt
+CHROM=''
+while getopts "hi:o:d:v:fr" opt
 do
     case $opt in
 	h)
@@ -37,6 +39,8 @@ do
 	    VCF=$OPTARG;;
 	f) 
 	    FEMALE='-f';;
+	r)
+	    CHROM='-c';;
 	s) 
 	    SDIR=$OPTARG;;
 	?)
@@ -64,4 +68,5 @@ else
     outindiv=$INDIV
 fi
 
-bsub -J $outindiv -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 2:00 -M 8192 -R "rusage[mem=8192]" "cat $VCF | python ${MAYAROOT}/src/python/addSnpsToFa.py $SDIR $DICT ${OUTDIR}/${outindiv} $INDIV --unphased ${OUTDIR}/${outindiv}.unphased.txt $FEMALE"
+#bsub -J $outindiv -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 2:00 -M 8192 -R "rusage[mem=8192]" "
+cat $VCF | python ${MAYAROOT}/src/python/addSnpsToFa.py $SDIR $DICT ${OUTDIR}/${outindiv} $INDIV --unphased ${OUTDIR}/${outindiv}.unphased.txt $FEMALE $CHROM
