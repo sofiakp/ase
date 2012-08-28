@@ -1,16 +1,17 @@
 import sys
+import os.path
 
 def outputBEDline(chrom, startCord, endCord):
     outs = 'chr' + str(chrom) + '\t' + str(startCord) + '\t' + str(endCord) + '\n'
-    outfile.write(outs)
+    print outs
 
-outfile = open('mergedMask.bed','w')
+indir = sys.argv[1]
 chromNum = range(1, 23)
 chromNum.append('X')
-effMask = {'L', 'H', 'Z', 'Q'}
+effMask = ['N'] #{'L', 'H', 'Z', 'Q'}
 for chrom in chromNum:
-    print '* On chromesome {}.'.format(chrom)
-    fileName = 'chr' + str(chrom) + '.pilot_style_mask.fasta'
+    print >> sys.stderr, '* On chromosome', chrom
+    fileName = os.path.join(indir, 'chr' + str(chrom) + '.fa')
     infile = open(fileName)
     infile.readline()
     startCord = -1
@@ -20,21 +21,22 @@ for chrom in chromNum:
     for line in infile:
         for j in range(len(line) - 1):
             cord += 1
-            if formerChar == '#':
-                if line[j] in effMask:
+            if line[j] in effMask:
+                #print 'chr' + str(chrom) + '\t' + str(cord)
+                if formerChar == '#':
+                    #if line[j] in effMask:
                     formerChar = line[j]
                     startCord = cord
-                else:
-                    continue
             else:
-                if line[j] == formerChar:
-                    continue
-                else:
-                    if line[j] in effMask:
-                        continue
-                    else:
-                        formerChar = '#'
-                        endCord = cord
-                        outputBEDline(chrom, startCord, endCord)
+                #if line[j] == formerChar:
+                #    continue
+                #else:
+                #    if line[j] in effMask:
+                #        continue
+                #    else:
+                formerChar = '#'
+                endCord = cord
+                if startCord > -1:
+                    outputBEDline(chrom, startCord, endCord)
     if formerChar != '#':
         outputBEDline(chrom, startCord, cord + 1)

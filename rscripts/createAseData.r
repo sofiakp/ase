@@ -86,7 +86,6 @@ fwd.tot <- rowSums(ref[,,1] + alt[,,1] + oth[,,1])
 cat('Computing p-values\n', file = stderr())
 sb <- binom.val(fwd.tot, tot)
 tot.unamb <- rowSums(ref[,c(mat.idx, pat.idx),] + alt[,c(mat.idx, pat.idx),] + oth[,c(mat.idx, pat.idx),]) # Total reads in mat or pat
-pval <- binom.val(rowSums(ref[,mat.idx,] + alt[,mat.idx,] + oth[,mat.idx,]), tot.unamb)
 
 # Indicators of which SNPs should be filtered out
 pass <- array(T, dim = c(nrows, 1))
@@ -94,11 +93,13 @@ if(maskfile != ''){
   cat('Reading mask\n', file = stderr())
   load(maskfile)
   print(geno.info[1:10,])
-  # Keep only heterozygous not masked SNPs (notice that these might still be unphased)
-  pass = !geno.info[[paste(sample$indiv, 'mask', sep = '.')]] & geno.info[[paste(sample$indiv, 'pat', sep = '.')]] != geno.info[[paste(sample$indiv, 'mat', sep = '.')]]
+  # Keep only heterozygous SNPs
+  pass = geno.info[[paste(sample$indiv, 'pat', sep = '.')]] != geno.info[[paste(sample$indiv, 'mat', sep = '.')]]
 }
+pval <- array(NaN, dim = c(nrows, 1))
+pval[pass] <- binom.val(rowSums(ref[pass, mat.idx,] + alt[pass, mat.idx,] + oth[pass, mat.idx,]), tot.unamb[pass])
 
-qval <- array(1, dim = c(nrows, 1))
+qval <- array(NaN, dim = c(nrows, 1))
 if(get.q){
   cat('Computing q-values\n', file = stderr())
   qval[pass] <- p.adjust(pval[pass], method = 'BH')
@@ -111,7 +112,8 @@ headers <- paste(headers, cbind(rep('fwd',3), rep('rev',3)), sep = '.')
 counts <- data.frame(cbind(ref[,,1], ref[,,2], alt[,,1], alt[,,2], oth[,,1], oth[,,2]))
 colnames(counts) <- append(append(paste(headers, 'ref', sep = '.'), paste(headers, 'alt', sep = '.')), paste(headers, 'oth', sep = '.'))
 
-snp.info <- data.frame(chr = tab$X.CHROM, pos = tab$POS, ref = tab$REF, alt = tab$ALT, pass = pass, sb = sb, pval = pval, qval = qval)
+snp.info <- data.frame(chr = tab$X.CHROM, pos = tab$POS, sb = sb, pval = pval)
+if(get.q) snp.info$qval = qval
 
 # Save counts, snp.info, sample
 save(counts, snp.info, sample, file = outfile)
