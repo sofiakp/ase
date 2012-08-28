@@ -68,5 +68,4 @@ else
     outindiv=$INDIV
 fi
 
-#bsub -J $outindiv -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 2:00 -M 8192 -R "rusage[mem=8192]" "
-cat $VCF | python ${MAYAROOT}/src/python/addSnpsToFa.py $SDIR $DICT ${OUTDIR}/${outindiv} $INDIV --unphased ${OUTDIR}/${outindiv}.unphased.txt $FEMALE $CHROM
+bsub -J $outindiv -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 2:00 -M 8192 -R "rusage[mem=8192]" "cat $VCF | python ${MAYAROOT}/src/python/addSnpsToFa.py $SDIR $DICT ${OUTDIR}/${outindiv} $INDIV --unphased ${OUTDIR}/${outindiv}.unphased.txt $FEMALE $CHROM"
