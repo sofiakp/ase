@@ -152,12 +152,13 @@ namespace generateBinNullSet
         while (!getline(infile, currentLine).eof())
         {
             split(info, currentLine, is_any_of("\t"));
-            ucsc.insert(info[1]);
+            string key = chrNum + "_" + info[1];
+            ucsc.insert(key);
             castSNPInfo tmpSNPInfo;
             tmpSNPInfo.allelFreq = info[3];
             tmpSNPInfo.func = info[4];
             tmpSNPInfo.pos = info[2];
-            ucscToInfo[info[1]] = tmpSNPInfo;
+            ucscToInfo[key] = tmpSNPInfo;
         }
         infile.close();
         
@@ -222,6 +223,12 @@ namespace generateBinNullSet
         }
         po::store(po::parse_command_line(all_args.size(), av, desc), vm);
         po::notify(vm);
+        
+        if (all_args.size() <= 2)
+        {
+            cout << desc << "\n";
+            exit(0);
+        }
         if (vm.count("help"))
         {
             cout << desc << "\n";
@@ -474,6 +481,7 @@ namespace generateMatchedNULLSet
         NULLSNP.construct(n, bin_key);
         for (vector<castBinNum_eQTLNum>::iterator it = binNum_eQTLNumVector.begin(); it != binNum_eQTLNumVector.end(); it ++)
         {
+            //cout << it -> binNum << endl;
             castLD LD;
             LD.loadByBin(it -> binNum, population);
             for (int i = 0; i < n; i ++)
@@ -543,7 +551,8 @@ int main_generateBinFilterNULLSet(const vector<string> &all_args)
         c_subjects = subjects;
         globalPopulation = population;
         
-        for (int i = 1; i <= 23; ++ i)
+        //for (int i = 1; i <= 23; ++ i)
+        for (int i = 1; i <= 4; ++ i)
         {
             string chrNum;
             if (i == 23)
