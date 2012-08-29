@@ -481,7 +481,6 @@ namespace generateMatchedNULLSet
         NULLSNP.construct(n, bin_key);
         for (vector<castBinNum_eQTLNum>::iterator it = binNum_eQTLNumVector.begin(); it != binNum_eQTLNumVector.end(); it ++)
         {
-            //cout << it -> binNum << endl;
             castLD LD;
             LD.loadByBin(it -> binNum, population);
             for (int i = 0; i < n; i ++)
@@ -551,8 +550,7 @@ int main_generateBinFilterNULLSet(const vector<string> &all_args)
         c_subjects = subjects;
         globalPopulation = population;
         
-        //for (int i = 1; i <= 23; ++ i)
-        for (int i = 1; i <= 4; ++ i)
+        for (int i = 1; i <= 23; ++ i)
         {
             string chrNum;
             if (i == 23)
