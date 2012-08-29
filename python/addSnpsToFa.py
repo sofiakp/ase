@@ -12,6 +12,17 @@ def addSnps(fa, snppos, snpallele, p):
         else:
             fa[pos] = alleles[p]
 
+def addSnpsX(mfa, pfa, snppos, snpallele):
+    for idx, pos in enumerate(snppos):
+        alleles = snpallele[idx]
+        if mfa[pos].islower():        
+            alleles = [a.lower() for a in alleles]
+        if len(alleles) == 1:
+            mfa[pos] = alleles[0]
+        else:        
+            mfa[pos] = alleles[1]
+            pfa[pos] = alleles[0]
+
 desc = 'Adds phased SNPs from a VCF to a genome to create two phased haplotypes'
 parser = argparse.ArgumentParser(description = desc)
 parser.add_argument('fadir', help = 'Directory with reference fasta files. There should be one file chr*.fa for every chromosome.')
@@ -22,6 +33,7 @@ parser.add_argument('-f', '--isfemale', help = 'If set to true, then chrY will b
 parser.add_argument('-v', '--vcf', help = 'Vcf file. If not provided, reads from stdin', default = '')
 parser.add_argument('-s', '--step', help = 'Number of characters per line of output fa [%(default)s].', type = int, default = 50)
 parser.add_argument('-p', '--unphased', help = 'File to store unphased locations in VCF. These will be phased randomly.')
+parser.add_argument('-c', '--chrom', help = 'Add chr to the chromosome names in VCF [%(default)s].', action = 'store_true', default = False)
 
 args = parser.parse_args()
 fadir = args.fadir
@@ -67,6 +79,10 @@ for line in fileinput.input(vcflist):
             exit(1)
     else:
         chrom = fields[0]
+        if args.chrom:
+            chrom = "chr" + chrom
+            if chrom == "chrMT":
+                chrom = "chrM"
         if not chrom in chroms:
             if not chrom in warnchroms:
                 print >> sys.stderr, 'Chromosome', chrom, 'in VCF is not in dictionary, skipping'
@@ -132,9 +148,12 @@ for c in chroms:
     #elif c == 'chrX' and not isfemale:
     #    pfa = ['N' for i in range(len(pfa))]
     #    addSnps(mfa, snppos[c], snpallele[c], 1)
+    elif c == 'chrX':
+        addSnpsX(mfa, pfa, snppos[c], snpallele[c])
     else:
         addSnps(pfa, snppos[c], snpallele[c], 0)
         addSnps(mfa, snppos[c], snpallele[c], 1)
+
 
     for i in range(0, len(mfa), step):
         start = i

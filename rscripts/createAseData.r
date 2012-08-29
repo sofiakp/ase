@@ -9,7 +9,6 @@ usage <- function(){
   cat('-h\tPrint this message and exit\n', file = stderr())
   cat('-i=FILE\tInput file.\n', file = stderr())
   cat('-m=FILE\tSNP info file (an R data file). Has information about phased and masked SNPs\n', file = stderr())
-  cat('-s=STR\tSample name (to select the right columns from the SNP info file).\n', file = stderr())
   cat('-o=FILE\tOutput file.\n', file = stderr())
   cat('-q\tCompute q-values\n', file  = stderr())
 }
@@ -17,7 +16,6 @@ usage <- function(){
 args <- commandArgs(trailingOnly = T)
 infile <- ''
 maskfile <- ''
-sample = ''
 outfile <- ''
 get.q <- F
 for(arg in args){
@@ -25,10 +23,6 @@ for(arg in args){
     arg.split <- unlist(strsplit(arg, '='))
     if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
     maskfile <- arg.split[2]
-  }else if(grepl('^-s=', arg)){
-    arg.split <- unlist(strsplit(arg, '='))
-    if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
-    sample <- arg.split[2]
   }else if(grepl('^-i=', arg)){
     arg.split <- unlist(strsplit(arg, '='))
     if(length(arg.split) != 2){usage(); stop(paste('Invalid option', arg))}
@@ -49,7 +43,6 @@ for(arg in args){
 
 if(infile == '') stop('Missing input file')
 if(outfile == '') stop('Missing output file')
-if(maskfile != '' && sample == '') stop('Missing sample name')
 
 # Read filtered regions
 #if(maskfile != ''){
@@ -93,22 +86,24 @@ fwd.tot <- rowSums(ref[,,1] + alt[,,1] + oth[,,1])
 cat('Computing p-values\n', file = stderr())
 sb <- binom.val(fwd.tot, tot)
 tot.unamb <- rowSums(ref[,c(mat.idx, pat.idx),] + alt[,c(mat.idx, pat.idx),] + oth[,c(mat.idx, pat.idx),]) # Total reads in mat or pat
-pval <- binom.val(rowSums(ref[,mat.idx,] + alt[,mat.idx,] + oth[,mat.idx,]), tot.unamb)
 
 # Indicators of which SNPs should be filtered out
 pass <- array(T, dim = c(nrows, 1))
 if(maskfile != ''){
+  cat('Reading mask\n', file = stderr())
   load(maskfile)
-  # Keep only heterozygous not masked SNPs
-  pass = !geno.info[[paste(sample, 'mask', sep = '.')]] & geno.info[[paste(sample, 'pat', sep = '.')]] != geno.info[[paste(sample, 'mat', sep = '.')]]
+  print(geno.info[1:10,])
+  # Keep only heterozygous SNPs
+  pass = geno.info[[paste(sample$indiv, 'pat', sep = '.')]] != geno.info[[paste(sample$indiv, 'mat', sep = '.')]]
 }
+pval <- array(NaN, dim = c(nrows, 1))
+pval[pass] <- binom.val(rowSums(ref[pass, mat.idx,] + alt[pass, mat.idx,] + oth[pass, mat.idx,]), tot.unamb[pass])
 
-qval <- array(1, dim = dim(pass))
+qval <- array(NaN, dim = c(nrows, 1))
 if(get.q){
   cat('Computing q-values\n', file = stderr())
   qval[pass] <- p.adjust(pval[pass], method = 'BH')
 }
-
 headers <- array('', dim = c(1, 6))
 headers[mat.idx + c(0, 3)] <- 'mat'  
 headers[pat.idx + c(0, 3)] <- 'pat'  
@@ -117,7 +112,8 @@ headers <- paste(headers, cbind(rep('fwd',3), rep('rev',3)), sep = '.')
 counts <- data.frame(cbind(ref[,,1], ref[,,2], alt[,,1], alt[,,2], oth[,,1], oth[,,2]))
 colnames(counts) <- append(append(paste(headers, 'ref', sep = '.'), paste(headers, 'alt', sep = '.')), paste(headers, 'oth', sep = '.'))
 
-snp.info <- data.frame(chr = tab$X.CHROM, pos = tab$POS, ref = tab$REF, alt = tab$ALT, pass = pass, sb = sb, pval = pval, qval = qval)
+snp.info <- data.frame(chr = tab$X.CHROM, pos = tab$POS, sb = sb, pval = pval)
+if(get.q) snp.info$qval = qval
 
 # Save counts, snp.info, sample
 save(counts, snp.info, sample, file = outfile)

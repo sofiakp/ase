@@ -109,7 +109,7 @@ int main_reconcile(const vector<string> &all_args)
     
     while (bam_reader1.GetNextAlignment(bam1_f) && bam_reader1.GetNextAlignment(bam1_l) && bam_reader2.GetNextAlignment(bam2_f) && bam_reader2.GetNextAlignment(bam2_l))
     {
-        AssertMsg(bam1_f.Name == bam1_l.Name && bam1_l.Name == bam2_f.Name && bam2_f.Name == bam2_l.Name, sprint(bam1_f.Name) + sprint(bam1_l.Name) + sprint(bam2_f.Name) + sprint(bam2_l.Name));
+      AssertMsg(bam1_f.Name == bam2_f.Name && bam1_l.Name == bam2_l.Name, sprint(bam1_f.Name) + sprint(bam1_l.Name) + sprint(bam2_f.Name) + sprint(bam2_l.Name));
         
         num_reads ++;
         
@@ -245,6 +245,7 @@ int main_reconcile(const vector<string> &all_args)
         }
     }
     cerr << endl;
+    Assert(!bam_reader1.GetNextAlignment(bam1_f) && !bam_reader2.GetNextAlignment(bam2_f));
     cout << "* Total alignments processed: \t" << num_reads << endl;
     
     cout << "* Num in readgroup " << ToStrL(readgroup_1 + ":", 11) << "\t" << ToStrL(num_bam1, 10) << "\t" << ToPercent(num_bam1, num_reads) << endl;
