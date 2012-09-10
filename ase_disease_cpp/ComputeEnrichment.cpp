@@ -27,7 +27,8 @@ double single_sample_t_test(double M, double Sm, double Sd, unsigned Sn)
 
 namespace prepareData
 {
-    vector<string> inputFileNames, inputDataSetNames, subjects;
+    vector<string> inputFileNames, inputDataSetNames;
+    string subject;
     string population;
     
     void init(const vector<string> &all_args)
@@ -36,8 +37,8 @@ namespace prepareData
         desc.add_options()
         ("help,h", "display help message")
         ("inputs,i", po::value< vector<string> >(&inputFileNames), "specify all the dataset separated by space that store the SNPs which need to be overlapped")
-        ("datasets,d", po::value< vector<string> >(&inputDataSetNames), "specify all the name of the datasets in the same order as the inputs")
-        ("subject,s", po::value< vector<string> >(&subjects), "specify the name for the subject.")
+        ("datasets,d", po::value< vector<string> >(&inputDataSetNames), "specify all the name of the subjects (the name of the NULL set) in the same order as the inputs")
+        ("subject,s", po::value<string>(&subject), "specify the name for the subject.")
         ("population,p", po::value<string>(&population), "specify the population.");
         po::variables_map vm;
         const char* av[all_args.size()];
@@ -47,6 +48,13 @@ namespace prepareData
         }
         po::store(po::parse_command_line(all_args.size(), av, desc), vm);
         po::notify(vm);
+        
+        if (all_args.size() <= 2)
+        {
+            cout << desc << "\n";
+            exit(0);
+        }
+        
         if (vm.count("help"))
         {
             cout << desc << "\n";
@@ -145,18 +153,18 @@ namespace prepareData
     {
         set<string> NULLSNPSet;
         map<string, set<string> > NULLSNP_SNPsinLD;
-        void construct(castAssociationSNP &associationSNP, int &iteration);
+        void construct(castAssociationSNP &associationSNP, int &iteration, string subject);
         void mapSNPinLD(castLD &LD);
     };
     
-    void castNULLSNP::construct(castAssociationSNP &associationSNP, int &iteration)
+    void castNULLSNP::construct(castAssociationSNP &associationSNP, int &iteration, string subject)
     {
         stringstream convert;
         convert << iteration;
         for (set<string>::iterator it = associationSNP.binNum.begin(); it != associationSNP.binNum.end(); it ++)
         {
             ifstream infile;
-            string fileName = "/home/yulingl/ase_diseases/tmpFiles/matchedNULLSetsByItByBin/" + convert.str() + "/" + *it;
+            string fileName = "/home/yulingl/ase_diseases/tmpFiles/matchedNULLSetsByItByBin/" + subject + "/" + convert.str() + "/" + *it;
             infile.open(fileName.c_str());
             string rsID;
             while (!getline(infile, rsID).eof())
@@ -187,10 +195,10 @@ namespace prepareData
     struct castAnnotatedSNPs
     {
         map<string, set<string> > assay_SNPs;
-        void fillIndividualAssay(string &fileDirectory);
+        void fillIndividualAssay(string &fileDirectory, string &datasetName);
     };
     
-    void castAnnotatedSNPs::fillIndividualAssay(string &fileDirectory)
+    void castAnnotatedSNPs::fillIndividualAssay(string &fileDirectory, string &datasetName)
     {
         ifstream infile;
         infile.open(fileDirectory.c_str());
@@ -198,8 +206,15 @@ namespace prepareData
         string currentLine;
         while (!getline(infile, currentLine).eof())
         {
-            split(info, currentLine, is_any_of("\t"));
-            assay_SNPs[info[0]].insert(info[1]);
+            if (currentLine[0] != '#')
+            {
+                string SNPID;
+                split(info, currentLine, is_any_of("\t"));
+                trim(info[0]);
+                trim(info[2]);
+                SNPID = info[0].substr(3) + "_" + info[2];
+                assay_SNPs[datasetName].insert(SNPID);
+            }
         }
         infile.close();
     }
@@ -220,7 +235,7 @@ namespace computeStatWithoutLD
         map<string, vector<int> > expected;
         map<string, castStatisticalValue> expectedStatistics;
         void computeObserved(castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP);
-        void computeExpected(castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP, int &n);
+        void computeExpected(castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP, int &n, string subject);
         void computeStatisticsForExpected(int &n);
         void output();
         int intersectionSize(set<string> &set1, set<string> &set2);
@@ -241,14 +256,14 @@ namespace computeStatWithoutLD
         }
     }
     
-    void castStatistics::computeExpected(castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP, int &n)
+    void castStatistics::computeExpected(castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP, int &n, string subject)
     {
         for (map<string, set<string> >::iterator it = annotatedSNPs.assay_SNPs.begin(); it != annotatedSNPs.assay_SNPs.end(); it ++)
         {
             for (int i = 0; i < n; i ++)
             {
                 castNULLSNP NULLSNP;
-                NULLSNP.construct(associationSNP, i);
+                NULLSNP.construct(associationSNP, i ,subject);
                 expected[it -> first].push_back(intersectionSize(it -> second, NULLSNP.NULLSNPSet));
             }
         }
@@ -299,7 +314,7 @@ namespace computeStatWithLD
         map<string, vector<int> > expected;
         map<string, castStatisticalValue> expectedStatistics;
         void computeObserved(castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP);
-        void computeExpected(castLD &LD, castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP, int &n);
+        void computeExpected(castLD &LD, castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP, int &n, string subject);
         void computeStatisticsForExpected(int &n);
         void output();
     };
@@ -325,14 +340,14 @@ namespace computeStatWithLD
         }
     }
     
-    void castStatistics::computeExpected(castLD &LD, castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP, int &n)
+    void castStatistics::computeExpected(castLD &LD, castAnnotatedSNPs &annotatedSNPs, castAssociationSNP &associationSNP, int &n, string subject)
     {
         for (map<string, set<string> >::iterator it = annotatedSNPs.assay_SNPs.begin(); it != annotatedSNPs.assay_SNPs.end(); it ++)
         {
             for (int i = 0; i < n; i ++)
             {
                 castNULLSNP NULLSNP;
-                NULLSNP.construct(associationSNP, i);
+                NULLSNP.construct(associationSNP, i, subject);
                 NULLSNP.mapSNPinLD(LD);
                 int count = 0;
                 for (map<string, set<string> >::iterator it1 = NULLSNP.NULLSNP_SNPsinLD.begin(); it1 != NULLSNP.NULLSNP_SNPsinLD.end(); it1 ++)
@@ -390,7 +405,7 @@ int main_computeStatistics(const vector<string> &all_args)
     castAnnotatedSNPs annotatedSNPs;
     for (int i = 0; i < inputFileNames.size(); ++ i)
     {
-        annotatedSNPs.fillIndividualAssay(inputFileNames[i]);
+        annotatedSNPs.fillIndividualAssay(inputFileNames[i], inputDataSetNames[i]);
     }
     
     castAssociationSNP associationSNP;
@@ -401,7 +416,7 @@ int main_computeStatistics(const vector<string> &all_args)
         castStatistics statistics;
         statistics.computeObserved(annotatedSNPs, associationSNP);
         int n = 100;
-        statistics.computeExpected(annotatedSNPs, associationSNP, n);
+        statistics.computeExpected(annotatedSNPs, associationSNP, n, subject);
         statistics.computeStatisticsForExpected(n);
         statistics.output();
     }
@@ -429,7 +444,7 @@ int main_computeStatistics(const vector<string> &all_args)
         associationSNP.mapSNPinLD(LD);
         statistics.computeObserved(annotatedSNPs, associationSNP);
         int n = 100;
-        statistics.computeExpected(LD, annotatedSNPs, associationSNP, n);
+        statistics.computeExpected(LD, annotatedSNPs, associationSNP, n, subject);
         statistics.computeStatisticsForExpected(n);
         statistics.output();
     }

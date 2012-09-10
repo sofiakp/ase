@@ -82,7 +82,6 @@ namespace generateFairBinGWASCatalog
         int platform;
         
         srand(time(NULL));
-        int randNum = rand() % 2;
         if (floatAllelFreq == 0.5)
         {
             allelFreqBinNum = 4;
@@ -115,6 +114,7 @@ namespace generateFairBinGWASCatalog
         }
         else
         {
+            int randNum = abs(rand() % 2);
             platform = randNum;
         }
         return logDistanceBinNum + allelFreqBinNum * 27 + platform * 27 * 5;
@@ -239,7 +239,15 @@ namespace generateFairBinGWASCatalog
         for (set<string>::iterator it = fairKeys.begin(); it != fairKeys.end(); ++ it)
         {
             map<string, GWASSNPInfo>::iterator pIt = key_info.find(*it);
-            outfile << *it << "\t" << computeBinNum(pIt->second.allelFreq, TSS.calculateDistance(pIt->second.coord), pIt->second.illumina, pIt->second.affymetrix) << endl;
+            int binNum = computeBinNum(pIt->second.allelFreq, TSS.calculateDistance(pIt->second.coord), pIt->second.illumina, pIt->second.affymetrix);
+            if (binNum < 0 || binNum > 269)
+            {
+                cout << *it << "\t" << binNum << endl;
+            }
+            else
+            {
+                outfile << *it << "\t" << computeBinNum(pIt->second.allelFreq, TSS.calculateDistance(pIt->second.coord), pIt->second.illumina, pIt->second.affymetrix) << endl;
+            }
         }
         outfile.close();
     }

@@ -128,13 +128,16 @@ namespace processedGWASCatalog
         for (set<string>::iterator it = chr_keys[chrNum].begin(); it != chr_keys[chrNum].end(); ++ it)
         {
             map<string, castSNPInfo>::iterator searchIt = SNPs.ucscToInfo.find(*it);
-            map<string, GWASSNPInfo>::iterator pIt = key_info.find(*it);
-            outfile << *it << "\t" << searchIt -> second.allelFreq << "\t" << searchIt -> second.pos << "\t" << pIt -> second.pvalue << "\t" << pIt -> second.function << "\t";
-            for (int i = 0; i < pIt -> second.platforms.size() - 1; ++ i)
+            if (searchIt != SNPs.ucscToInfo.end())
             {
-                outfile << pIt -> second.platforms[i] << ",";
+                map<string, GWASSNPInfo>::iterator pIt = key_info.find(*it);
+                outfile << *it << "\t" << searchIt -> second.allelFreq << "\t" << searchIt -> second.pos << "\t" << pIt -> second.pvalue << "\t" << pIt -> second.function << "\t";
+                for (int i = 0; i < pIt -> second.platforms.size() - 1; ++ i)
+                {
+                    outfile << pIt -> second.platforms[i] << ",";
+                }
+                outfile << pIt -> second.platforms[pIt -> second.platforms.size() - 1] << endl;
             }
-            outfile << pIt -> second.platforms[pIt -> second.platforms.size() - 1] << endl;
         }
         outfile.close();
     }

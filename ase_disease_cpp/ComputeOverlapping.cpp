@@ -28,6 +28,12 @@ namespace computeOverlapping
         ("datasets,ds", po::value< vector<string> >(&inputDataSetNames), "specify all the name of the datasets in the same order as the queryInputfiles")
         ("population,pl", po::value<string>(&population), "specify the population.");
         po::variables_map vm;
+        if (all_args.size() <= 2)
+        {
+            cout << desc << "\n";
+            exit(0);
+        }
+        
         const char* av[all_args.size()];
         for (int i = 0; i < all_args.size(); ++ i)
         {
@@ -41,8 +47,8 @@ namespace computeOverlapping
             exit(0);
         }
         
-        string ldFileDirectory = "/home/yulingl/ase_diseases/hapmap_ld/"+ population + "_1";
-        string gwasLocation = "/home/yulingl/ase_diseases/gwasCatalog/processedGWASCatalog";
+        ldFileDirectory = "/home/yulingl/ase_diseases/hapmap_ld/"+ population + "_1";
+        gwasLocation = "/home/yulingl/ase_diseases/gwasCatalog/processedGWASCatalog";
     }
     
     //Construct LD information for a particular population
@@ -82,8 +88,8 @@ namespace computeOverlapping
         while (!getline(infile, currentLine).eof())
         {
             split(info, currentLine, is_any_of("\t"));
-            string ID1 = chrNum + "_" + info[3];
-            string ID2 = chrNum + "_" + info[4];
+            string ID1 = chrNum + "_" + info[0];
+            string ID2 = chrNum + "_" + info[1];
             tag_SNPinLD[ID1].insert(ID2);
             tag_SNPinLD[ID1].insert(ID1);
             tag_SNPinLD[ID2].insert(ID1);
@@ -110,6 +116,8 @@ namespace computeOverlapping
             {
                 string SNPID;
                 split(info, currentLine, is_any_of("\t"));
+                trim(info[0]);
+                trim(info[2]);
                 SNPID = info[0].substr(3) + "_" + info[2];
                 SNPs.insert(SNPID);
             }
@@ -220,6 +228,7 @@ int main_computeOverlapping(const vector<string> &all_args)
     {
         castSNPs SNPs;
         SNPs.construct(inputFileNames[i]);
+        
         cout << inputDataSetNames[i] << "\t" << intersectionSize(gwasCatalog.SNPs, SNPs.SNPs) << "\t" << computeOverlappingInLD(SNPs, gwasCatalog) << endl;
     }
     
