@@ -3,6 +3,7 @@ import fileinput
 import argparse
 from random import randint
 import os.path
+import re
 
 def addSnps(fa, snppos, snpallele, p):
     for idx, pos in enumerate(snppos):
@@ -47,9 +48,10 @@ for line in fileinput.input([]):
             print >> sys.stderr, 'Chromosome', chrom, 'in VCF is not in dictionary, skipping'
             warnchroms.append(chrom) # only warn once per chromosome
         continue
-    pos = int(fields[1]) - 1 # Convert 1-based VCF pos to 0-based index       
-    snppos[chrom].append(pos)
-    snpallele[chrom].append(fields[5:7])
+    pos = int(fields[2]) - 1 # Convert 1-based VCF pos to 0-based index
+    if re.match('^[ACGT]$', fields[5]) and re.match('^[ACGT]$', fields[6]):
+        snppos[chrom].append(pos)
+        snpallele[chrom].append(fields[5:7])
 
 mout = open(outpref + '.maternal.fa', 'w')
 pout = open(outpref + '.paternal.fa', 'w')
@@ -72,12 +74,12 @@ for c in chroms:
     # the pseudoautosomal region.
     if c == 'chrY':
         mfa = ['N' for i in range(len(mfa))]
-        addSnps(pfa, snppos[c], snpallele[c], 0)
+        addSnps(pfa, snppos[c], snpallele[c], 1)
     else:
-        addSnps(pfa, snppos[c], snpallele[c], 0)
-        addSnps(mfa, snppos[c], snpallele[c], 1)
+        addSnps(pfa, snppos[c], snpallele[c], 1)
+        addSnps(mfa, snppos[c], snpallele[c], 0)
 
-
+    print len(mfa), len(pfa)
     for i in range(0, len(mfa), step):
         start = i
         stop = min(i + step, len(mfa))
