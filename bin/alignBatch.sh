@@ -56,6 +56,7 @@ fi
 
 while read -r sample indiv fq1 fq2; do
     sample=${sample^^} # This will convert to uppercase
+    indiv=${indiv^^}
     if [[ "$indiv" =~ ^[0-9]+$ ]]; then # Correct HapMap names
 	indiv="GM"$indiv
 	sample="GM"$sample

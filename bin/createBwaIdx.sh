@@ -50,13 +50,14 @@ if [ ! -d $INDIR ]; then
 fi
 
 FILES="${EXPR}.*[mp]aternal.fa$"
-for file in `ls ${DIR} | egrep "$FILES"`; do
+for file in `ls ${INDIR} | egrep "$FILES"`; do
     pref=${file%.fa}
     echo $pref
     if [[ $IDX =~ "bwa" ]]; then
-	echo "bwa"
-	#bsub -J ${pref} -e ${DIR}/${pref}.idx.err -o /dev/null -q research-rh6 -M 8192 -R "rusage[mem=8192]" "bwa index -a bwtsw -p ${DIR}/${pref} ${DIR}/${file}"
-    elif [[ $IDX =~ "bow" ]]; then
-	echo "bow"
+	#echo "bwa"
+	bsub -J ${pref} -e ${OUTDIR}/${pref}.idx.err -o /dev/null -q research-rh6 -M 8192 -R "rusage[mem=8192]" "bwa index -a bwtsw -p ${OUTDIR}/${pref} ${INDIR}/${file}"
+    elif [[ $IDX =~ bow.*2 ]]; then
+	echo "bow2"
+	bsub -J ${pref} -e ${OUTDIR}/${pref}.idx.bow2.err -o /dev/null -q research-rh6 -M 8192 -R "rusage[mem=8192]" "bowtie2-build -f ${INDIR}/$file ${OUTDIR}/${pref}"
     fi
 done

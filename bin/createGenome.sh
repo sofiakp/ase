@@ -9,7 +9,7 @@ OPTIONS:
    -h     Show this message and exit
    -v VCF [Required] VCF file
    -i STR [Required] Individual name (as in VCF)
-   -o DIR Output directory. Default is \$MAYAROOT/rawdata/genomes
+   -o DIR Output directory. Default is \$MAYAROOT/rawdata/genomes/<indiv>
    -d STR Genome dictionary. Default is \$MAYAROOT/rawdata/genomes/hg19/hg19noM.fa.fai.
    -s DIR Dir with fa files, one per chromosome. Default is \$SEQDIR/encodeHg19Male
    -f     Set this option if the individual is a female.
@@ -19,7 +19,7 @@ EOF
 
 VCF=
 INDIV=
-OUTDIR=${MAYAROOT}/rawdata/genomes
+OUTDIR=
 DICT=${MAYAROOT}/rawdata/genomes/hg19/hg19noM.fa.fai
 SDIR=${SEQDIR}/encodeHg19Male
 FEMALE=''
@@ -52,6 +52,9 @@ done
 if [[ -z $VCF || -z $INDIV ]]; then
     usage; exit 1;
 fi
+if [[ -z $OUTDIR ]]; then
+    OUTDIR=${MAYAROOT}/rawdata/genomes/$INDIV
+fi
 if [ ! -d $OUTDIR ]; then
     mkdir -p $OUTDIR
 fi
@@ -68,4 +71,9 @@ else
     outindiv=$INDIV
 fi
 
-bsub -J $outindiv -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 2:00 -M 8192 -R "rusage[mem=8192]" "cat $VCF | python ${MAYAROOT}/src/python/addSnpsToFa.py $SDIR $DICT ${OUTDIR}/${outindiv} $INDIV --unphased ${OUTDIR}/${outindiv}.unphased.txt $FEMALE $CHROM"
+if [[ $INDIV == "SNYDER" ]]; then
+    #bsub -J $outindiv -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 2:00 -M 8192 -R "rusage[mem=8192]" 
+    cat $VCF | python ${MAYAROOT}/src/python/addSnyderSnps.py $SDIR $DICT ${OUTDIR}/${outindiv}
+else
+    bsub -J $outindiv -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 2:00 -M 8192 -R "rusage[mem=8192]" "cat $VCF | python ${MAYAROOT}/src/python/addSnpsToFa.py $SDIR $DICT ${OUTDIR}/${outindiv} $INDIV --unphased ${OUTDIR}/${outindiv}.unphased.txt $FEMALE $CHROM"
+fi
