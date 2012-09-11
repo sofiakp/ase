@@ -151,12 +151,13 @@ namespace splitLD
         while (!getline(infile, currentLine).eof())
         {
             split(info, currentLine, is_any_of("\t"));
-            ucsc.insert(info[1]);
+            string key = chrNum + "_" + info[1];
+            ucsc.insert(key);
             castSNPInfo tmpSNPInfo;
             tmpSNPInfo.allelFreq = info[3];
             tmpSNPInfo.func = info[4];
             tmpSNPInfo.pos = info[2];
-            ucscToInfo[info[1]] = tmpSNPInfo;
+            ucscToInfo[key] = tmpSNPInfo;
         }
         infile.close();
         
@@ -211,7 +212,13 @@ namespace splitLD
     
     void castOutputFilePointersForProcessingLDToBins::open(string &population)
     {
-        for (int i = 0; i < 267; ++ i)
+        string command = "mkdir -p /home/yulingl/ase_diseases/hapmap_ld/" + population + "_splitByBin";
+        if (system(command.c_str()) != 0)
+        {
+            exit(1);
+        }
+        
+        for (int i = 0; i <= 269; ++ i)
         {
             ofstream *tmpOutfile = new ofstream;
             
@@ -290,6 +297,17 @@ namespace splitLD
             {
                 int binNum1 = computeTagForKey(ID1, SNPs, TSS);
                 int binNum2 = computeTagForKey(ID2, SNPs, TSS);
+                
+                if (binNum1 > 269 or binNum1 < 0)
+                {
+                    cout << binNum1 << "\t" << ID1 << endl;
+                    continue;
+                }
+                if (binNum2 > 269 or binNum2 < 0)
+                {
+                    cout << binNum2 << "\t" << ID2 << endl;
+                    continue;
+                }
                 
                 if (binNum1 == binNum2)
                 {
