@@ -37,13 +37,13 @@ namespace Reconcile
         if (!ProcessInput(all_args, num_prog_names, num_args, options, args))
         {
             string usage = Basename(all_args[0]) + " reconcile [options] <in1.bam> <in2.bam> <out.bam>";
-            string desc = "Assumes <in1.bam> and <in2.bam> are sorted by read name. Currently does NOT support paired reads";
+            string desc = "Assumes <in1.bam> and <in2.bam> are sorted by read name. Also pair read is assumed.";
             
             VecS opt_lines;
             opt_lines.push_back("rg1=STR name for read group [" + readgroup_1 + "]");
             opt_lines.push_back("rg2=STR name for read group [" + readgroup_2 + "]");
             
-            PrintUsage(usage, desc, opt_lines); 
+            PrintUsage(usage, desc, opt_lines);
             exit(0);
         }
         
@@ -64,19 +64,19 @@ namespace Reconcile
         SamHeader header = bam_reader1.GetHeader();
         SamHeader header2 = bam_reader2.GetHeader();
         
-	SamReadGroup rg1_obj;
-	rg1_obj.ID = readgroup_1;
+        SamReadGroup rg1_obj;
+        rg1_obj.ID = readgroup_1;
         rg1_obj.Sample = readgroup_1;
-	rg1_obj.Library = readgroup_1;
-	SamReadGroup rg2_obj;
-	rg2_obj.ID = readgroup_2;
+        rg1_obj.Library = readgroup_1;
+        SamReadGroup rg2_obj;
+        rg2_obj.ID = readgroup_2;
         rg2_obj.Sample = readgroup_2;
-	rg2_obj.Library = readgroup_2;
-	SamReadGroup rgamb_obj;
-	rgamb_obj.ID = readgroup_ambig;
+        rg2_obj.Library = readgroup_2;
+        SamReadGroup rgamb_obj;
+        rgamb_obj.ID = readgroup_ambig;
         rgamb_obj.Sample = readgroup_ambig;
-	rgamb_obj.Library = readgroup_ambig;
-	header.ReadGroups.Clear();
+        rgamb_obj.Library = readgroup_ambig;
+        header.ReadGroups.Clear();
         header.ReadGroups.Add(rg1_obj);
         header.ReadGroups.Add(rg2_obj);
         header.ReadGroups.Add(rgamb_obj);
@@ -107,9 +107,82 @@ int main_reconcile(const vector<string> &all_args)
     int64 num_bam2 = 0;
     int64 num_amb = 0;
     
-    while (bam_reader1.GetNextAlignment(bam1_f) && bam_reader1.GetNextAlignment(bam1_l) && bam_reader2.GetNextAlignment(bam2_f) && bam_reader2.GetNextAlignment(bam2_l))
+    bool exit1_f;
+    bool exit1_l;
+    bool exit2_f;
+    bool exit2_l;
+    
+    BamAlignment * bam_ptr_f = NULL;
+    BamAlignment * bam_ptr_l = NULL;
+    
+    while(1)
     {
-      AssertMsg(bam1_f.Name == bam2_f.Name && bam1_l.Name == bam2_l.Name, sprint(bam1_f.Name) + sprint(bam1_l.Name) + sprint(bam2_f.Name) + sprint(bam2_l.Name));
+        exit1_f = bam_reader1.GetNextAlignment(bam1_f);
+        exit1_l = bam_reader1.GetNextAlignment(bam1_l);
+        exit2_f = bam_reader2.GetNextAlignment(bam2_f);
+        exit2_l = bam_reader2.GetNextAlignment(bam2_l);
+        
+        if (!(exit1_f && exit1_l && exit2_f && exit2_l))
+        {
+            break;
+        }
+        
+        
+        while (1)
+        {
+            if (bam1_f.Name >= bam2_f.Name && bam1_l.Name >= bam2_l.Name)
+            {
+                break;
+            }
+            
+            bam_ptr_f = &bam1_f;
+            bam_ptr_l = &bam1_l;
+            bam_ptr_f->RemoveTag("XC");
+            bam_ptr_f->AddTag("XC", "Z", "one_missing");
+            bam_ptr_l->RemoveTag("XC");
+            bam_ptr_l->AddTag("XC", "Z", "one_missing");
+            bam_ptr_f->EditTag("RG", "Z", readgroup_1);
+            bam_ptr_l->EditTag("RG", "Z", readgroup_1);
+            
+            bam_writer.SaveAlignment(*bam_ptr_f);
+            bam_writer.SaveAlignment(*bam_ptr_l);
+            
+            num_reads ++;
+            num_bam1 ++;
+            
+            if (!(bam_reader1.GetNextAlignment(bam1_f) && bam_reader1.GetNextAlignment(bam1_l)))
+            {
+                break;
+            }
+        }
+        
+        while (1)
+        {
+            if (bam1_f.Name <= bam2_f.Name && bam1_l.Name <= bam2_l.Name)
+            {
+                break;
+            }
+            
+            bam_ptr_f = &bam2_f;
+            bam_ptr_l = &bam2_l;
+            bam_ptr_f->RemoveTag("XC");
+            bam_ptr_f->AddTag("XC", "Z", "one_missing");
+            bam_ptr_l->RemoveTag("XC");
+            bam_ptr_l->AddTag("XC", "Z", "one_missing");
+            bam_ptr_f->EditTag("RG", "Z", readgroup_2);
+            bam_ptr_l->EditTag("RG", "Z", readgroup_2);
+            
+            bam_writer.SaveAlignment(*bam_ptr_f);
+            bam_writer.SaveAlignment(*bam_ptr_l);
+            
+            num_reads ++;
+            num_bam2 ++;
+            
+            if (!(bam_reader2.GetNextAlignment(bam2_f) && bam_reader2.GetNextAlignment(bam2_l)))
+            {
+                break;
+            }
+        }
         
         num_reads ++;
         
@@ -117,7 +190,7 @@ int main_reconcile(const vector<string> &all_args)
         {
             swap(bam1_f, bam1_l);
         }
-        if (!bam2_f.IsFirstMate()) 
+        if (!bam2_f.IsFirstMate())
         {
             swap(bam2_f, bam2_l);
         }
@@ -127,22 +200,19 @@ int main_reconcile(const vector<string> &all_args)
         int edit_dist2_f = INT_MAX;
         int edit_dist2_l = INT_MAX;
         
-        BamAlignment * bam_ptr_f = NULL;
-        BamAlignment * bam_ptr_l = NULL;
-        
         if ((!bam1_f.IsMapped() || !bam1_l.IsMapped()) && (!bam2_f.IsMapped() || !bam2_l.IsMapped()))
         {
-	    if (lrand48() % 2 == 0)
-	    {
-	      bam_ptr_f = &bam1_f;
-	      bam_ptr_l = &bam1_l;
-	    }
-	    else
-	    {
-	      bam_ptr_f = &bam2_f;
-	      bam_ptr_l = &bam2_l;
-	    }
-	    bam_ptr_f->RemoveTag("XC");
+            if (lrand48() % 2 == 0)
+            {
+                bam_ptr_f = &bam1_f;
+                bam_ptr_l = &bam1_l;
+            }
+            else
+            {
+                bam_ptr_f = &bam2_f;
+                bam_ptr_l = &bam2_l;
+            }
+            bam_ptr_f->RemoveTag("XC");
             bam_ptr_f->AddTag("XC", "Z", "both_unmap");
             bam_ptr_l->RemoveTag("XC");
             bam_ptr_l->AddTag("XC", "Z", "both_unmap");
@@ -244,6 +314,59 @@ int main_reconcile(const vector<string> &all_args)
             cerr.flush();
         }
     }
+    
+    if ((exit1_f && exit1_l) && !(exit2_f && exit2_l))
+    {
+        while (1)
+        {
+            bam_ptr_f = &bam1_f;
+            bam_ptr_l = &bam1_l;
+            bam_ptr_f->RemoveTag("XC");
+            bam_ptr_f->AddTag("XC", "Z", "one_missing");
+            bam_ptr_l->RemoveTag("XC");
+            bam_ptr_l->AddTag("XC", "Z", "one_missing");
+            bam_ptr_f->EditTag("RG", "Z", readgroup_1);
+            bam_ptr_l->EditTag("RG", "Z", readgroup_1);
+            
+            bam_writer.SaveAlignment(*bam_ptr_f);
+            bam_writer.SaveAlignment(*bam_ptr_l);
+            
+            num_reads ++;
+            num_bam1 ++;
+            
+            if (!(bam_reader1.GetNextAlignment(bam1_f) && bam_reader1.GetNextAlignment(bam1_l)))
+            {
+                break;
+            }
+        }
+    }
+    
+    if (!(exit1_f && exit1_l) && (exit2_f && exit2_l))
+    {
+        while (1)
+        {
+            bam_ptr_f = &bam2_f;
+            bam_ptr_l = &bam2_l;
+            bam_ptr_f->RemoveTag("XC");
+            bam_ptr_f->AddTag("XC", "Z", "one_missing");
+            bam_ptr_l->RemoveTag("XC");
+            bam_ptr_l->AddTag("XC", "Z", "one_missing");
+            bam_ptr_f->EditTag("RG", "Z", readgroup_2);
+            bam_ptr_l->EditTag("RG", "Z", readgroup_2);
+            
+            bam_writer.SaveAlignment(*bam_ptr_f);
+            bam_writer.SaveAlignment(*bam_ptr_l);
+            
+            num_reads ++;
+            num_bam2 ++;
+            
+            if (!(bam_reader2.GetNextAlignment(bam2_f) && bam_reader2.GetNextAlignment(bam2_l)))
+            {
+                break;
+            }
+        }
+    }
+    
     cerr << endl;
     Assert(!bam_reader1.GetNextAlignment(bam1_f) && !bam_reader2.GetNextAlignment(bam2_f));
     cout << "* Total alignments processed: \t" << num_reads << endl;
@@ -254,4 +377,3 @@ int main_reconcile(const vector<string> &all_args)
     
     return 0;
 }
-
