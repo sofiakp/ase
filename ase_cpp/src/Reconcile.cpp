@@ -87,6 +87,68 @@ namespace Reconcile
         srand48(0xCAFEBABA);
     }
     
+    void split(string &s, char delim, vector<string> &elems)
+    {
+        elems.clear();
+        stringstream ss(s);
+        string item;
+        while(getline(ss, item, delim))
+        {
+            elems.push_back(item);
+        }
+    }
+    
+    int compare(string &name1, string &name2)
+    {
+        vector<string> elems1, elems2;
+        split(name1, ':', elems1);
+        split(name2, ':', elems2);
+        vector<int> info1, info2;
+        for (int i = 1; i <= 3; ++i)
+        {
+            info1.push_back(atoi(elems1[i].c_str()));
+            info2.push_back(atoi(elems2[i].c_str()));
+        }
+        vector<string> lastElem1, lastElem2;
+        split(elems1[4], '#', lastElem1);
+        split(elems2[4], '#', lastElem2);
+        
+        info1.push_back(atoi(lastElem1[0].c_str()));
+        info2.push_back(atoi(lastElem2[0].c_str()));
+        
+        if (elems1[0] < elems2[0])
+        {
+            return 1;
+        }
+        else if (elems1[0] > elems2[0])
+        {
+            return 2;
+        }
+        
+        for (int i = 0; i < info1.size(); ++i)
+        {
+            if (info1[i] < info2[i])
+            {
+                return 1;
+            }
+            else if (info1[i] > info2[i])
+            {
+                return 2;
+            }
+        }
+        
+        if (lastElem1[1] < lastElem2[1])
+        {
+            return 1;
+        }
+        else if (lastElem1[1] > lastElem2[1])
+        {
+            return 2;
+        }
+        
+        return 0;
+    }
+    
 };
 
 
@@ -115,198 +177,251 @@ int main_reconcile(const vector<string> &all_args)
     BamAlignment * bam_ptr_f = NULL;
     BamAlignment * bam_ptr_l = NULL;
     
+    exit1_f = bam_reader1.GetNextAlignment(bam1_f);
+    exit1_l = bam_reader1.GetNextAlignment(bam1_l);
+    exit2_f = bam_reader2.GetNextAlignment(bam2_f);
+    exit2_l = bam_reader2.GetNextAlignment(bam2_l);
+    
+    Assert(bam1_f.Name == bam1_l.Name);
+    Assert(bam2_f.Name == bam2_l.Name);
+    
+    if (!(exit1_f && exit1_l && exit2_f && exit2_l))
+    {
+        exit(1);
+    }
+    
+    int flag = 0;
     while(1)
     {
-        exit1_f = bam_reader1.GetNextAlignment(bam1_f);
-        exit1_l = bam_reader1.GetNextAlignment(bam1_l);
-        exit2_f = bam_reader2.GetNextAlignment(bam2_f);
-        exit2_l = bam_reader2.GetNextAlignment(bam2_l);
-        
-        if (!(exit1_f && exit1_l && exit2_f && exit2_l))
-        {
-            break;
-        }
-        
-        
-        while (1)
-        {
-            if (bam1_f.Name >= bam2_f.Name && bam1_l.Name >= bam2_l.Name)
-            {
-                break;
-            }
-            
-            bam_ptr_f = &bam1_f;
-            bam_ptr_l = &bam1_l;
-            bam_ptr_f->RemoveTag("XC");
-            bam_ptr_f->AddTag("XC", "Z", "one_missing");
-            bam_ptr_l->RemoveTag("XC");
-            bam_ptr_l->AddTag("XC", "Z", "one_missing");
-            bam_ptr_f->EditTag("RG", "Z", readgroup_1);
-            bam_ptr_l->EditTag("RG", "Z", readgroup_1);
-            
-            bam_writer.SaveAlignment(*bam_ptr_f);
-            bam_writer.SaveAlignment(*bam_ptr_l);
-            
-            num_reads ++;
-            num_bam1 ++;
-            
-            if (!(bam_reader1.GetNextAlignment(bam1_f) && bam_reader1.GetNextAlignment(bam1_l)))
-            {
-                break;
-            }
-        }
-        
-        while (1)
-        {
-            if (bam1_f.Name <= bam2_f.Name && bam1_l.Name <= bam2_l.Name)
-            {
-                break;
-            }
-            
-            bam_ptr_f = &bam2_f;
-            bam_ptr_l = &bam2_l;
-            bam_ptr_f->RemoveTag("XC");
-            bam_ptr_f->AddTag("XC", "Z", "one_missing");
-            bam_ptr_l->RemoveTag("XC");
-            bam_ptr_l->AddTag("XC", "Z", "one_missing");
-            bam_ptr_f->EditTag("RG", "Z", readgroup_2);
-            bam_ptr_l->EditTag("RG", "Z", readgroup_2);
-            
-            bam_writer.SaveAlignment(*bam_ptr_f);
-            bam_writer.SaveAlignment(*bam_ptr_l);
-            
-            num_reads ++;
-            num_bam2 ++;
-            
-            if (!(bam_reader2.GetNextAlignment(bam2_f) && bam_reader2.GetNextAlignment(bam2_l)))
-            {
-                break;
-            }
-        }
-        
-        num_reads ++;
-        
-        if (!bam1_f.IsFirstMate())
-        {
-            swap(bam1_f, bam1_l);
-        }
-        if (!bam2_f.IsFirstMate())
-        {
-            swap(bam2_f, bam2_l);
-        }
-        
-        int edit_dist1_f = INT_MAX;
-        int edit_dist1_l = INT_MAX;
-        int edit_dist2_f = INT_MAX;
-        int edit_dist2_l = INT_MAX;
-        
-        if ((!bam1_f.IsMapped() || !bam1_l.IsMapped()) && (!bam2_f.IsMapped() || !bam2_l.IsMapped()))
-        {
-            if (lrand48() % 2 == 0)
+        if (compare(bam1_f.Name, bam2_f.Name) == 1)
+        { 
+            while (1)
             {
                 bam_ptr_f = &bam1_f;
                 bam_ptr_l = &bam1_l;
-            }
-            else
-            {
-                bam_ptr_f = &bam2_f;
-                bam_ptr_l = &bam2_l;
-            }
-            bam_ptr_f->RemoveTag("XC");
-            bam_ptr_f->AddTag("XC", "Z", "both_unmap");
-            bam_ptr_l->RemoveTag("XC");
-            bam_ptr_l->AddTag("XC", "Z", "both_unmap");
-            bam_ptr_f->EditTag("RG", "Z", "ambiguous");
-            bam_ptr_l->EditTag("RG", "Z", "ambiguous");
-            num_amb ++;
-        }
-        else if ((bam1_f.IsMapped() && bam1_l.IsMapped()) && (!bam2_f.IsMapped() || !bam2_l.IsMapped()))
-        {
-            bam_ptr_f = &bam1_f;
-            bam_ptr_l = &bam1_l;
-            bam_ptr_f->RemoveTag("XC");
-            bam_ptr_f->AddTag("XC", "Z", "one_unmap");
-            bam_ptr_l->RemoveTag("XC");
-            bam_ptr_l->AddTag("XC", "Z", "one_unmap");
-            bam_ptr_f->EditTag("RG", "Z", readgroup_1);
-            bam_ptr_l->EditTag("RG", "Z", readgroup_1);
-            num_bam1 ++;
-        }
-        else if ((!bam1_f.IsMapped() || !bam1_l.IsMapped()) && (bam2_f.IsMapped() && bam2_l.IsMapped()))
-        {
-            bam_ptr_f = &bam2_f;
-            bam_ptr_l = &bam2_l;
-            
-            bam_ptr_f->RemoveTag("XC");
-            bam_ptr_f->AddTag("XC", "Z", "one_unmap");
-            bam_ptr_l->RemoveTag("XC");
-            bam_ptr_l->AddTag("XC", "Z", "one_unmap");
-            bam_ptr_f->EditTag("RG", "Z", readgroup_2);
-            bam_ptr_l->EditTag("RG", "Z", readgroup_2);
-            num_bam2 ++;
-        }
-        else
-        {
-            Assert(bam1_f.GetTag("NM", edit_dist1_f));
-            Assert(bam1_l.GetTag("NM", edit_dist1_l));
-            Assert(bam2_f.GetTag("NM", edit_dist2_f));
-            Assert(bam2_l.GetTag("NM", edit_dist2_l));
-            if ((edit_dist1_f < edit_dist2_f && edit_dist1_l <= edit_dist2_l) || (edit_dist1_f <= edit_dist2_f && edit_dist1_l < edit_dist2_l))
-            {
-                bam_ptr_f = &bam1_f;
-                bam_ptr_l = &bam1_l;
+                bam_ptr_f->RemoveTag("XC");
+                bam_ptr_f->AddTag("XC", "Z", "one_missing");
+                bam_ptr_l->RemoveTag("XC");
+                bam_ptr_l->AddTag("XC", "Z", "one_missing");
                 bam_ptr_f->EditTag("RG", "Z", readgroup_1);
                 bam_ptr_l->EditTag("RG", "Z", readgroup_1);
+                
+                bam_writer.SaveAlignment(*bam_ptr_f);
+                bam_writer.SaveAlignment(*bam_ptr_l);
+                
+                num_reads ++;
                 num_bam1 ++;
+                
+                exit1_f = bam_reader1.GetNextAlignment(bam1_f);
+                exit1_l = bam_reader1.GetNextAlignment(bam1_l);
+                
+                if (!(exit1_f && exit1_l))
+                {
+                    flag = 1;
+                    break;
+                }
+                
+                Assert(bam1_f.Name == bam1_l.Name);
+                
+                if (compare(bam1_f.Name, bam2_f.Name) != 1)
+                {
+                    break;
+                }
             }
-            else if ((edit_dist1_f > edit_dist2_f && edit_dist1_l >= edit_dist2_l) ||(edit_dist1_f >= edit_dist2_f && edit_dist1_l > edit_dist2_l))
+        }
+        else if (compare(bam1_f.Name, bam2_f.Name) == 2)
+        {
+            while (1)
             {
                 bam_ptr_f = &bam2_f;
                 bam_ptr_l = &bam2_l;
+                bam_ptr_f->RemoveTag("XC");
+                bam_ptr_f->AddTag("XC", "Z", "one_missing");
+                bam_ptr_l->RemoveTag("XC");
+                bam_ptr_l->AddTag("XC", "Z", "one_missing");
                 bam_ptr_f->EditTag("RG", "Z", readgroup_2);
                 bam_ptr_l->EditTag("RG", "Z", readgroup_2);
+                
+                bam_writer.SaveAlignment(*bam_ptr_f);
+                bam_writer.SaveAlignment(*bam_ptr_l);
+                
+                num_reads ++;
                 num_bam2 ++;
+                
+                exit2_f = bam_reader2.GetNextAlignment(bam2_f);
+                exit2_l = bam_reader2.GetNextAlignment(bam2_l);
+                
+                if (!(exit2_f && exit2_l))
+                {
+                    flag = 1;
+                    break;
+                }
+                
+                Assert(bam2_f.Name == bam2_l.Name);
+                
+                if (compare(bam1_f.Name, bam2_f.Name) != 2)
+                {
+                    break;
+                }
             }
-            else
+        }
+        else if (compare(bam1_f.Name, bam2_f.Name) == 0)
+        {
+            while (1)
             {
-                if (lrand48() % 2 == 0)
+                num_reads ++;
+                
+                if (!bam1_f.IsFirstMate())
+                {
+                    swap(bam1_f, bam1_l);
+                }
+                if (!bam2_f.IsFirstMate())
+                {
+                    swap(bam2_f, bam2_l);
+                }
+                
+                int edit_dist1_f = INT_MAX;
+                int edit_dist1_l = INT_MAX;
+                int edit_dist2_f = INT_MAX;
+                int edit_dist2_l = INT_MAX;
+                
+                if ((!bam1_f.IsMapped() || !bam1_l.IsMapped()) && (!bam2_f.IsMapped() || !bam2_l.IsMapped()))
+                {
+                    if (lrand48() % 2 == 0)
+                    {
+                        bam_ptr_f = &bam1_f;
+                        bam_ptr_l = &bam1_l;
+                    }
+                    else
+                    {
+                        bam_ptr_f = &bam2_f;
+                        bam_ptr_l = &bam2_l;
+                    }
+                    bam_ptr_f->RemoveTag("XC");
+                    bam_ptr_f->AddTag("XC", "Z", "both_unmap");
+                    bam_ptr_l->RemoveTag("XC");
+                    bam_ptr_l->AddTag("XC", "Z", "both_unmap");
+                    bam_ptr_f->EditTag("RG", "Z", "ambiguous");
+                    bam_ptr_l->EditTag("RG", "Z", "ambiguous");
+                    num_amb ++;
+                }
+                else if ((bam1_f.IsMapped() && bam1_l.IsMapped()) && (!bam2_f.IsMapped() || !bam2_l.IsMapped()))
                 {
                     bam_ptr_f = &bam1_f;
                     bam_ptr_l = &bam1_l;
+                    bam_ptr_f->RemoveTag("XC");
+                    bam_ptr_f->AddTag("XC", "Z", "one_unmap");
+                    bam_ptr_l->RemoveTag("XC");
+                    bam_ptr_l->AddTag("XC", "Z", "one_unmap");
+                    bam_ptr_f->EditTag("RG", "Z", readgroup_1);
+                    bam_ptr_l->EditTag("RG", "Z", readgroup_1);
+                    num_bam1 ++;
                 }
-                else
+                else if ((!bam1_f.IsMapped() || !bam1_l.IsMapped()) && (bam2_f.IsMapped() && bam2_l.IsMapped()))
                 {
                     bam_ptr_f = &bam2_f;
                     bam_ptr_l = &bam2_l;
+                    
+                    bam_ptr_f->RemoveTag("XC");
+                    bam_ptr_f->AddTag("XC", "Z", "one_unmap");
+                    bam_ptr_l->RemoveTag("XC");
+                    bam_ptr_l->AddTag("XC", "Z", "one_unmap");
+                    bam_ptr_f->EditTag("RG", "Z", readgroup_2);
+                    bam_ptr_l->EditTag("RG", "Z", readgroup_2);
+                    num_bam2 ++;
                 }
-                bam_ptr_f->EditTag("RG", "Z", "ambiguous");
-                bam_ptr_l->EditTag("RG", "Z", "ambiguous");
-                num_amb ++;
-            }
-            if (bam1_f.Position == bam2_f.Position && bam1_l.Position == bam2_l.Position)
-            {
-                bam_ptr_f->RemoveTag("XC");
-                bam_ptr_f->AddTag("XC", "Z", "same_pos");
-                bam_ptr_l->RemoveTag("XC");
-                bam_ptr_l->AddTag("XC", "Z", "same_pos");
-            }
-            else
-            {
-                bam_ptr_f->RemoveTag("XC");
-                bam_ptr_f->AddTag("XC", "Z", "diff_pos");
-                bam_ptr_l->RemoveTag("XC");
-                bam_ptr_l->AddTag("XC", "Z", "diff_pos");
-                string RGtag;
-                bam_ptr_f->GetTag("RG", RGtag);
-                if (RGtag == "ambiguous")
+                else
                 {
-                    bam_ptr_f->MapQuality = 0;
-                    bam_ptr_l->MapQuality = 0;
+                    Assert(bam1_f.GetTag("NM", edit_dist1_f));
+                    Assert(bam1_l.GetTag("NM", edit_dist1_l));
+                    Assert(bam2_f.GetTag("NM", edit_dist2_f));
+                    Assert(bam2_l.GetTag("NM", edit_dist2_l));
+                    if ((edit_dist1_f < edit_dist2_f && edit_dist1_l <= edit_dist2_l) || (edit_dist1_f <= edit_dist2_f && edit_dist1_l < edit_dist2_l))
+                    {
+                        bam_ptr_f = &bam1_f;
+                        bam_ptr_l = &bam1_l;
+                        bam_ptr_f->EditTag("RG", "Z", readgroup_1);
+                        bam_ptr_l->EditTag("RG", "Z", readgroup_1);
+                        num_bam1 ++;
+                    }
+                    else if ((edit_dist1_f > edit_dist2_f && edit_dist1_l >= edit_dist2_l) ||(edit_dist1_f >= edit_dist2_f && edit_dist1_l > edit_dist2_l))
+                    {
+                        bam_ptr_f = &bam2_f;
+                        bam_ptr_l = &bam2_l;
+                        bam_ptr_f->EditTag("RG", "Z", readgroup_2);
+                        bam_ptr_l->EditTag("RG", "Z", readgroup_2);
+                        num_bam2 ++;
+                    }
+                    else
+                    {
+                        if (lrand48() % 2 == 0)
+                        {
+                            bam_ptr_f = &bam1_f;
+                            bam_ptr_l = &bam1_l;
+                        }
+                        else
+                        {
+                            bam_ptr_f = &bam2_f;
+                            bam_ptr_l = &bam2_l;
+                        }
+                        bam_ptr_f->EditTag("RG", "Z", "ambiguous");
+                        bam_ptr_l->EditTag("RG", "Z", "ambiguous");
+                        num_amb ++;
+                    }
+                    if (bam1_f.Position == bam2_f.Position && bam1_l.Position == bam2_l.Position)
+                    {
+                        bam_ptr_f->RemoveTag("XC");
+                        bam_ptr_f->AddTag("XC", "Z", "same_pos");
+                        bam_ptr_l->RemoveTag("XC");
+                        bam_ptr_l->AddTag("XC", "Z", "same_pos");
+                    }
+                    else
+                    {
+                        bam_ptr_f->RemoveTag("XC");
+                        bam_ptr_f->AddTag("XC", "Z", "diff_pos");
+                        bam_ptr_l->RemoveTag("XC");
+                        bam_ptr_l->AddTag("XC", "Z", "diff_pos");
+                        string RGtag;
+                        bam_ptr_f->GetTag("RG", RGtag);
+                        if (RGtag == "ambiguous")
+                        {
+                            bam_ptr_f->MapQuality = 0;
+                            bam_ptr_l->MapQuality = 0;
+                        }
+                    }
+                }
+                bam_writer.SaveAlignment(*bam_ptr_f);
+                bam_writer.SaveAlignment(*bam_ptr_l);
+                
+                exit1_f = bam_reader1.GetNextAlignment(bam1_f);
+                exit1_l = bam_reader1.GetNextAlignment(bam1_l);
+                exit2_f = bam_reader2.GetNextAlignment(bam2_f);
+                exit2_l = bam_reader2.GetNextAlignment(bam2_l);
+                
+                if (!(exit1_f && exit1_l && exit2_f && exit2_l))
+                {
+                    flag = 1;
+                    break;
+                }
+                
+                Assert(bam1_f.Name == bam1_l.Name);
+                Assert(bam2_f.Name == bam2_l.Name);
+                
+                if (compare(bam1_f.Name, bam2_f.Name) != 0)
+                {
+                    break;
                 }
             }
         }
-        bam_writer.SaveAlignment(*bam_ptr_f);
-        bam_writer.SaveAlignment(*bam_ptr_l);
+        else
+        {
+            exit(1);
+        }
+        
+        if (flag == 1)
+        {
+            break;
+        }
         
         if (num_reads % 1000 == 0)
         {
