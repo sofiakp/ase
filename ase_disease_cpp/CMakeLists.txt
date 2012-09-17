@@ -35,6 +35,7 @@ add_executable(AseDisease
   SeparatedbSNP.cpp
   LDDataPreProcess.cpp
   SplitLD.cpp
+  MapIDAlleles.cpp
   ProcessGWASCatalog.cpp
   GenerateFairBinGWASCatalog.cpp
   ComputeOverlapping.cpp

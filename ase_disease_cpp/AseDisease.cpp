@@ -9,6 +9,7 @@ int main(int argc, char ** argv)
     DeclarePolyExe(main, separatedbSNP, "Merely separate dbSNP into sub-datasets according to chromesomes to facilitate further analysis.");
     DeclarePolyExe(main, LDDataPreProcess, "Preprocess LD data from HapMap.");
     DeclarePolyExe(main, splitLD, "Split LD datasets to prepare for randomization.");
+    DeclarePolyExe(main, mapIDAlleles, "Map the information for the AS-SNPs");
     DeclarePolyExe(main, processGWASCatalog, "Parse the GWASCatalog and pre-filter redundant records.");
     DeclarePolyExe(main, generateFairBinGWAS, "Generate a fair GWAS set according to LD structure and bin this set for randomized matching.");
     DeclarePolyExe(main, computeOverlapping, "Compute the number of overlapping SNPs without filtering.");

@@ -360,11 +360,11 @@ namespace generateMatchedNULLSet
     struct castTargetSNP
     {
         map<string, int> binNum_SNPNum;
-        void accumulateOverChr(string &chrNum);
-        void construct();
+        void accumulateOverChr(string &chrNum, string &subject);
+        void construct(string &subject);
     };
     
-    void castTargetSNP::construct()
+    void castTargetSNP::construct(string &subject)
     {
         for (int i = 1; i <= 23; i++)
         {
@@ -379,14 +379,14 @@ namespace generateMatchedNULLSet
                 convert << i;
                 chrNum = convert.str();
             }
-            accumulateOverChr(chrNum);
+            accumulateOverChr(chrNum, subject);
         }
     }
     
-    void castTargetSNP::accumulateOverChr(string &chrNum)
+    void castTargetSNP::accumulateOverChr(string &chrNum, string &subject)
     {
         ifstream infile;
-        string fileName = "/home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/" + chrNum;
+        string fileName = "/home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/" + subject + "/" + chrNum;
         infile.open(fileName.c_str());
         if (infile.fail())
         {
@@ -584,11 +584,10 @@ int main_generateBinFilterNULLSet(const vector<string> &all_args)
     {
         using namespace generateMatchedNULLSet;
         
-        castTargetSNP targetSNP;
-        targetSNP.construct();
-        
         for (int i = 0; i < c_subjects.size(); ++ i)
         {
+            castTargetSNP targetSNP;
+            targetSNP.construct(c_subjects[i]);
             generateNULLSet(targetSNP.binNum_SNPNum, c_subjects[i], subject_bin_key[c_subjects[i]], globalPopulation);
         }
     }
