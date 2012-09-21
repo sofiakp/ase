@@ -106,7 +106,7 @@ namespace BamUtil
     int aligned = 0;
     StlFor(i, bam.CigarData)
     {
-      if (bam.CigarData[i].Type == 'M' || bam.CigarData[i].Type == 'D')
+      if (bam.CigarData[i].Type == 'M' || bam.CigarData[i].Type == 'D' || bam.CigarData[i].Type == 'N')
         aligned += bam.CigarData[i].Length;
     }
 
@@ -118,7 +118,7 @@ namespace BamUtil
     int aligned = 0;
     StlFor(i, hit.cigar)
     {
-      if (hit.cigar[i].Type == 'M' || hit.cigar[i].Type == 'D')
+      if (hit.cigar[i].Type == 'M' || hit.cigar[i].Type == 'D' || hit.cigar[i].Type == 'N')
         aligned += hit.cigar[i].Length;
     }
 
