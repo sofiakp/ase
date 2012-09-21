@@ -7,12 +7,48 @@
 #include <map>
 #include <boost/algorithm/string.hpp>
 #include <math.h>
+#include "boost/program_options.hpp"
+namespace po = boost::program_options;
 
 using namespace std;
 using namespace boost;
 
+#define HETEROZYGOUSSNPSLOCATION "/home/yulingl/ase_diseases/heterozogousSNPs/"
+
 namespace generateFairBinGWASCatalog
 {
+    string population;
+    vector<string> subjects, locations;
+    
+    void init(const vector<string> &all_args)
+    {
+        po::options_description desc("Prepare the eQTL set.");
+        desc.add_options()
+        ("help,h", "display help message")
+        ("subjects,s", po::value< vector<string> >(&subjects), "specify all the names for the subjects as the same order as the locations.")
+        ("population,p", po::value<string>(&population), "specify the population.");
+        po::variables_map vm;
+        const char* av[all_args.size()];
+        for (int i = 0; i < all_args.size(); ++ i)
+        {
+            av[i] = all_args[i].c_str();
+        }
+        po::store(po::parse_command_line(all_args.size(), av, desc), vm);
+        po::notify(vm);
+        
+        if (all_args.size() <= 2)
+        {
+            cout << desc << "\n";
+            exit(0);
+        }
+        if (vm.count("help"))
+        {
+            cout << desc << "\n";
+            exit(0);
+        }
+    }
+    
+    
     struct castTSS
     {
         vector<unsigned long> TSS;
@@ -168,6 +204,31 @@ namespace generateFairBinGWASCatalog
         infile.close();
     }
     
+    struct castHeterozygousSNP
+    {
+        set<string> SNPs;
+        void construct(string &subject, string &chrNum);
+    };
+    
+    void castHeterozygousSNP::construct(string &subject, string &chrNum)
+    {
+        ifstream infile;
+        string fileName = HETEROZYGOUSSNPSLOCATION + subject + "/" + chrNum;
+        infile.open(fileName.c_str());
+        string currentLine;
+        vector<string> info;
+        while (!getline(infile, currentLine).eof())
+        {
+            if (currentLine[0] != '#')
+            {
+                string SNPID;
+                split(info, currentLine, is_any_of("\t"));
+                SNPID = info[0].substr(3) + "_" + info[2];
+                SNPs.insert(SNPID);
+            }
+        }
+    };
+    
     struct castSNP
     {
         set<string> onChip;
@@ -210,31 +271,45 @@ namespace generateFairBinGWASCatalog
         unsigned long coord;
     };
     
-    struct castGWAS
+    struct castPreparedSet
     {
-        set<string> initial_keys;
         set<string> filteredKeys;
-        map<string, GWASSNPInfo> key_info;
         
         map<double, set<string> > pvalue_SNPs;
         map<string, double> SNP_pvalue;
         
         set<string> fairKeys;
         
-        void construct(string &chrNum);
-        void interSect(castSNP &SNPs);
+        void interSectHeterozygousSNP(set<string> &heterozygousSNPs, set<string> &semifinishedKeys);
         
-        void constructMap();
+        void constructMap(map<string, GWASSNPInfo> &key_info);
         void generateFairSet(castLD &LD);
         
-        void output(string &chrNum, castTSS &TSS);
+        void output(string &chrNum, castTSS &TSS, string &subject, map<string, GWASSNPInfo> &key_info);
     };
     
-    void castGWAS::output(string &chrNum, castTSS &TSS)
+    struct castGWAS
     {
-        system("mkdir -p /home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog");
+        set<string> initial_keys;
+        set<string> semifinishedKeys;
+        map<string, GWASSNPInfo> key_info;
+        
+        void construct(string &chrNum);
+        void interSect(castSNP &SNPs);
+    };
+    
+    void castPreparedSet::interSectHeterozygousSNP(set<string> &heterozygousSNPs, set<string> &semifinishedKeys)
+    {
+        set_intersection(semifinishedKeys.begin(), semifinishedKeys.end(), heterozygousSNPs.begin(), heterozygousSNPs.end(), inserter(filteredKeys, filteredKeys.end()));
+    }
+    
+    void castPreparedSet::output(string &chrNum, castTSS &TSS, string &subject, map<string, GWASSNPInfo> &key_info)
+    {
+        string command = "mkdir -p /home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/" + subject;
+        system(command.c_str());
+        
         ofstream outfile;
-        string fileName = "/home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/" + chrNum;
+        string fileName = "/home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/" + subject + "/" + chrNum;
         outfile.open(fileName.c_str());
         for (set<string>::iterator it = fairKeys.begin(); it != fairKeys.end(); ++ it)
         {
@@ -252,7 +327,7 @@ namespace generateFairBinGWASCatalog
         outfile.close();
     }
     
-    void castGWAS::generateFairSet(castLD &LD)
+    void castPreparedSet::generateFairSet(castLD &LD)
     {
         srand(time(NULL));
         vector<double> pvalue;
@@ -347,7 +422,7 @@ namespace generateFairBinGWASCatalog
         }
     }
     
-    void castGWAS::constructMap()
+    void castPreparedSet::constructMap(map<string, GWASSNPInfo> &key_info)
     {
         for (set<string>::iterator it = filteredKeys.begin(); it != filteredKeys.end(); ++ it)
         {
@@ -424,8 +499,8 @@ namespace generateFairBinGWASCatalog
         set<string> tmp;
         
         set_intersection(initial_keys.begin(), initial_keys.end(), SNPs.onChip.begin(), SNPs.onChip.end(), inserter(tmp, tmp.end()));
-        filteredKeys.clear();
-        set_intersection(tmp.begin(), tmp.end(), SNPs.onHapMap.begin(), SNPs.onHapMap.end(), inserter(filteredKeys, filteredKeys.end()));
+        semifinishedKeys.clear();
+        set_intersection(tmp.begin(), tmp.end(), SNPs.onHapMap.begin(), SNPs.onHapMap.end(), inserter(semifinishedKeys, semifinishedKeys.end()));
     }
 }
 
@@ -433,11 +508,7 @@ using namespace generateFairBinGWASCatalog;
 
 int main_generateFairBinGWAS(const vector<string> &all_args)
 {
-    if (all_args.size() != 3)
-    {
-        cout << "Usage: ase_disease generateFairBinGWAS population" << endl;
-        exit(0);
-    }
+    init(all_args);
     
     for (int i = 1; i <= 23; i++)
     {
@@ -455,8 +526,6 @@ int main_generateFairBinGWAS(const vector<string> &all_args)
         castTSS TSS;
         TSS.construct(chrNum);
         
-        string population = all_args[2];
-        
         castLD LD;
         LD.constructOverChr(chrNum, population);
         
@@ -467,10 +536,20 @@ int main_generateFairBinGWAS(const vector<string> &all_args)
         GWAS.construct(chrNum);
         GWAS.interSect(SNP);
         
-        GWAS.constructMap();
-        GWAS.generateFairSet(LD);
-        
-        GWAS.output(chrNum, TSS);
+        for (int j = 0; j < subjects.size(); ++ j)
+        {
+            castPreparedSet peparedSet;
+            
+            castHeterozygousSNP heterozygousSNP;
+            heterozygousSNP.construct(subjects[j], chrNum);
+            
+            peparedSet.interSectHeterozygousSNP(heterozygousSNP.SNPs, GWAS.semifinishedKeys);
+            
+            peparedSet.constructMap(GWAS.key_info);
+            peparedSet.generateFairSet(LD);
+            
+            peparedSet.output(chrNum, TSS, subjects[j], GWAS.key_info);
+        }
     }
     return 0;
 }
