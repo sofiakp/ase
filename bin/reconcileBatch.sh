@@ -11,14 +11,16 @@ OPTIONS:
    -o DIR [Required] 
    -l STR List of samples. If not provided, it will read from STDIN.
    -c     Overwrite [0]
+   -r     RNA
 EOF
 }
 
 CLEAN=''
+RNA=0
 INDIR=
 OUTDIR=
 LIST=
-while getopts "hi:o:l:c" opt
+while getopts "hi:o:l:cr" opt
 do
     case $opt in
 	h)
@@ -31,6 +33,8 @@ do
 	    LIST=$OPTARG;;
 	c) 
 	    CLEAN='-c';;
+	r)
+	    RNA=1;;
 	?)
 	    usage
 	    exit 1;;
@@ -58,12 +62,22 @@ while read -r sample ; do
 	sample="SNYDER_HG19_${sample}"
     fi
     inpref=${INDIR}/${sample}
+
     if [[ ( ! -s ${inpref}_maternal.bam ) || ( ! -s ${inpref}_paternal.bam ) ]]; then
 	echo "Skipping $sample. Maternal and/or paternal bam file missing." 1>&2; continue;
     fi
-    if [[ $CLEAN == "-c" || ! -f ${OUTDIR}/dedup/${sample}_reconcile.dedup.bam ]]; then
-	bsub -J ${sample}_reconcile -eo ${OUTDIR}/${sample}_reconcile_bjob.err -o /dev/null -n 1 -q research-rh6 -W 24:00 -M 16384 -R "rusage[mem=16384]" "${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN"
+    if [[ $RNA -eq 1 ]]; then
+	nopt="-n"
+	final=${OUTDIR}/dedup/nsort/${sample}_reconcile.dedup.bam
     else
-	echo "Skipping $sample. Output file exists." 1>&2; continue;
+	nopt=""
+	final=${OUTDIR}/dedup/${sample}_reconcile.dedup.bam
     fi
+
+
+    #if [[ $CLEAN == "-c" || ! -f  $final ]]; then
+    bsub -J ${sample}_reconcile -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 24:00 -M 16384 -R "rusage[mem=16384]" "${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN $nopt"
+    #else
+    #	echo "Skipping $sample. Output file exists." 1>&2; continue;
+    #fi
 done < "${LIST:-/proc/${$}/fd/0}"
