@@ -13,10 +13,11 @@ OPTIONS:
    --seqpref STR [Required] Prefix for BWA genome index files
    --sample STR  [Required] Sample name. Output will be in <bamdir>/<sample>.bam.
    -c            Overwrite output files [0]
+   -p            Sort by position (by default sorts by read name).
 EOF
 }
 
-ARGS=`getopt -o "hc" -l "fq1:,fq2:,bamdir:,seqpref:,sample:" -- "$@"`
+ARGS=`getopt -o "hcp" -l "fq1:,fq2:,bamdir:,seqpref:,sample:" -- "$@"`
 eval set -- "$ARGS"
 
 CLEAN=0
@@ -25,6 +26,7 @@ FQ1=
 FQ2=
 SEQPREF=
 SAMPLE=
+SORTPOS=0
 while [ $# -gt 0 ]; do
     case $1 in
 	-h) usage; exit;;
@@ -34,6 +36,7 @@ while [ $# -gt 0 ]; do
 	--seqpref) SEQPREF=$2; shift 2;;
 	--sample) SAMPLE=$2; shift 2;;
 	-c) CLEAN=1; shift;;
+	-p) SORTPOS=1; shift;;
 	--) shift; break;;
     esac	    
 done
@@ -57,9 +60,14 @@ fi
 # -I not needed if you do SeqPrep first!
 # DOUBLE-CHECK THESE PARAMETERS
 ALN="-q 20 -t 4"
+if [[ $SORTPOS -eq 1 ]]; then
+    SORTOPT=""
+else
+    SORTOPT="-n"
+fi
 
 #### BWA ####
-if [[ -s ${FQ1} && -s ${FQ2} ]]; then
+if [[ -s ${FQ1} && ( -s ${FQ2} || $FQ2 == "NA" ) ]]; then
     # Check Illumina version
     format=`zcat $FQ1 | python ${MAYAROOT}/src/python/checkFastqFormat.py`
     if [[ $format == '1' ]]; then
@@ -69,19 +77,25 @@ if [[ -s ${FQ1} && -s ${FQ2} ]]; then
     if [[ $CLEAN -eq 1 || ! -f ${BAMDIR}/${SAMPLE}_1.sai ]]; then
 	bwa aln $ALN $SEQPREF ${FQ1} -f ${BAMDIR}/${SAMPLE}_1.sai #2>> ${logfile}
     fi
-    if [[ $CLEAN -eq 1 || ! -f ${BAMDIR}/${SAMPLE}_2.sai ]]; then
+    if [[ $FQ2 != "NA" && ( $CLEAN -eq 1 || ! -f ${BAMDIR}/${SAMPLE}_2.sai ) ]]; then
 	bwa aln $ALN $SEQPREF ${FQ2} -f ${BAMDIR}/${SAMPLE}_2.sai #2>> ${logfile}
     fi
 else
     echo "Missing or empty FASTQ files. Aborting..." 1>&2 ; exit 1;
 fi
     
-if [[ -s ${BAMDIR}/${SAMPLE}_1.sai && -s ${BAMDIR}/${SAMPLE}_2.sai ]]; then
+if [[ -s ${BAMDIR}/${SAMPLE}_1.sai && ( $FQ2 == 'NA' || -s ${BAMDIR}/${SAMPLE}_2.sai ) ]]; then
     if [[ $CLEAN -eq 1 || ! -f ${BAMDIR}/${SAMPLE}.bam ]]; then
-        # Notice the sort by name here...
 	head="@RG\tID:${SAMPLE}\tSM:${SAMPLE}\tPL:Illumina"
-	bwa sampe -r $head $SEQPREF ${BAMDIR}/${SAMPLE}_1.sai ${BAMDIR}/${SAMPLE}_2.sai ${FQ1} ${FQ2} | samtools view -Sbh -t ${SEQPREF}.fa.fai - | samtools sort -n -m 2000000000 - ${BAMDIR}/${SAMPLE} #2>> ${logfile}
-	# samtools index ${BAMDIR}/${SAMPLE}.bam
+	if [[ $FQ2 == 'NA' ]]; then
+	    bwa samse -r $head $SEQPREF ${BAMDIR}/${SAMPLE}_1.sai ${FQ1} | samtools view -Sbh -t ${SEQPREF}.fa.fai - | samtools sort $SORTOPT -m 2000000000 - ${BAMDIR}/${SAMPLE}
+	else
+            # Notice the sort by name here...
+	    bwa sampe -r $head $SEQPREF ${BAMDIR}/${SAMPLE}_1.sai ${BAMDIR}/${SAMPLE}_2.sai ${FQ1} ${FQ2} | samtools view -Sbh -t ${SEQPREF}.fa.fai - | samtools sort $SORTOPT -m 2000000000 - ${BAMDIR}/${SAMPLE}
+	fi
+	if [[ $SORTPOS -eq 1 ]]; then
+	    samtools index ${BAMDIR}/${SAMPLE}.bam
+	fi
     fi
 else
     echo ".sai files missing. Aborting..." 1>&2 ; exit 1;

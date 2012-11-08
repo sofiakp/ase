@@ -14,19 +14,26 @@ using namespace std;
 using namespace boost;
 
 #define HETEROZYGOUSSNPSLOCATION "/home/yulingl/ase_diseases/heterozogousSNPs/"
+#define GWASINPUTLOCATION "/home/yulingl/ase_diseases/gwasCatalog/processedGWASCatalog/"
+#define EQTLINPUTLOCATION "/home/yulingl/ase_diseases/dsQTLs/mergedResult/mapped/"
+#define GWASOUTPUTLOCATION "/home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/"
+#define EQTLOUTPUTLOCATION "/home/yulingl/ase_diseases/dsQTLs/mergedResult/fairBineddsQTLs/"
 
-namespace generateFairBinGWASCatalog
+namespace generateFairBinAssociationSNPs
 {
     string population;
     vector<string> subjects, locations;
+    bool eQTLOn = 0, GWASOn = 0;
     
     void init(const vector<string> &all_args)
     {
         po::options_description desc("Prepare the eQTL set.");
         desc.add_options()
         ("help,h", "display help message")
-        ("subjects,s", po::value< vector<string> >(&subjects), "specify all the names for the subjects as the same order as the locations.")
-        ("population,p", po::value<string>(&population), "specify the population.");
+        ("subjects,s", po::value< vector<string> >(&subjects), "specify all the names for the subjects.")
+        ("population,p", po::value<string>(&population), "specify the population.")
+        ("eQTLOn,e", po::value<bool>(&eQTLOn), "if eQTL analysis is desired, specify 1.")
+        ("GWASOn,g", po::value<bool>(&GWASOn), "if GWAS analysis is desired, specify 1.");
         po::variables_map vm;
         const char* av[all_args.size()];
         for (int i = 0; i < all_args.size(); ++ i)
@@ -262,7 +269,7 @@ namespace generateFairBinGWASCatalog
         infile.close();
     }
     
-    struct GWASSNPInfo
+    struct AssociationSNPInfo
     {
         double pvalue;
         bool illumina, affymetrix;
@@ -270,6 +277,93 @@ namespace generateFairBinGWASCatalog
         double allelFreq;
         unsigned long coord;
     };
+    
+    struct castAssociationSNPs
+    {
+        set<string> initial_keys;
+        set<string> semifinishedKeys;
+        map<string, AssociationSNPInfo> key_info;
+        
+        void construct(string &chrNum, bool GWASoreQTL);
+        void interSect(castSNP &SNPs);
+    };
+    
+    void castAssociationSNPs::construct(string &chrNum, bool GWASoreQTL)
+    {
+        ifstream infile;
+        string fileName;
+        if (GWASoreQTL == 1)
+        {
+            fileName = GWASINPUTLOCATION + chrNum;
+        }
+        else
+        {
+            fileName = EQTLINPUTLOCATION + chrNum;
+        }
+        infile.open(fileName.c_str());
+        if (infile.fail())
+        {
+            cerr << "Failed to open " << fileName << endl;
+            exit(1);
+        }
+        
+        vector<string> L0Info;
+        string currentLine;
+        while (!getline(infile, currentLine).eof())
+        {
+            split(L0Info, currentLine, is_any_of("\t"));
+            
+            vector<string> L1Info;
+            set<string> platformSet;
+            split(L1Info, L0Info[5], is_any_of(","));
+            for (int i = 0; i < L1Info.size(); ++ i)
+            {
+                platformSet.insert(L1Info[i]);
+            }
+            
+            if (platformSet.find("Affymetrix") != platformSet.end() || platformSet.find("Illumina") != platformSet.end())
+            {
+                initial_keys.insert(L0Info[0]);
+                
+                AssociationSNPInfo tmpInfo;
+                tmpInfo.allelFreq = atof(L0Info[1].c_str());
+                if (tmpInfo.allelFreq > 0.5)
+                {
+                    tmpInfo.allelFreq = 1 - tmpInfo.allelFreq;
+                }
+                tmpInfo.coord = strtoul(L0Info[2].c_str(), NULL, 0);
+                tmpInfo.pvalue = atof(L0Info[3].c_str());
+                tmpInfo.function = L0Info[4];
+                if (platformSet.find("Affymetrix") != platformSet.end())
+                {
+                    tmpInfo.affymetrix = 1;
+                }
+                else
+                {
+                    tmpInfo.affymetrix = 0;
+                }
+                if (platformSet.find("Illumina") != platformSet.end())
+                {
+                    tmpInfo.illumina = 1;
+                }
+                else
+                {
+                    tmpInfo.illumina = 0;
+                }
+                key_info[L0Info[0]] = tmpInfo;
+            }
+        }
+        infile.close();
+    }
+    
+    void castAssociationSNPs::interSect(castSNP &SNPs)
+    {
+        set<string> tmp;
+        
+        set_intersection(initial_keys.begin(), initial_keys.end(), SNPs.onChip.begin(), SNPs.onChip.end(), inserter(tmp, tmp.end()));
+        semifinishedKeys.clear();
+        set_intersection(tmp.begin(), tmp.end(), SNPs.onHapMap.begin(), SNPs.onHapMap.end(), inserter(semifinishedKeys, semifinishedKeys.end()));
+    }
     
     struct castPreparedSet
     {
@@ -282,20 +376,10 @@ namespace generateFairBinGWASCatalog
         
         void interSectHeterozygousSNP(set<string> &heterozygousSNPs, set<string> &semifinishedKeys);
         
-        void constructMap(map<string, GWASSNPInfo> &key_info);
+        void constructMap(map<string, AssociationSNPInfo> &key_info);
         void generateFairSet(castLD &LD);
         
-        void output(string &chrNum, castTSS &TSS, string &subject, map<string, GWASSNPInfo> &key_info);
-    };
-    
-    struct castGWAS
-    {
-        set<string> initial_keys;
-        set<string> semifinishedKeys;
-        map<string, GWASSNPInfo> key_info;
-        
-        void construct(string &chrNum);
-        void interSect(castSNP &SNPs);
+        void output(string &chrNum, castTSS &TSS, string &subject, map<string, AssociationSNPInfo> &key_info, bool GWASoreQTL);
     };
     
     void castPreparedSet::interSectHeterozygousSNP(set<string> &heterozygousSNPs, set<string> &semifinishedKeys)
@@ -303,17 +387,44 @@ namespace generateFairBinGWASCatalog
         set_intersection(semifinishedKeys.begin(), semifinishedKeys.end(), heterozygousSNPs.begin(), heterozygousSNPs.end(), inserter(filteredKeys, filteredKeys.end()));
     }
     
-    void castPreparedSet::output(string &chrNum, castTSS &TSS, string &subject, map<string, GWASSNPInfo> &key_info)
+    void castPreparedSet::output(string &chrNum, castTSS &TSS, string &subject, map<string, AssociationSNPInfo> &key_info, bool GWASoreQTL)
     {
-        string command = "mkdir -p /home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/" + subject;
-        system(command.c_str());
+        string command;
+        if (GWASoreQTL == 1)
+        {
+            command = string("mkdir -p ") + GWASOUTPUTLOCATION + subject;
+        }
+        else
+        {
+            command = string("mkdir -p ") + EQTLOUTPUTLOCATION + subject;
+        }
+        if (system(command.c_str()) != 0)
+        {
+            cerr << "Failed to execute command " << command << endl;
+            exit(1);
+        };
         
         ofstream outfile;
-        string fileName = "/home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/" + subject + "/" + chrNum;
+        string fileName;
+        if (GWASoreQTL == 1)
+        {
+            fileName = GWASOUTPUTLOCATION + subject + "/" + chrNum;
+        }
+        else
+        {
+            fileName = EQTLOUTPUTLOCATION + subject + "/" + chrNum;
+        }
+        
         outfile.open(fileName.c_str());
+        if (outfile.fail())
+        {
+            cerr << "Failed to open " << fileName << endl;
+            exit(1);
+        }
+        
         for (set<string>::iterator it = fairKeys.begin(); it != fairKeys.end(); ++ it)
         {
-            map<string, GWASSNPInfo>::iterator pIt = key_info.find(*it);
+            map<string, AssociationSNPInfo>::iterator pIt = key_info.find(*it);
             int binNum = computeBinNum(pIt->second.allelFreq, TSS.calculateDistance(pIt->second.coord), pIt->second.illumina, pIt->second.affymetrix);
             if (binNum < 0 || binNum > 269)
             {
@@ -422,7 +533,7 @@ namespace generateFairBinGWASCatalog
         }
     }
     
-    void castPreparedSet::constructMap(map<string, GWASSNPInfo> &key_info)
+    void castPreparedSet::constructMap(map<string, AssociationSNPInfo> &key_info)
     {
         for (set<string>::iterator it = filteredKeys.begin(); it != filteredKeys.end(); ++ it)
         {
@@ -439,74 +550,11 @@ namespace generateFairBinGWASCatalog
             SNP_pvalue[*it] = key_info[*it].pvalue;
         }
     }
-    
-    void castGWAS::construct(string &chrNum)
-    {
-        ifstream infile;
-        string fileName = "/home/yulingl/ase_diseases/gwasCatalog/processedGWASCatalog/" + chrNum;
-        infile.open(fileName.c_str());
-        vector<string> L0Info;
-        string currentLine;
-        while (!getline(infile, currentLine).eof())
-        {
-            split(L0Info, currentLine, is_any_of("\t"));
-            
-            vector<string> L1Info;
-            set<string> platformSet;
-            split(L1Info, L0Info[5], is_any_of(","));
-            for (int i = 0; i < L1Info.size(); ++ i)
-            {
-                platformSet.insert(L1Info[i]);
-            }
-            
-            if (platformSet.find("Affymetrix") != platformSet.end() || platformSet.find("Illumina") != platformSet.end())
-            {
-                initial_keys.insert(L0Info[0]);
-                
-                GWASSNPInfo tmpInfo;
-                tmpInfo.allelFreq = atof(L0Info[1].c_str());
-                if (tmpInfo.allelFreq > 0.5)
-                {
-                    tmpInfo.allelFreq = 1 - tmpInfo.allelFreq;
-                }
-                tmpInfo.coord = strtoul(L0Info[2].c_str(), NULL, 0);
-                tmpInfo.pvalue = atof(L0Info[3].c_str());
-                tmpInfo.function = L0Info[4];
-                if (platformSet.find("Affymetrix") != platformSet.end())
-                {
-                    tmpInfo.affymetrix = 1;
-                }
-                else
-                {
-                    tmpInfo.affymetrix = 0;
-                }
-                if (platformSet.find("Illumina") != platformSet.end())
-                {
-                    tmpInfo.illumina = 1;
-                }
-                else
-                {
-                    tmpInfo.illumina = 0;
-                }
-                key_info[L0Info[0]] = tmpInfo;
-            }
-        }
-        infile.close();
-    }
-    
-    void castGWAS::interSect(castSNP &SNPs)
-    {
-        set<string> tmp;
-        
-        set_intersection(initial_keys.begin(), initial_keys.end(), SNPs.onChip.begin(), SNPs.onChip.end(), inserter(tmp, tmp.end()));
-        semifinishedKeys.clear();
-        set_intersection(tmp.begin(), tmp.end(), SNPs.onHapMap.begin(), SNPs.onHapMap.end(), inserter(semifinishedKeys, semifinishedKeys.end()));
-    }
 }
 
-using namespace generateFairBinGWASCatalog;
+using namespace generateFairBinAssociationSNPs;
 
-int main_generateFairBinGWAS(const vector<string> &all_args)
+int main_generateFairBinAssociationSNPs(const vector<string> &all_args)
 {
     init(all_args);
     
@@ -532,24 +580,56 @@ int main_generateFairBinGWAS(const vector<string> &all_args)
         castSNP SNP;
         SNP.construct(chrNum, population);
         
-        castGWAS GWAS;
-        GWAS.construct(chrNum);
-        GWAS.interSect(SNP);
+        castAssociationSNPs GWAS;
+        if (GWASOn)
+        {
+            GWAS.construct(chrNum, 1);
+            GWAS.interSect(SNP);
+        }
+        
+        castAssociationSNPs eQTL;
+        if (eQTLOn)
+        {
+            eQTL.construct(chrNum, 0);
+            eQTL.interSect(SNP);
+        }
         
         for (int j = 0; j < subjects.size(); ++ j)
         {
-            castPreparedSet peparedSet;
-            
             castHeterozygousSNP heterozygousSNP;
             heterozygousSNP.construct(subjects[j], chrNum);
             
-            peparedSet.interSectHeterozygousSNP(heterozygousSNP.SNPs, GWAS.semifinishedKeys);
+            if (GWASOn)
+            {
+                castPreparedSet peparedSet;
+                
+                peparedSet.interSectHeterozygousSNP(heterozygousSNP.SNPs, GWAS.semifinishedKeys);
+                
+                peparedSet.constructMap(GWAS.key_info);
+                peparedSet.generateFairSet(LD);
+                
+                peparedSet.output(chrNum, TSS, subjects[j], GWAS.key_info, 1);
+            }
             
-            peparedSet.constructMap(GWAS.key_info);
-            peparedSet.generateFairSet(LD);
-            
-            peparedSet.output(chrNum, TSS, subjects[j], GWAS.key_info);
+            if (eQTLOn)
+            {
+                castPreparedSet peparedSet;
+                
+                peparedSet.interSectHeterozygousSNP(heterozygousSNP.SNPs, eQTL.semifinishedKeys);
+                
+                peparedSet.constructMap(eQTL.key_info);
+                peparedSet.generateFairSet(LD);
+                
+                peparedSet.output(chrNum, TSS, subjects[j], eQTL.key_info, 0);
+            }
         }
     }
+    
     return 0;
 }
+
+#undef HETEROZYGOUSSNPSLOCATION
+#undef GWASINPUTLOCATION
+#undef EQTLINPUTLOCATION
+#undef GWASOUTPUTLOCATION
+#undef EQTLOUTPUTLOCATION

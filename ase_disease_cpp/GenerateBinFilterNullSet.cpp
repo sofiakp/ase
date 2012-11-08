@@ -13,6 +13,50 @@ namespace po = boost::program_options;
 using namespace std;
 using namespace boost;
 
+#define EQTLINPUTDIRECTORY "/home/yulingl/ase_diseases/dsQTLs/mergedResult/fairBineddsQTLs/"
+#define GWASINPUTDIRECTORY "/home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/"
+#define EQTLOUTPUTDIRECTORY "/home/yulingl/ase_diseases/tmpFiles/matchedNULLSetsTodsQTLByItByBin/"
+#define GWASOUTPUTDIRECTORY "/home/yulingl/ase_diseases/tmpFiles/matchedNULLSetsToGWASByItByBin/"
+
+namespace generateBinMatchNULLSet
+{
+    vector<string> inputFileNames, subjects;
+    string population;
+    bool eQTLOn = 0, GWASOn = 0;
+    map<string, map<int, set<string> > > subject_bin_key;
+    
+    void init(const vector<string> &all_args)
+    {
+        po::options_description desc("Prepare the NULL set for matching. The input SNPs should be separated by chromosomes.");
+        desc.add_options()
+        ("help,h", "display help message")
+        ("inputs,i", po::value< vector<string> >(&inputFileNames), "specify all the SNP file directories.")
+        ("subjects,s", po::value< vector<string> >(&subjects), "specify all the names for the subjects with the same order as inputs.")
+        ("population,p", po::value<string>(&population), "specify the population.")
+        ("eQTLOn,e", po::value<bool>(&eQTLOn), "if eQTL analysis is desired, specify 1.")
+        ("GWASOn,g", po::value<bool>(&GWASOn), "if GWAS analysis is desired, specify 1.");
+        po::variables_map vm;
+        const char* av[all_args.size()];
+        for (int i = 0; i < all_args.size(); ++ i)
+        {
+            av[i] = all_args[i].c_str();
+        }
+        po::store(po::parse_command_line(all_args.size(), av, desc), vm);
+        po::notify(vm);
+        
+        if (all_args.size() <= 2)
+        {
+            cout << desc << "\n";
+            exit(0);
+        }
+        if (vm.count("help"))
+        {
+            cout << desc << "\n";
+            exit(0);
+        }
+    }
+}
+
 namespace generateBinNullSet
 {
     struct castTSS
@@ -136,7 +180,7 @@ namespace generateBinNullSet
         set<string> onChip;
         set<string> onAffy, onIllumina;
         set<string> onHapMap;
-        void construct(std::string &chrNum, std::string &population);
+        void construct(string &chrNum, string &population);
     };
     
     void castSNP::construct(string &chrNum, string &population)
@@ -202,38 +246,6 @@ namespace generateBinNullSet
         }
         infile.close();
         
-    }
-    
-    vector<string> inputFileNames, subjects;
-    string population;
-    
-    void init(const vector<string> &all_args)
-    {
-        po::options_description desc("Prepare the NULL set for matching. The input SNPs should be separated by chromosomes.");
-        desc.add_options()
-        ("help,h", "display help message")
-        ("inputs,i", po::value< vector<string> >(&inputFileNames), "specify all the SNP file directories.")
-        ("subjects,s", po::value< vector<string> >(&subjects), "specify all the names for the subjects with the same order as inputs.")
-        ("population,p", po::value<string>(&population), "specify the population.");
-        po::variables_map vm;
-        const char* av[all_args.size()];
-        for (int i = 0; i < all_args.size(); ++ i)
-        {
-            av[i] = all_args[i].c_str();
-        }
-        po::store(po::parse_command_line(all_args.size(), av, desc), vm);
-        po::notify(vm);
-        
-        if (all_args.size() <= 2)
-        {
-            cout << desc << "\n";
-            exit(0);
-        }
-        if (vm.count("help"))
-        {
-            cout << desc << "\n";
-            exit(0);
-        }
     }
     
     struct NULLSNPInfo
@@ -360,11 +372,11 @@ namespace generateMatchedNULLSet
     struct castTargetSNP
     {
         map<string, int> binNum_SNPNum;
-        void accumulateOverChr(string &chrNum);
-        void construct();
+        void accumulateOverChr(string &chrNum, string &subject, bool GWASoreQTL);
+        void construct(string &subject, bool GWASoreQTL);
     };
     
-    void castTargetSNP::construct()
+    void castTargetSNP::construct(string &subject, bool GWASoreQTL)
     {
         for (int i = 1; i <= 23; i++)
         {
@@ -379,19 +391,30 @@ namespace generateMatchedNULLSet
                 convert << i;
                 chrNum = convert.str();
             }
-            accumulateOverChr(chrNum);
+            accumulateOverChr(chrNum, subject, GWASoreQTL);
         }
     }
     
-    void castTargetSNP::accumulateOverChr(string &chrNum)
+    void castTargetSNP::accumulateOverChr(string &chrNum, string &subject, bool GWASoreQTL)
     {
         ifstream infile;
-        string fileName = "/home/yulingl/ase_diseases/gwasCatalog/fairBinedGWASCatalog/" + chrNum;
+        string fileName;
+        if (GWASoreQTL == 1)
+        {
+            fileName = GWASINPUTDIRECTORY + subject + "/" + chrNum;
+        }
+        else
+        {
+            fileName = EQTLINPUTDIRECTORY + subject + "/" + chrNum;
+        }
+        
         infile.open(fileName.c_str());
         if (infile.fail())
         {
-            return;
+            cerr << "Failed to open " << fileName << endl;
+            exit(1);
         }
+        
         vector<string> info;
         string currentLine;
         string SNPID;
@@ -417,7 +440,7 @@ namespace generateMatchedNULLSet
         map<string, string> SNP_binNum;
         set<string> NULLSetByBin;
         void construct(int &n, map<int, set<string> > &bin_key);
-        void outputNULLSNPSetByIterationByBin(int &iteration, string &binNum, string &param);
+        void outputNULLSNPSetByIterationByBin(int &iteration, string &binNum, string &subject, bool GWASoreQTL);
     };
     
     void castNULLSNP::construct(int &n, map<int, set<string> > &bin_key)
@@ -442,15 +465,44 @@ namespace generateMatchedNULLSet
         }
     }
     
-    void castNULLSNP::outputNULLSNPSetByIterationByBin(int &iteration, string &binNum, string &subject)
+    void castNULLSNP::outputNULLSNPSetByIterationByBin(int &iteration, string &binNum, string &subject, bool GWASoreQTL)
     {
         stringstream convert;
         convert << iteration;
-        string commandName = "mkdir -p /home/yulingl/ase_diseases/tmpFiles/matchedNULLSetsByItByBin/" + subject + "/" + convert.str();
-        system(commandName.c_str());
+        
+        string command;
+        if (GWASoreQTL == 1)
+        {
+            command = string("mkdir -p ") + GWASOUTPUTDIRECTORY + subject + "/" + convert.str();
+        }
+        else
+        {
+            command = string("mkdir -p ") + EQTLOUTPUTDIRECTORY + subject + "/" + convert.str();
+        }
+        if (system(command.c_str()) != 0)
+        {
+            cerr << "Failed to execute command " << command << endl;
+            exit(1);
+        };
+        
         ofstream outfile;
-        string fileName = "/home/yulingl/ase_diseases/tmpFiles/matchedNULLSetsByItByBin/" + subject + "/" + convert.str() + "/" + binNum;
+        string fileName;
+        if (GWASoreQTL == 1)
+        {
+            fileName = GWASOUTPUTDIRECTORY + subject + "/" + convert.str() + "/" + binNum;
+        }
+        else
+        {
+            fileName = EQTLOUTPUTDIRECTORY + subject + "/" + convert.str() + "/" + binNum;
+        }
+        
         outfile.open(fileName.c_str());
+        if (outfile.fail())
+        {
+            cerr << "Failed to open " << fileName << endl;
+            exit(1);
+        }
+        
         for (set<string>::iterator it = NULLSetByBin.begin(); it != NULLSetByBin.end(); it ++)
         {
             outfile << *it << endl;
@@ -464,7 +516,7 @@ namespace generateMatchedNULLSet
         int eQTLNum;
     };
     
-    void generateNULLSet(map<string, int> &binNum_num, string &subject, map<int, set<string> > &bin_key, string &population)
+    void generateNULLSet(map<string, int> &binNum_num, string &subject, map<int, set<string> > &bin_key, string &population, bool GWASoreQTL)
     {
         srand(time(NULL));
         vector<castBinNum_eQTLNum> binNum_eQTLNumVector;
@@ -531,24 +583,19 @@ namespace generateMatchedNULLSet
                         SNP_index.erase(SNPtoInsert);
                     }
                 }
-                NULLSNP.outputNULLSNPSetByIterationByBin(i, it -> binNum, subject);
+                NULLSNP.outputNULLSNPSetByIterationByBin(i, it -> binNum, subject, GWASoreQTL);
             }
         }
     }
 }
 
+using namespace generateBinMatchNULLSet;
 int main_generateBinFilterNULLSet(const vector<string> &all_args)
 {
-    map<string, map<int, set<string> > > subject_bin_key;
-    vector<string> c_subjects;
-    string globalPopulation;
+    init(all_args);
     
     {
         using namespace generateBinNullSet;
-        init(all_args);
-        
-        c_subjects = subjects;
-        globalPopulation = population;
         
         for (int i = 1; i <= 23; ++ i)
         {
@@ -584,13 +631,30 @@ int main_generateBinFilterNULLSet(const vector<string> &all_args)
     {
         using namespace generateMatchedNULLSet;
         
-        castTargetSNP targetSNP;
-        targetSNP.construct();
-        
-        for (int i = 0; i < c_subjects.size(); ++ i)
+        for (int i = 0; i < subjects.size(); ++ i)
         {
-            generateNULLSet(targetSNP.binNum_SNPNum, c_subjects[i], subject_bin_key[c_subjects[i]], globalPopulation);
+            if (GWASOn)
+            {
+                castTargetSNP GWASSNPs;
+                GWASSNPs.construct(subjects[i], 1);
+            
+                generateNULLSet(GWASSNPs.binNum_SNPNum, subjects[i], subject_bin_key[subjects[i]], population, 1);
+            }
+            
+            if (eQTLOn)
+            {
+                castTargetSNP eQTLs;
+                eQTLs.construct(subjects[i], 0);
+                
+                generateNULLSet(eQTLs.binNum_SNPNum, subjects[i], subject_bin_key[subjects[i]], population, 0);
+            }
         }
     }
+    
     return 0;
 }
+
+#undef EQTLINPUTDIRECTORY
+#undef GWASINPUTDIRECTORY
+#undef EQTLOUTPUTDIRECTORY
+#undef GWASOUTPUTDIRECTORY

@@ -91,11 +91,11 @@ namespace BamUtil
       // Only a match contributes letters from the read
       if (type == 'M')
         out_str += bases.substr(offset, len);
-      else if (type == 'D')
+      else if (type == 'D' || type == 'N')
         out_str += string(len, '-');
 
       // Anything but a deletion consumes letter from the read
-      if (type != 'D')
+      if (type != 'D' && type != 'N')
         offset += len;
 
       // Ignore any inserted/clipped letters entirely
@@ -128,11 +128,11 @@ namespace BamUtil
       // Only a match contributes letters from the read
       if (type == 'M')
         out_str += bam.Qualities.substr(offset, len);
-      else if (type == 'D')
+      else if (type == 'D' || type == 'N')
         out_str += string(len, del_qual);
 
       // Anything but a deletion consumes letter from the read
-      if (type != 'D')
+      if (type != 'D' && type != 'N')
         offset += len;
 
       // Ignore any inserted/clipped letters entirely
