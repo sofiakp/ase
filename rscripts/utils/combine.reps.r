@@ -1,45 +1,97 @@
 rm(list=ls())
 library('foreach')
 library('doMC')
+library(Matrix)
+library(DESeq)
 source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
 source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
 
-combine.reps <- function(filenames, outfile, get.p = T){
-  nfiles <- length(filenames)
+concat.reps = function(filenames, samples, outdir, meta = NULL){
+  # Combines information about replicates. For each individual, one file is written for all replicates. 
+  # The file has 3 matrices, tot, ref, and alt. Each matrix has one column per replicate.
+  
+  stopifnot(length(unique(samples$mark)) == 1) # Doesn't make sense to compute size factors if this is true
+  indivs = unique(as.character(samples$indiv))
+  mark = as.character(samples$mark[1])
+  
+  # Read all files to get total counts and compute size factors.
+#   en = new.env()
+#   nfiles = length(filenames)
+#   for(i in 1:nfiles){
+#     load(filenames[i], en)
+#     if(i == 1){agg.counts = en$counts[, 3] #array(0, c(dim(en$counts)[1], nfiles))
+#     }else{agg.counts = cbind(agg.counts, en$counts[, 3]) # 3rd column is the total counts
+#   }
+#   print(head(agg.counts))
+#   if(!is.null(meta)){
+#     pass = !grepl('chr[XY]', meta$chr) # Do not use sex chromosomes in the computation of size factors
+#   }else{pass = array(T, dim = c(dim(agg.counts)[1], 1))}
+#   all.size.factors = estimateSizeFactorsForMatrix(agg.counts[pass, ])
+
+  # For each individual, read all files corresponding to that individual.
+  for(i in 1:2){ #length(indivs)){
+    print(indivs[i])
+    outfile = file.path(outdir, paste('SNYDER_HG19', indivs[i], mark, '0.RData', sep = '_'))
+    sel = which(samples$indiv == indivs[i])
+    indiv.filenames = filenames[sel]
+    for(j in 1:length(indiv.filenames)){
+      load(filenames[j])
+      if(j == 1){
+        all.counts = counts
+        bad = snp.info$bad
+        print(head(all.counts))
+      }else{
+        all.counts = cBind(all.counts, counts)
+        bad = bad | snp.info$bad
+      } 
+    }
+    snp.info$bad = Matrix(bad)
+    print(head(all.counts))
+    ref = all.counts[, seq(1, dim(all.counts)[2], 3)]
+    colnames(ref) = paste(indivs[i], mark, as.character(samples$rep[sel]), sep = '_')
+    alt = all.counts[, seq(2, dim(all.counts)[2], 3)]
+    colnames(alt) = paste(indivs[i], mark, as.character(samples$rep[sel]), sep = '_')
+    tot = all.counts[, seq(3, dim(all.counts)[2], 3)]
+    colnames(tot) = paste(indivs[i], mark, as.character(samples$rep[sel]), sep = '_')
+    #size.factors = all.size.factors[sel]
+    save(tot, ref, alt, snp.info, file = outfile)
+  }
+}
+
+combine.reps <- function(filenames, samples, outfile, norm = F, meta = NULL){
+  # Sums up replicates, keeping read groups separately and computes p-values for mat vs pat
+  
+  nfiles = length(filenames)
+  if(norm){
+    # Adjust replicates by their size factors before summing them up
+    for(i in 1:nfiles){
+      load(filenames[i])
+      if(i == 1) agg.counts = array(0, c(dim(counts)[1], nfiles))
+      agg.counts[, i] = rowSums(counts)
+    }
+    size.factors = estimateSizeFactorsForMatrix(agg.counts)    
+  }
+  else{size.factors = array(1, dim = c(nfiles, 1))}
+  
   for(i in 1:nfiles){
     load(filenames[i])
     if(i == 1){
-      all.counts <- counts
-      all.sample <- sample
-      all.snp.info <- snp.info
+      all.counts = counts / size.factors[i]
+      bad = snp.info$bad
     }else{
-      stopifnot(all.sample$indiv == sample$indiv)
-      stopifnot(all.sample$mark == sample$mark)
-      all.sample <- rbind(all.sample, sample)
-      
-      stopifnot(all(colnames(all.counts) == colnames(counts)))
-      all.counts <- all.counts + counts
-      
-      stopifnot(all(all.snp.info$chr == snp.info$chr), all(all.snp.info$pos == snp.info$pos))
-                #all(all.snp.info$ref == snp.info$ref), all(all.snp.info$alt == snp.info$alt),
-                #all(all.snp.info$pass == snp.info$pass))
+      all.counts = all.counts + counts / size.factors[i]
+      bad = bad | snp.info$bad
     }
   }
-  pass = !is.na(all.snp.info$pval)
-  counts <- all.counts
-  snp.info <- all.snp.info
-  sample <- all.sample
-  if(length(filenames) > 1){
-    mat.idx <- grep('mat', colnames(counts))
-    pat.idx <- grep('pat', colnames(counts))
-    fwd.idx <- grep('fwd', colnames(counts))
-    sb <- binom.val(rowSums(counts[, fwd.idx]), rowSums(counts))
-    pval <- array(NaN, dim = c(dim(snp.info)[1], 1))
-    if(get.p) pval[pass] = binom.val(rowSums(counts[pass, mat.idx]), rowSums(counts[pass, c(mat.idx, pat.idx)]))
-    snp.info$pval = pval
-    snp.info$sb = sb
-  }  
-  save(counts, snp.info, sample, file = outfile)
+  pass = as.vector(meta$mat != meta$pat & !bad)
+  print(dim(all.counts))
+  snp.info = list()
+  snp.info$bad = Matrix(bad)
+  counts = round(all.counts) # Rounding will only have an effect if we computed size factors
+  pval = array(1, dim = c(length(pass), 1))
+  pval[pass] = binom.val.par(counts[pass, 1], rowSums(counts[pass, 1:2]))
+  snp.info$pval = Matrix(log(pval, base = 10))
+  save(counts, snp.info, samples, file = outfile)
 }
 
 select.reps = function(reps){
@@ -55,28 +107,44 @@ select.reps = function(reps){
   return(good.reps)
 }
 
-registerDoMC(2)
-filenames <- list.files(file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/'), 
-                        pattern = 'INPUT\\.counts\\.r', full.name = T, recursive = F, include.dirs = F)
-outdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/', 'reps_27Aug12')
-if(!file.exists(outdir)) dir.create(outdir)
+#registerDoMC(12)
+rg = F # T: sup up replicates, keep read groups separate, F: one file per indiv and mark
 
-all.info <- sample.info(filenames, '\\.counts\\.r$')
+indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/')
+filenames = list.files(indir, pattern = 'SNYDER_HG19_.*H3K27AC.*RData$', full.name = T, recursive = F, include.dirs = F)
+if(rg){
+  outdir = file.path(indir, 'reps')
+}else{outdir = file.path(indir, 'repsComb')}
+if(!file.exists(outdir)) dir.create(outdir, recursive = T)
+
+geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan') # genotype RData files should be here
+
+all.info <- sample.info(filenames, '\\.RData$')
+uniq.indivs = unique(as.character(all.info$indiv))
 types <- unique(all.info[, 1:2])
 overwrite = F
-#foreach(t = 1:dim(types)[1]) %dopar%{
-for(t in 1:dim(types)[1]){
-  reps <- which(all.info$indiv == types$indiv[t] & all.info$mark == types$mark[t])
-  if(length(reps) > 0){ # set to 0 to create rep files even for cases when there are no replicates
+
+if(rg){
+  for(i in uniq.indivs){
+    uniq.marks = unique(as.character(all.info$mark[all.info$indiv == i]))
+    # Load genotype data for the individual
+    geno.file = file.path(geno.dir, paste(i, 'snps.RData', sep = '.'))
+    load(geno.file)
+    
+    for(m in uniq.marks){
+      reps = which(all.info$indiv ==  i & all.info$mark == m)
+      print(basename(filenames[reps]))
+      outfile = file.path(outdir, paste('SNYDER_HG19', i, m, 'rep.RData', sep = '_'))
+      if(!file.exists(outfile) || overwrite) combine.reps(filenames[reps], droplevels(all.info[reps, ]), outfile, meta = geno.info)
+    }
+  }
+}else{
+  geno.file = file.path(geno.dir, 'allNonSan.snps.RData')
+  load(geno.file)
+  marks = unique(as.character(all.info$mark)) 
+  for(m in 1:length(marks)){
+    reps <- which(all.info$mark == marks[m]) # Get all datasets for that mark
     print(basename(filenames[reps]))
-    #sel.reps = reps[select.reps(all.info$rep[reps])]
-    #print(basename(filenames[sel.reps]))
-    # Write all the replicates (including technical)
-    #if(length(sel.reps) != length(reps)){
-    #  outfile <- file.path(outdir, gsub('[0-9\\.]+\\.counts.r$', 'reptr.counts.r', basename(filenames[reps[1]])))
-    #  if(!file.exists(outfile) || overwrite) combine.reps(filenames[reps], outfile, get.q = F, get.p = F)
-    #}
-    outfile = file.path(outdir, gsub('INPUT', 'INPUT_rep', gsub('[0-9\\.]+\\.counts.r$', 'rep.counts.r', basename(filenames[reps[1]]))))
-    #if(!file.exists(outfile) || overwrite) combine.reps(filenames[reps], outfile)
+    concat.reps(filenames[reps], droplevels(all.info[reps, ]), outdir, meta = snp.pos)
   }
 }
