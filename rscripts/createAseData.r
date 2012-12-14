@@ -10,6 +10,7 @@ usage <- function(){
   cat('-i=FILE\tInput file.\n', file = stderr())
   cat('-m=FILE\tSNP info file (an R data file). Has information about phased and masked SNPs\n', file = stderr())
   cat('-o=FILE\tOutput file.\n', file = stderr())
+  cat('-p\tCompute p-values\n', file  = stderr())
   cat('-q\tCompute q-values\n', file  = stderr())
 }
 
@@ -18,6 +19,7 @@ infile <- ''
 maskfile <- ''
 outfile <- ''
 get.q <- F
+#get.p = F # TODO: make p-value computation optional. If p-values are not computed, then we probably dont even need to store the snp.data.
 for(arg in args){
   if(grepl('^-m=', arg)){
     arg.split <- unlist(strsplit(arg, '='))
@@ -34,6 +36,8 @@ for(arg in args){
   }else if('-h' == arg){
     usage()
     stop('', call = F)
+  }else if(arg == '-p'){
+    get.p <- T
   }else if(arg == '-q'){
     get.q <- T
   }else if(grepl('^-', arg)){

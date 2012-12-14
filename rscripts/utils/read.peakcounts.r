@@ -1,0 +1,82 @@
+rm(list=ls())
+library(DESeq)
+library(GenomicRanges)
+source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
+
+# Reads files with counts in regions (eg. peaks). Replicates are assumed to be in different files, eg.
+# SNYDER_HG19_GM12878_H3K4ME3_[123]_.*
+# All replicate files are combined into one matrix with one column per replicate and written
+# in SNYDER_HG19_indiv_mark_0.RData.
+# Optionally, size factors for each replicate are computed with DESeq. The size factors 
+# are based on ALL datasets for the same mark, eg. SNYDER_HG19_.*_H3K4ME3.*
+
+indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/countsAtPeaksBroad//')
+outdir = file.path(indir, 'repsComb')
+if(!file.exists(outdir)) dir.create(outdir)
+
+get.sf = T # Get size factors with DESeq using all datasets for the same mark.
+
+filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*H3K27AC.*.bed', sep = ''), full.name = F)
+fsplit = strsplit(filenames, '_')
+marks = array(0, dim = c(length(filenames), 1))
+indivs = array(0, dim = c(length(filenames), 1))
+samples = array(0, dim = c(length(filenames), 1))
+for(i in 1:length(filenames)){
+  marks[i] = fsplit[[i]][4]
+  indivs[i] = fsplit[[i]][3]
+  samples[i] = paste(fsplit[[i]][3:5], collapse = '_') # indiv_mark_rep - replicate ids, will also be used as headers
+}
+uniq.marks = unique(marks)
+
+# ENCODE blacklisted regions: These will be completely removed from the output files
+bad.tab = read.table(file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomes_local/masks/wgEncodeHg19ConsensusSignalArtifactRegions.bed'), header = F, sep = '\t')
+bad.ranges = GRanges(seqnames = Rle(bad.tab[,1]), 
+                     ranges = IRanges(start = bad.tab[, 2] + 1, end = bad.tab[, 3]),
+                     strand = Rle(rep('+', dim(bad.tab)[1])))
+
+for(i in 1:length(uniq.marks)){
+  uniq.indivs = unique(indivs[marks == uniq.marks[i]])
+  if(length(uniq.indivs) < 1) next
+  
+  # For each individual with that mark
+  for(k in 1:length(uniq.indivs)){
+    sel = grep(paste('^SNYDER_HG19', uniq.indivs[k], uniq.marks[i], sep = '_'), filenames) # Select all replicates for that individual and mark
+    rep.filenames = filenames[sel]
+    print(rep.filenames)
+    nfiles = length(rep.filenames)
+    outfile = file.path(outdir, paste('SNYDER_HG19', uniq.indivs[k], uniq.marks[i], '0.RData', sep = '_'))
+    for(j in 1:nfiles){
+      tab = read.table(file.path(indir, rep.filenames[j]), header = F)
+      if(j == 1){
+        peak.ranges = GRanges(seqnames = Rle(tab[,1]), 
+                              ranges = IRanges(start = tab[, 2] + 1, end = tab[, 3]),
+                              strand = Rle(rep('+', dim(tab)[1])))
+        bad = peak.ranges %in% bad.ranges
+        regions = data.frame(chr = tab[!bad, 1], start = tab[!bad, 2] + 1, end = tab[!bad, 3])
+        rownames(regions) = paste(regions$chr, regions$start, sep = '_')
+        counts = array(0, dim = c(sum(!bad), nfiles))
+      }
+      stopifnot(all(tab[!bad, 1] == regions$chr), all(tab[!bad, 2] + 1 == regions$start), all(tab[!bad, 3] == regions$end))
+      counts[, j] = tab[!bad, 4]
+    }
+    counts = data.frame(counts, row.names = rownames(regions))
+    colnames(counts) = samples[sel]
+    # If we want size factors, then we need to concatenate all datasets for the same mark.
+    if(k == 1 && get.sf){counts.all = counts
+    }else if(get.sf){counts.all = cbind(counts.all, counts)}
+    save(regions, counts, file = outfile)    
+  }
+  
+  # Compute size factors if necessary
+  if(get.sf){
+    all.sf = estimateSizeFactorsForMatrix(counts.all[!grepl('chr[XY]', regions$chr), ])
+    for(k in 1:length(uniq.indivs)){
+      outfile = file.path(outdir, paste('SNYDER_HG19', uniq.indivs[k], uniq.marks[i], '0.RData', sep = '_'))
+      load(outfile)
+      sel.cols = colnames(counts.all) %in% colnames(counts)
+      size.factors = all.sf[sel.cols]
+      stopifnot(all(colnames(counts.all)[sel.cols] == colnames(counts))) # The order of the columns should be the same
+      save(regions, size.factors, counts, file = outfile)
+    }
+  }
+}

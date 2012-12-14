@@ -121,8 +121,13 @@ namespace processedGWASCatalog
     {
         ofstream outfile;
         string fileName;
-        string commandName = "mkdir -p /home/yulingl/ase_diseases/gwasCatalog/processedGWASCatalog";
-        system(commandName.c_str());
+        string command = "mkdir -p /home/yulingl/ase_diseases/gwasCatalog/processedGWASCatalog";
+        if (system(command.c_str()) != 0)
+        {
+            cerr << "Failed to execute command " << command << endl;
+            exit(1);
+        };
+        
         fileName = "/home/yulingl/ase_diseases/gwasCatalog/processedGWASCatalog/" + chrNum;
         outfile.open(fileName.c_str());
         for (set<string>::iterator it = chr_keys[chrNum].begin(); it != chr_keys[chrNum].end(); ++ it)

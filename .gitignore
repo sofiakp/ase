@@ -14,3 +14,10 @@
 
 # Makefiles
 Makefile
+
+# Rstudio files
+*.Rproj
+.RData
+.RDataTmp
+.Rhistory
+.Rproj.user

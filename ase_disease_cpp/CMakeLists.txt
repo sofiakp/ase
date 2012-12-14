@@ -32,16 +32,24 @@ add_executable(Ase
 
 add_executable(AseDisease
   AseDisease.cpp
+  AnnotateeQTLs.cpp
   SeparatedbSNP.cpp
   LDDataPreProcess.cpp
   SplitLD.cpp
   MapIDAlleles.cpp
   ProcessGWASCatalog.cpp
-  GenerateFairBinGWASCatalog.cpp
+  GenerateFairBinAssociationSNPs.cpp
   ComputeOverlapping.cpp
   GenerateBinFilterNullSet.cpp
   ComputeEnrichment.cpp
+  FilterASSNPs.cpp
+)
+
+add_executable(AseMotif
+  AseMotif.cpp
+  ComputeOverlappingMotif.cpp
 )
 
 target_link_libraries(Ase yaml-cpp swak gene bam vcf rod)
 target_link_libraries(AseDisease yaml-cpp swak gene bam vcf rod boost_program_options)
+target_link_libraries(AseMotif yaml-cpp swak gene bam vcf rod boost_program_options)
