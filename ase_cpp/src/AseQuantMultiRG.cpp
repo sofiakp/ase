@@ -157,8 +157,6 @@ int main_asequantmultirg(const vector<string> &all_args)
         string &chrom = chroms[chrom_idx].RefName;
         vector<Snp> snps = snps_by_chrom[chrom];
         
-        cerr << "* On chrom " << chrom << endl;
-        
         int s = 0; // Index into snp array
         
         BamAlignment bam;
@@ -167,11 +165,13 @@ int main_asequantmultirg(const vector<string> &all_args)
         string align;
         string qualities;
         
+        cerr << "* On chrom " << chrom << endl;
+
         while (bam_reader.GetNextAlignment(bam) && bam.RefID == chrom_idx) 
         {
-            if (bam.MapQuality < min_map_qual)
+	  if (bam.MapQuality < min_map_qual || !bam.IsMapped())
                 continue;
-            
+       
             string currentRG;
             Assert(bam.GetReadGroup(currentRG));
             
@@ -195,7 +195,7 @@ int main_asequantmultirg(const vector<string> &all_args)
             AlignedString(bam, align);
             AlignedQualities(bam, qualities);
             Assert(align.size() == qualities.size());
-            
+
             // Now, tally votes
             for (int i = 0; i < n; ++i)
             {

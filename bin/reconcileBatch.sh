@@ -51,7 +51,7 @@ if [ ! -d $INDIR ]; then
     echo 'Indir does not exist' 1>&2; exit 1;
 fi
 
-while read -r sample ; do
+while read -r sample fq2 ; do
     if [[ "$sample" =~ ^SNYDER_HG19_ ]]; then
 	sample=$sample
     else
@@ -74,9 +74,14 @@ while read -r sample ; do
 	final=${OUTDIR}/dedup/${sample}_reconcile.dedup.bam
     fi
 
+    if [[ $fq2 == "NA" ]]; then
+	single="-s"
+    else
+	single=""
+    fi
 
     #if [[ $CLEAN == "-c" || ! -f  $final ]]; then
-    bsub -J ${sample}_reconcile -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 24:00 -M 16384 -R "rusage[mem=16384]" "${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN $nopt"
+	bsub -J ${sample}_reconcile -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 24:00 -M 16384 -R "rusage[mem=16384]" "${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN $nopt $single"
     #else
     #	echo "Skipping $sample. Output file exists." 1>&2; continue;
     #fi

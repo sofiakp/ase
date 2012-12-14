@@ -11,15 +11,17 @@ OPTIONS:
    --outdir DIR [Required] Output directory.
    --sample STR [Required] Sample name. Input files are read from <indir>/<sample>_[mp]aternal.bam and output is written in <outdir>/<sample>_reconcile.bam.
    -n           Also sort deduped output by read name [0].
+   -s           Single end reads.
    -c           Overwrite output files [0]
 EOF
 }
 
-ARGS=`getopt -o "hcn" -l "indir:,outdir:,sample:" -- "$@"`
+ARGS=`getopt -o "hcns" -l "indir:,outdir:,sample:" -- "$@"`
 eval set -- "$ARGS"
 
 CLEAN=0
 NSORT=0
+PAIRED=1
 INDIR=
 OUTDIR=
 SAMPLE=
@@ -31,6 +33,7 @@ while [ $# -gt 0 ]; do
 	--sample) SAMPLE=$2; shift 2;;
 	-n) NSORT=1; shift;;
 	-c) CLEAN=1; shift;;
+	-s) PAIRED=0; shift;;
 	--) shift; break;;
 	*) usage; exit 1;;
     esac	    
@@ -69,8 +72,8 @@ if [[ ( ! -s ${inpref}_maternal.bam ) || ( ! -s ${inpref}_paternal.bam ) ]]; the
 fi
 
 if [[ $CLEAN -eq 1 || ! -f ${outpref}.bam ]]; then
-    ${MAYAROOT}/src/ase_cpp/bin/Ase reconcile rg1=paternal rg2=maternal ${inpref}_paternal.bam ${inpref}_maternal.bam ${tmppref}.bam > ${outpref}.out
-    num=`samtools view ${tmppref}.bam | head -1 | egrep "_1:N:0:[ACGT]+" | wc -l`
+    ${MAYAROOT}/src/ase_cpp/bin/Ase reconcile rg1=paternal rg2=maternal $PAIRED ${inpref}_paternal.bam ${inpref}_maternal.bam ${tmppref}.bam > ${outpref}.out
+    num=`samtools view ${tmppref}.bam | head -1 | egrep "_[12]:N:0:[ACGT]+" | wc -l`
     if [[ $num -gt 0 ]]; then
 	samtools view -h ${tmppref}.bam | sed -r 's/_[12]:N:0:[ACGT]+//' | samtools view -Sb - | samtools sort -m 2000000000 - ${outpref}
     else

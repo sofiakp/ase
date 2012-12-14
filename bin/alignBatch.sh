@@ -85,6 +85,7 @@ while read -r sample indiv fq1 fq2; do
     fqfile1=${FQDIR}/$(basename $fq1)
     if [[ $fq2 == "NA" ]]; then
 	fqfile2='NA'	
+
     else
 	fqfile2=${FQDIR}/$(basename $fq2)
     fi

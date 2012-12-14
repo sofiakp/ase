@@ -84,14 +84,14 @@ else
     echo "Missing or empty FASTQ files. Aborting..." 1>&2 ; exit 1;
 fi
     
-if [[ -s ${BAMDIR}/${SAMPLE}_1.sai && ( $FQ2 == 'NA' || -s ${BAMDIR}/${SAMPLE}_2.sai ) ]]; then
+if [[ -s ${BAMDIR}/${SAMPLE}_1.sai && ( $FQ2 == "NA" || -s ${BAMDIR}/${SAMPLE}_2.sai ) ]]; then
     if [[ $CLEAN -eq 1 || ! -f ${BAMDIR}/${SAMPLE}.bam ]]; then
 	head="@RG\tID:${SAMPLE}\tSM:${SAMPLE}\tPL:Illumina"
-	if [[ $FQ2 == 'NA' ]]; then
-	    bwa samse -r $head $SEQPREF ${BAMDIR}/${SAMPLE}_1.sai ${FQ1} | samtools view -Sbh -t ${SEQPREF}.fa.fai - | samtools sort $SORTOPT -m 2000000000 - ${BAMDIR}/${SAMPLE}
+	if [[ $FQ2 == "NA" ]]; then
+	    bwa samse -r $head $SEQPREF ${BAMDIR}/${SAMPLE}_1.sai ${FQ1} | sed -r 's/_[12]:N:0:[ACGT]+//' | samtools view -Sbh -t ${SEQPREF}.fa.fai - | samtools sort $SORTOPT -m 2000000000 - ${BAMDIR}/${SAMPLE}
 	else
             # Notice the sort by name here...
-	    bwa sampe -r $head $SEQPREF ${BAMDIR}/${SAMPLE}_1.sai ${BAMDIR}/${SAMPLE}_2.sai ${FQ1} ${FQ2} | samtools view -Sbh -t ${SEQPREF}.fa.fai - | samtools sort $SORTOPT -m 2000000000 - ${BAMDIR}/${SAMPLE}
+	    bwa sampe -r $head $SEQPREF ${BAMDIR}/${SAMPLE}_1.sai ${BAMDIR}/${SAMPLE}_2.sai ${FQ1} ${FQ2} | sed -r 's/_[12]:N:0:[ACGT]+//' | samtools view -Sbh -t ${SEQPREF}.fa.fai - | samtools sort $SORTOPT -m 2000000000 - ${BAMDIR}/${SAMPLE}
 	fi
 	if [[ $SORTPOS -eq 1 ]]; then
 	    samtools index ${BAMDIR}/${SAMPLE}.bam
