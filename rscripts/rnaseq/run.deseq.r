@@ -16,7 +16,7 @@ plotDE <- function(res){
     col = ifelse(res$padj < .1, "red", "black" ), xlab = 'Normalized mean counts', ylab = 'Log-fold-change' )
 }
 
-concat.counts = function(filenames){
+concat.counts = function(filenames, name.expr = "rownames(regions)"){
   for(f in 1:length(filenames)){
     load(filenames[f])
     if(f == 1){
@@ -35,7 +35,7 @@ concat.counts = function(filenames){
   }
   rownames(counts.all) = region.names
   # Remove technical replicates for correct dispersion estimation.
-  sel = !duplicated(gsub('\\.[0-9].*', '\\.1', sample.info(colnames(counts.all), ''))) # replace all technical replicate identifiers with 1.1. Then only keep one for each set of technical reps.
+  sel = !duplicated(gsub('\\.[0-9].*', '', colnames(counts.all))) # replace all technical replicate identifiers with 1.1. Then only keep one for each set of technical reps.
   counts.all = counts.all[, sel]
   #counts = data.frame(counts.all)
   #colnames(counts) = headers
@@ -47,18 +47,24 @@ concat.counts = function(filenames){
 # The file should contain a counts matrix with columns of the form indiv_mark_rep, a 
 # regions data.frame and a size.factors array with size factors corresponding to the 
 # columns of counts.
-mark = 'H3K4ME1'
-indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/countsAtPeaksBroad/repsComb/')
-load(file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData'))
+mark = 'POL4H8'
+method = 'blind' # Set to pooled unless you don't have replicates
+if(method == 'blind'){
+  sharingMode = 'fit-only'
+}else{
+  sharingMode = 'maximum'
+}
+indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/rep/counts/repsComb')# 'rawdata/genomeGrid/hg19_w10k/rep/counts/repsComb') #rawdata/signal/rep/countsAtPeaksBroad/repsComb/')
+#load(file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData'))
 meta = NULL # gene.meta ############### CHANGE!!!!!!!!!!!!
 sel.filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*_', mark, '_0.RData', sep = ''))
 outdir = file.path(indir, 'deseq')
 plotdir = file.path(outdir, 'plots')
 if(!file.exists(outdir)) dir.create(outdir)
 if(!file.exists(plotdir)) dir.create(plotdir)
-overwrite = F
+overwrite = T
 
-name.expr = "rownames(regions)" #paste(as.character(regions$chr), regions$start, sep = '_')" # Expression for getting row names for the count matrix
+#name.expr = "rownames(regions)" #paste(as.character(regions$chr), regions$start, sep = '_')" # Expression for getting row names for the count matrix
 sel.cols = NULL # c() Set to NULL to select all columns, set to c() to select no columns ################## CHANGE!!!!!!!!!!!!!
 
 indivs = sapply(unique(sample.info(sel.filenames, '.RData')$indiv), as.character)
@@ -75,7 +81,7 @@ for(i in 1:(length(indivs) - 1)){
       c = concat.counts(filenames)
       counts = c$counts
       regions = c$regions
-      pass = rowSums(counts) > quantile(rowSums(counts), 0.6) # 0.4 for expression 0.6 for marks with many peaks
+      pass = rowSums(counts) > quantile(rowSums(counts), 0.4) # 0.4 for expression 0.4 for marks with many peaks
       
       if(indivs[i] %in% males || indivs[j] %in% males){
         # Don't consider sex chromosomes, they are expected to have high p-values in comparisons between
@@ -89,7 +95,13 @@ for(i in 1:(length(indivs) - 1)){
       cds = newCountDataSet(c.dat, c$conds)
       # cds = estimateSizeFactors(cds)
       sizeFactors(cds) = c$size.factors
-      cds = estimateDispersions(cds, method = "pooled")
+      res = try({cds = estimateDispersions(cds, method = method, sharingMode = sharingMode)}, silent = TRUE)
+      if(class(res) == 'try-error'){
+        cat('Using local fit\n', file = stderr())
+        cds = estimateDispersions(cds, method = method, sharingMode = sharingMode, fitType = 'local')
+      }#else{
+      #  cds = estimateDispersions(cds, method = "pooled")
+      #}
       png(file.path(plotdir, paste(outpref, '_dispersion', '.png', sep = '')))
       plotDispEsts(cds)
       dev.off()

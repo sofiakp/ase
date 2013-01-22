@@ -6,17 +6,29 @@ get.diff.count = function(filenames, qcut){
   # and counts the number of times each region was found to be differential.
   # Each file must have a counts and a regions data.frame. 
   
+  tmp = unlist(strsplit(basename(filenames), '_'))
+  indivs1 = tmp[seq(1, length(tmp), 4)]
+  indivs2 = tmp[seq(2, length(tmp), 4)]
+  indivs = unique(append(indivs1, indivs2))
+  nindiv = length(indivs)
+  pair.diff = array(0, dim = c(nindiv, nindiv))
+  
   for(i in 1:length(filenames)){
     load(filenames[i])
     if(i == 1){
-      diff.count = array(0, dim = c(dim(regions)[1], 1))
+      diff.count = array(0, dim = c(nrow(regions), 1))
       names = rownames(counts)
     }else{
       stopifnot(all(rownames(counts) == names))
     }
-    diff.count = diff.count + as.numeric(!is.nan(regions$qval) & regions$qval < qcut)
+    sel = !is.nan(regions$qval) & regions$qval < qcut
+    diff.count = diff.count + as.numeric(sel)
+    pair.diff[which(indivs == indivs1[i]), which(indivs == indivs2[i])] = sum(sel)
   }
-  return(diff.count)
+  pair.diff = pair.diff + t(pair.diff)
+  colnames(pair.diff) = indivs
+  rownames(pair.diff) = indivs
+  return(list(diff.count = diff.count, pair.diff = pair.diff))
 }
 
 avg.counts = function(indir, indivs, suf, len.norm = T, meta = NULL){
@@ -127,9 +139,9 @@ load.dip.data = function(region.file, sig.files, labels, reg = 'max'){
   return(list(regions = regions, dip.sig = dip.sig, left.sig = left.sig, right.sig = right.sig))
 }
 
-plot.pcs = function(data, eigen, dev, labels, groups = labels, all = F){
+plot.pcs = function(data, eigen, dev, labels, groups = labels, all = F, ndim = 4){
   ###### Plot PC1 vs PC2 etc
-  nplots = min(3, dim(data)[2] - 1)
+  nplots = min(ndim - 1, dim(data)[2] - 1)
   nrows = dim(data)[1]
   
   if(all){
@@ -171,7 +183,7 @@ plot.pcs = function(data, eigen, dev, labels, groups = labels, all = F){
   
   ###### Plot variances
   pc.labels = paste('PC', 1:ncol(data), sep = '')
-  dev.dat = data.frame(dev = pca.fit$sdev / sum(dev), pc = ordered(pc.labels, levels = pc.labels))
+  dev.dat = data.frame(dev = dev / sum(dev), pc = ordered(pc.labels, levels = pc.labels))
   p2 = ggplot(dev.dat) + geom_bar(aes(x = pc, y = dev), position = 'dodge', stat = 'identity') + xlab('') + ylab('') + 
     theme(axis.text.x = element_text(size = 14, angle = -45, vjust = 1, hjust = 0), axis.text.y = element_text(size = 14))
   
@@ -322,8 +334,13 @@ get.pop = function(indivs){
                     'GM19238' = 'YRI',
                     'GM19239' = 'YRI',
                     'GM19240' = 'YRI',
-                    'SNYDER' = 'CEU', 
-                    'GM18486' = 'YRI')
+                    'SNYDER' = 'CEU',
+                    'MS1' = 'CEU',
+                    'GM18486' = 'YRI',
+                    'GM2255' = 'San',
+                    'GM2588' = 'San',
+                    'GM2610' = 'San',
+                    'GM2630' = 'San')
   }
   return(pop)
 }
@@ -334,7 +351,8 @@ get.pop.col = function(pop){
     colors[i] = switch(as.character(pop[i]),
                        'CEU' = '#E69F00',
                        'YRI' = '#009E73',
-                       'Asian' = '#0072B2')
+                       'Asian' = '#0072B2',
+                       'San' = '#CC79A7')
   }
   names(colors) = pop
   return(colors)
@@ -356,4 +374,57 @@ get.consistent.ov = function(ov.mat){
   sel.assoc = append(sel.pos[sel.pos[,2], 1], sel.neg[sel.neg[,2], 1])
   ratios = append(rep(1, sum(sel.pos[, 2])), rep(-1, sum(sel.neg[, 2])))
   return(list(assoc = sel.assoc, ratios = ratios))
+}
+
+order.marks = function(marks, sub.rna = T){
+  marks = as.character(marks)
+  if(sub.rna){
+    marks[marks == 'RNA'] = 'polyA-RNA'
+    marks[marks == 'RZ'] = 'RNA' 
+  }
+  levels = c('CTCF', 'PU1', 'SA1', 'H3K27AC', 'H3K4ME1', 'H3K4ME3', 'H2AZ', 'H3K9AC', 
+             'RNA', 'polyA-RNA', 'POL4H8', 'EPOL', 'H3K36ME3', 'BUB', 'H3K27ME3','H3K9ME3', 'INPUT')
+  return(ordered(factor(marks, levels = levels)))
+}
+
+get.hex = function(cols){
+  hex.cols = as.character(cols)
+  for(i in 1:length(cols)){
+    h = as.numeric(unlist(strsplit(as.character(cols[i]), ',')))
+    hex.cols[i] = rgb(h[1], h[2], h[3], maxColorValue = 255)
+  }
+  return(hex.cols)
+}
+
+mark.colors = function(marks){
+  marks = as.character(marks)
+  cols = marks
+  for(i in 1:length(marks)){
+    cols[i] = switch(as.character(marks[i]),
+                    'CTCF' = rgb(0,0,0, maxColorValue = 255),
+                    'PU1' = rgb(0,0,0, maxColorValue = 255),
+                    'SA1' = rgb(104, 34, 139, maxColorValue = 255), # darkorchid4
+                    'H3K27AC' = rgb(255,165,0, maxColorValue = 255),
+                    'H3K4ME1' = rgb(255,215,0, maxColorValue = 255),
+                    'H3K4ME3' = rgb(255,0,0, maxColorValue = 255),
+                    'H2AZ' = rgb(255,127,80, maxColorValue = 255), # coral
+                    'H3K9AC' = rgb(220,20,60, maxColorValue = 255),
+                    'RNA' = rgb(0,205,205, maxColorValue = 255), # darkcyan
+                    'polyA-RNA' = rgb(0,139,139, maxColorValue = 255),
+                    'POL4H8' = rgb(0,200,0, maxColorValue = 255),
+                    'EPOL' = rgb(0,200,0, maxColorValue = 255),
+                    'H3K36ME3' = rgb(0,150,0, maxColorValue = 255),
+                    'BUB' = rgb(0,150,0, maxColorValue = 255),
+                    'H3K27ME3' = rgb(105,105,105, maxColorValue = 255),
+                    'H3K9ME3' = rgb(169,169,169, maxColorValue = 255), 
+                     rgb(0,0,0, maxColorValue = 255))
+  }
+  names(cols) = marks
+  return(cols)
+}
+
+get.indivs = function(){
+  return(c("GM10847", "GM12878", "GM12891", "GM12892", "GM12890", "SNYDER", 
+           'GM18486', "GM18505", "GM19099", 'GM19193', "GM19238", "GM19239", "GM19240", "GM18526", "GM18951",
+           'GM2255', 'GM2588', 'GM2610', 'GM2630'))
 }

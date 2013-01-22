@@ -27,7 +27,7 @@ cor.par = function(x, y, nchunks = 10, method = 'spearman'){
   stopifnot(all(dim(x) == dim(y)))
   nvals = dim(x)[1]
   chunk.size = ceiling(nvals / nchunks)
-  cor.val = foreach(i = 1:nchunks, .combine = 'append', .inorder = T) %do%{
+  cor.val = foreach(i = 1:nchunks, .combine = 'append', .inorder = T) %dopar%{
     chunk.start = (i - 1) * chunk.size + 1
     chunk.end = min(i * chunk.size, nvals)
     chunk.true.size = chunk.end - chunk.start + 1
