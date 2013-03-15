@@ -2,29 +2,29 @@ rm(list=ls())
 library('GenomicRanges')
 #library(foreach)
 #library(doMC)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
+source('utils/binom.val.r')
+source('utils/sample.info.r')
 
 #registerDoMC(10)
 indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/geneCounts/')
-filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*_ambiguous.genecounts', sep = ''), full.name = T)
+filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*2255.*_ambiguous.genecounts', sep = ''), full.name = T)
 outdir = file.path(indir, 'rdata')
 if(!file.exists(outdir)) dir.create(outdir, recursive = T)
 # Bed files with regions to mask. Should be named <indiv>.blacklist.bed.
-mask.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/masks')
+mask.dir = '../../rawdata/variants/all/masks'
 # Files with phased SNPs - we want to mark genes that contain unphased SNPs
-geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/')
+geno.dir = '../../rawdata/variants/all/snps/'
 # Gene metadata: If the RData file does not exist, it will read the gtf and create the RData. Otherwise, it will read straight from the RData.
-gtf.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/gencode.v13.annotation.noM.genes.gtf')
-gene.file = file.path(Sys.getenv('MAYAROOT'), )
+gtf.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.gtf'
+gene.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData'
 # Exon metadata. MUST EXIST (See read.exoncounts)
-exon.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/gencode.v13.annotation.noM.flat.RData')
+exon.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.flat.RData'
 
 samples = sample.info(filenames, '_(maternal|paternal|ambiguous).genecounts')
-overwrite = T
+overwrite = F
 
 # These will be completely removed from the output files
-bad.tab = read.table(file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomes_local/masks/wgEncodeHg19ConsensusSignalArtifactRegions.bed'), header = F, sep = '\t')
+bad.tab = read.table('../../rawdata/genomes_local/masks/wgEncodeHg19ConsensusSignalArtifactRegions.bed', header = F, sep = '\t')
 bad.ranges = GRanges(seqnames = Rle(bad.tab[,1]), 
                      ranges = IRanges(start = bad.tab[, 2] + 1, end = bad.tab[, 3]),
                      strand = Rle(rep('+', dim(bad.tab)[1])))  
@@ -43,7 +43,7 @@ for(i in 1:nfiles){
     if(!file.exists(gene.file)){
       gff = read.table(gtf.file, header = F, sep = '\t')
       gene.chr = gff[, 1]
-      gene.starts = gff[, 4] + 1gene
+      gene.starts = gff[, 4] + 1
       gene.ends = gff[, 5]
       gene.strands = gff[, 7]
       gene.ids = gsub(';.*$', '', gsub('gene_id ', '', gff[, 9]))

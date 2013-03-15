@@ -16,9 +16,9 @@ set.seed(1)
 # Clustering and visualization of signal in regions (exons, peak regions etc)
 
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/segSignal/14indiv/extractSignal/fc/avgSig/') 
-counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig/') 
+#counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig/') 
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/combrep/extractSignal/fc/avgSig/')
-#counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/extractSignal/fc/avgSig/')
+counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/mergedInputs/combrep/extractSignal/fc/avgSig/')
 #counts.dir = '../../rawdata/dhs/alan/combrep/extractSignal/fc/avgSig/'
 #counts.dir= file.path(Sys.getenv('MAYAROOT'), 'rawdata/geneCounts/rdata/repsComb/')
 #deseq.dir = file.path(counts.dir, 'deseq/')
@@ -26,7 +26,7 @@ counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k/com
 outpref = 'SNYDER_HG19_all_reg_' 
 #outpref = 'gencode.v13.annotation.noM.genes_all_reg_'
 #outpref = 'txStates_10_11_12_'
-outpref = 'hg19_w10k_all_reg_'
+#outpref = 'hg19_w10k_all_reg_'
 #outpref = 'all_reg_'
 #outpref = 'pritchard_dhs_200bp_left_'
 
@@ -39,7 +39,7 @@ k = 6
 is.genes = F # T for RZ data
 plot.only = F
 quant = 0.4 # 0.4 for peak regions and transcriptomes
-mark = 'H3K27ME3'
+mark = 'H3K27AC'
 
 if(!plot.only){
   if(is.genes){
@@ -54,9 +54,9 @@ if(!plot.only){
     # region.file: BED file with regions to read. 
     # signal.files: should be txt files with just one column of values with the signal in each of the regions in region.file
     
-    region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/peakFiles/merged_withSan/', paste('SNYDER_HG19', mark, 'merged.bed.gz', sep = '_'))
+    region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/mergedInputs/combrep/peakFiles/merged/', paste('SNYDER_HG19', mark, 'merged.bed.gz', sep = '_'))
     #region.file = paste('../../rawdata/signal/combrep/peakFiles/merged/rand/SNYDER_HG19', mark, 'merged_rand.bed.gz', sep = '_')
-    region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k.bed')
+    #region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k.bed')
     #region.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.bed'
     #region.file = '../../rawdata/segSignal/14indiv/txStates_10_11_12.bed'
     #region.file = '../../rawdata/dhs/alan/pritchard_dhs_200bp_left.bed'
