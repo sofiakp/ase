@@ -94,7 +94,11 @@ while read inputline ; do
     fi
  
     control=$(echo ${inputline} | awk '{print $2}' | sed -r 's/\.bam/.bed.gz/g') # extract second column as control file name, replace .bam with .bed.gz
-    controlstub=$(echo ${control} | sed -r -e 's/;.*$//g' -e 's/\.bed\.gz//g') # Use first file name if multiple separated by ; and remove the .bed.gz extension to generate controlstub
+    if echo ${control} | grep -q ';'; then
+	controlstub='SNYDER_HG19_all_INPUT'
+    else
+	controlstub=$(echo ${control} | sed -r -e 's/;.*$//g' -e 's/\.bed\.gz//g') # Use first file name if multiple separated by ; and remove the .bed.gz extension to generate controlstub
+    fi
 
     outFile="${ODIR}/logFiles/${chipstub}_VS_${controlstub}.out"
     errFile="${ODIR}/logFiles/${chipstub}_VS_${controlstub}.err"

@@ -9,7 +9,7 @@ OPTIONS:
    -h     Show this message and exit
    -i DIR [Required] Input directory.
    -o DIR Output directory [default: input directory].
-   -x STR Type of index (bwa or bow) [default: bwa].
+   -x STR Type of index (bwa or bowtie2) [default: bwa].
    -e RE  Regular expression. Index of <RE>.*[mp]aternal.fa will be created [default: .*].
 EOF
 }

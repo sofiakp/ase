@@ -75,8 +75,8 @@ if [[ $CLEAN == "-c" || ! -f ${OUTPREF}_ambiguous.genecounts ]]; then
     done
 fi
 
-if [[ ! -z $EXPREF && ($CLEAN == "-c" || ! -f ${EXPREF}_ambiguous.exoncounts) ]]; then
-    for g in ambiguous paternal maternal; do
-	samtools view -F0xC -r $g $INFILE | python $MAYAROOT/tools/DEXSeq/inst/python_scripts/dexseq_count.py -s $DIRECTION -a $MQ $SINGLE $GFF - ${EXPREF}_${g}.exoncounts
-    done
-fi
+#if [[ ! -z $EXPREF && ($CLEAN == "-c" || ! -f ${EXPREF}_ambiguous.exoncounts) ]]; then
+#    for g in ambiguous paternal maternal; do
+#	samtools view -F0xC -r $g $INFILE | python $MAYAROOT/tools/DEXSeq/inst/python_scripts/dexseq_count.py -s $DIRECTION -a $MQ $SINGLE $GFF - ${EXPREF}_${g}.exoncounts
+#    done
+#fi

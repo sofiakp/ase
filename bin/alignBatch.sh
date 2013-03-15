@@ -76,7 +76,6 @@ while read -r sample indiv fq1 fq2; do
 	seqpref=${SEQDIR}/${indiv}
 	if [[ ! -f ${seqpref}.maternal.fa || ! -f ${seqpref}.paternal.fa ]]; then
 	    seqpref=${seqpref}/${indiv}
-	    echo $seqpref
 	    if [[ ! -f ${seqpref}.maternal.fa || ! -f ${seqpref}.paternal.fa ]]; then
 		echo "Could not file genome files for $sample. Skipping..." 1>&2 ; continue;
 	    fi
@@ -93,13 +92,14 @@ while read -r sample indiv fq1 fq2; do
 	if [[ $TOREF -eq 0 ]]; then
 	    for par in 'maternal' 'paternal'; do
 		if [[ $CLEAN == '-c' || ! -f ${BAMDIR}/${sample}_${par}.bam ]]; then
+		    echo $sample
 		    bsub -J ${sample}_${par} -o /dev/null -eo ${BAMDIR}/${sample}_${par}_align.err -n 4 -q research-rh6 -W 96:00 -M 12288 -R "rusage[mem=12288]" "${MAYAROOT}/src/bin/alignSample.sh --fq1 $fqfile1 --fq2 $fqfile2 --bamdir $BAMDIR --seqpref ${seqpref}.${par} --sample ${sample}_${par} $CLEAN"
-		else
-		    echo "Skipping ${sample}_${par}. Output file exists" 1>&2
+		#else
+		#    echo "Skipping ${sample}_${par}. Output file exists" 1>&2
 		fi
 	    done
 	else
-	    if [[ $CLEAN == '-c' || ! -f ${BAMDIR}/${sample}.bam ]]; then
+	    if [[ $CLEAN == '-c' || ! -f ${BAMDIR}/dedup/${sample}_dedup.bam ]]; then
 		bsub -J ${sample} -o /dev/null -eo ${BAMDIR}/${sample}_align.err -n 4 -q research-rh6 -W 96:00 -M 12288 -R "rusage[mem=12288]" "${MAYAROOT}/src/bin/alignSample.sh --fq1 $fqfile1 --fq2 $fqfile2 --bamdir $BAMDIR --seqpref ${SEQDIR} --sample ${sample} $CLEAN -p"
 	    else
 		echo "Skipping ${sample}. Output file exists" 1>&2

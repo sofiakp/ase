@@ -68,6 +68,7 @@ while read -r sample; do
 	echo "Skipping $sample. Input file is missing." 1>&2; continue;
     fi
     if [ ! -s $outfile ]; then
+	echo $sample
 	bsub -J ${sample}_qc -e /dev/null -o /dev/null -q research-rh6 -W 24:00 -M 8192 -R "rusage[mem=8192]" "${MAYAROOT}/src/bin/qcSample.sh -i $infile -o $OUTDIR -s $STATS"
     else
 	echo "Skipping $sample. Output file exists." 1>&2; continue;

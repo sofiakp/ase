@@ -80,9 +80,10 @@ while read -r sample fq2 ; do
 	single=""
     fi
 
-    #if [[ $CLEAN == "-c" || ! -f  $final ]]; then
+    if [[ $CLEAN == "-c" || ! -f  $final ]]; then
+	echo "$sample"
 	bsub -J ${sample}_reconcile -e /dev/null -o /dev/null -n 1 -q research-rh6 -W 24:00 -M 16384 -R "rusage[mem=16384]" "${MAYAROOT}/src/bin/reconcileSample.sh --indir $INDIR --outdir $OUTDIR --sample ${sample} $CLEAN $nopt $single"
     #else
     #	echo "Skipping $sample. Output file exists." 1>&2; continue;
-    #fi
+    fi
 done < "${LIST:-/proc/${$}/fd/0}"

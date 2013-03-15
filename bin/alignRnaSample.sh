@@ -74,8 +74,10 @@ if [[ -s ${FQ1} && -s ${FQ2} ]]; then
     else
 	ALN="$ALN --GTF $GTF"
     fi
+    zcat $FQ1 | sed -r 's/_[12]:N:0:[ACGT]+//' | gzip -c > ${FQ1}_TMP.gz
+    zcat $FQ2 | sed -r 's/_[12]:N:0:[ACGT]+//' | gzip -c > ${FQ2}_TMP.gz
     if [[ $CLEAN -eq 1 || ! -f ${BAMDIR}/accepted_hits.bam ]]; then
-	tophat2 $ALN -o $BAMDIR -r 200 --mate-std-dev 20 --transcriptome-index $TRPREF $SEQPREF $FQ1 $FQ2
+	tophat2 $ALN -o $BAMDIR -r 200 --mate-std-dev 20 --transcriptome-index $TRPREF $SEQPREF ${FQ1}_TMP.gz ${FQ2}_TMP.gz
     fi
 
     if [[ $CLEAN -eq 1 || ! -f ${MPREF}.bam ]]; then
@@ -88,9 +90,3 @@ if [[ -s ${FQ1} && -s ${FQ2} ]]; then
 	fi
     fi
 fi
-# mate-std-dev ?
-# coverage-search?
-# prefilter-multihits
-
-# Georgi's suggestion:
-# tophat2 --library-type fr-firststrand -p <some number of CPUs> --transcriptome-index GENCODE_V13_index  --GTF GENCODE_V13.gtf --no-discordant -o ./Output-TopHat-2.0.4-GENCODE-V13-GTF <hg19-male-index or hg19-female-index>  end1_1.fastq.gz,end1_2.fastq.gz,end1_3.fastq.gz,....end1_N.fastq.gz end2_1.fastq.gz,end2_2.fastq.gz,end2_3.fastq.gz,....end2_N.fastq.gz 

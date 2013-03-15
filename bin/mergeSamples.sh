@@ -50,10 +50,10 @@ while read inputline; do
     chip=$(echo ${inputline} | awk '{print $1}' | sed -r 's/\.bam/.bed.gz/g') # extract first column as ChIP file name, replace .bam with .bed.gz
     nchip=$(echo ${chip} | sed -r 's/;/\n/g' | wc -l)
     chipstub=$(echo ${inputline} | awk '{print $3}')
-    outchip=${INDIR}/${chipstub}_0_reconcile.dedup.bed.gz
+    outchip=${INDIR}/${chipstub}_0_dedup.bed.gz #0_reconcile.dedup.bed.gz
     if [[ $nchip -gt 1  && ( ! -f $outchip || $CLEAN -eq 1 ) ]]; then
-	logfile=${INDIR}/${chipstub}_0_reconcile.dedup.files.txt # Write which files were used in the merged file
-	echo -e "${chip}\t${chipstub}_0_reconcile.dedup.bed.gz" > $logfile
+	#logfile=${INDIR}/${chipstub}_0_reconcile.dedup.files.txt # Write which files were used in the merged file
+	#echo -e "${chip}\t${chipstub}_0_reconcile.dedup.bed.gz" > $logfile
 	chip=$(echo ${chip} | sed -r 's/;/\n/g' | xargs -I fname find "${INDIR}" -name fname -printf "%p ") # separate file names with space
 	bsub -q research-rh6 -g "${JOBGRPID}" -J "${chipstub}" -W 24:00 -o /dev/null -e /dev/null "zcat $chip | sort -V | gzip -c > $outchip"
     else
