@@ -33,7 +33,7 @@ snp.ranges = GRanges(seqnames = Rle(snp.pos$chr),
 geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan')
 
 q.cut = -2 # Log-10 pvalue cutoff
-overwrite = F
+overwrite = T
 males = c('SNYDER', 'GM12891', 'GM19239', 'GM18486')
 ############# End parameter setting
 
@@ -51,7 +51,7 @@ for(n in 1:ninput){
   inputhit = as.vector(snp.info$pval < -2)
   
   # CHANGE THE PATTERN HERE IF YOU WANT TO ONLY GET A SUBSET OF MARKS
-  filenames = list.files(indir, pattern = paste('SNYDER_HG19_', indiv, '.*rep.*\\.RData', sep = ''), full.name = F)
+  filenames = list.files(indir, pattern = paste('SNYDER_HG19_', indiv, '.*_H3K36ME3.*rep.*\\.RData', sep = ''), full.name = F)
   marks = as.character(sample.info(filenames, '.RData')$mark)
   nfiles = length(filenames)
   

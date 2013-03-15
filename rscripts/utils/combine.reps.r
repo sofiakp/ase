@@ -107,11 +107,11 @@ select.reps = function(reps){
   return(good.reps)
 }
 
-#registerDoMC(12)
-rg = F # T: sup up replicates, keep read groups separate, F: one file per indiv and mark
+registerDoMC(6)
+rg = T # T: sup up replicates, keep read groups separate, F: one file per indiv and mark
 
 indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/')
-filenames = list.files(indir, pattern = 'SNYDER_HG19_.*H3K27AC.*RData$', full.name = T, recursive = F, include.dirs = F)
+filenames = list.files(indir, pattern = 'SNYDER_HG19_.*RData$', full.name = T, recursive = F, include.dirs = F)
 if(rg){
   outdir = file.path(indir, 'reps')
 }else{outdir = file.path(indir, 'repsComb')}
@@ -133,9 +133,19 @@ if(rg){
     
     for(m in uniq.marks){
       reps = which(all.info$indiv ==  i & all.info$mark == m)
-      print(basename(filenames[reps]))
       outfile = file.path(outdir, paste('SNYDER_HG19', i, m, 'rep.RData', sep = '_'))
-      if(!file.exists(outfile) || overwrite) combine.reps(filenames[reps], droplevels(all.info[reps, ]), outfile, meta = geno.info)
+      if(!file.exists(outfile) || overwrite){
+        print(basename(filenames[reps]))
+        combine.reps(filenames[reps], droplevels(all.info[reps, ]), outfile, meta = geno.info)
+      }else if(file.exists(outfile)){
+        # Load the file and check which replicates it contains
+        load(outfile)
+        if(nrow(samples) != length(reps) ||
+          !all(as.character(sort(samples$rep)) == as.character(sort(all.info[reps, 3])))){
+          print(basename(filenames[reps]))
+          combine.reps(filenames[reps], droplevels(all.info[reps, ]), outfile, meta = geno.info)
+        }
+      } 
     }
   }
 }else{

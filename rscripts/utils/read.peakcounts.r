@@ -10,14 +10,15 @@ source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
 # Optionally, size factors for each replicate are computed with DESeq. The size factors 
 # are based on ALL datasets for the same mark, eg. SNYDER_HG19_.*_H3K4ME3.*
 
-indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/countsAtPeaksBroad//')
+indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/rep/counts/') #rawdata/genomeGrid/hg19_w10k/rep/counts/') #'rawdata/signal/rep/countsAtPeaksBroad/')
 outdir = file.path(indir, 'repsComb')
 if(!file.exists(outdir)) dir.create(outdir)
 
 get.sf = T # Get size factors with DESeq using all datasets for the same mark.
+is.gene = T # T if you're reading counts at gene bodies. In this case, the 4th column is the gene name
 
-filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*H3K27AC.*.bed', sep = ''), full.name = F)
-fsplit = strsplit(filenames, '_')
+filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*BUB.*.bed', sep = ''), full.name = F)
+fsplit = strsplit(gsub('.*_AT_', '', filenames), '_')
 marks = array(0, dim = c(length(filenames), 1))
 indivs = array(0, dim = c(length(filenames), 1))
 samples = array(0, dim = c(length(filenames), 1))
@@ -40,7 +41,7 @@ for(i in 1:length(uniq.marks)){
   
   # For each individual with that mark
   for(k in 1:length(uniq.indivs)){
-    sel = grep(paste('^SNYDER_HG19', uniq.indivs[k], uniq.marks[i], sep = '_'), filenames) # Select all replicates for that individual and mark
+    sel = grep(paste('_AT_SNYDER_HG19', uniq.indivs[k], uniq.marks[i], sep = '_'), filenames) # Select all replicates for that individual and mark
     rep.filenames = filenames[sel]
     print(rep.filenames)
     nfiles = length(rep.filenames)
@@ -53,11 +54,12 @@ for(i in 1:length(uniq.marks)){
                               strand = Rle(rep('+', dim(tab)[1])))
         bad = peak.ranges %in% bad.ranges
         regions = data.frame(chr = tab[!bad, 1], start = tab[!bad, 2] + 1, end = tab[!bad, 3])
-        rownames(regions) = paste(regions$chr, regions$start, sep = '_')
+        if(is.gene){rownames(regions) = tab[!bad, 4]
+        }else{rownames(regions) = paste(regions$chr, regions$start, sep = '_')}
         counts = array(0, dim = c(sum(!bad), nfiles))
       }
       stopifnot(all(tab[!bad, 1] == regions$chr), all(tab[!bad, 2] + 1 == regions$start), all(tab[!bad, 3] == regions$end))
-      counts[, j] = tab[!bad, 4]
+      counts[, j] = tab[!bad, ncol(tab)]
     }
     counts = data.frame(counts, row.names = rownames(regions))
     colnames(counts) = samples[sel]

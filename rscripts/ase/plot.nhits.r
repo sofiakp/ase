@@ -2,6 +2,7 @@ rm(list=ls())
 library(reshape)
 library(ggplot2)
 source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
+source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
 
 indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata', 'reps')
 countdir = file.path(indir, 'qvals')
@@ -62,23 +63,48 @@ if(nsamples > 50){
   out.size = 5
 }
 
-hit.dat = data.frame(indiv = samples$indiv, mark = samples$mark, hits = nhits, norm.hits = ncand)
-p = ggplot(hit.dat) + geom_bar(aes(x = indiv, y = norm.hits), stat = "identity") + 
-  facet_wrap(~mark, scales = "free_y") + scale_y_continuous('AS-SNPs / het SNPs (%)') + scale_x_discrete('') +
-  theme(axis.text.x = element_text(angle = -45, vjust = 1, hjust = 0))
-ggsave(file.path(plotdir, 'num_as_snps_norm.png'))
+new.indiv = as.character(samples$indiv)
+new.indiv[new.indiv == 'SNYDER'] = 'MS1'
+hit.dat = data.frame(indiv = new.indiv, mark = order.marks(samples$mark), hits = nhits, norm.hits = ncand)
+write.table(hit.dat, file = file.path(plotdir, 'num_as_snps_stats.txt'), row.names = F, col.names = T, sep = '\t', quote = F)
+
+p1 = ggplot(hit.dat) + geom_bar(aes(x = indiv, y = norm.hits, fill = mark), stat = "identity") + 
+  facet_wrap(~mark, scales = "free_y") + scale_y_continuous('AS-SNPs / het SNPs (%)') + scale_x_discrete('') + theme_bw() +
+  scale_fill_manual(values =  mark.colors(hit.dat$mark), guide = F) +
+  theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
+        axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
+        strip.text.x = element_text(size = 16))
+ggsave(file.path(plotdir, 'num_as_snps_norm.pdf'), p1, width = 13.6, height = 11.8)
+p2 = ggplot(hit.dat) + geom_boxplot(aes(x = mark, y = norm.hits, fill = mark)) + 
+  xlab('') + ylab('AS-SNPs / het SNPs (%)') + theme_bw() + 
+  scale_fill_manual(values =  mark.colors(hit.dat$mark), guide = F) +
+  theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
+        axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
+        strip.text.x = element_text(size = 16))
+ggsave(file.path(plotdir, 'num_as_snps_norm_box.pdf'), p2, width = 6.5, height = 5.6)
 
 if(read.lists){
-  for(d in indivs){
+  for(d in new.indiv){
     hit.dat = rbind(hit.dat, data.frame(indiv = factor(d), mark = 'union', hits = sum(all.hits[[d]]), norm.hits = 1))
   }
 }else{
-  for(d in indivs){
+  for(d in new.indiv){
     hit.dat = rbind(hit.dat, data.frame(indiv = factor(d), mark = 'union', hits = length(all.hits[[d]]), norm.hits = 1))
   }  
 }
 
-q = ggplot(hit.dat) + geom_bar(aes(x = indiv, y = hits), stat = "identity") + 
-  facet_wrap(~mark, scales = "free_y") + scale_y_continuous('# AS-SNPs') + scale_x_discrete('') +
-  theme(axis.text.x = element_text(angle = -45, vjust = 1, hjust = 0))
-ggsave(file.path(plotdir, 'num_as_snps.png'))
+lev = levels(hit.dat$mark)
+q1 = ggplot(hit.dat) + geom_bar(aes(x = indiv, y = hits, fill = mark), stat = "identity") + 
+  facet_wrap(~mark, scales = "free_y") + scale_y_continuous('# AS-SNPs') + scale_x_discrete('') + theme_bw() +
+  scale_fill_manual(values =  mark.colors(hit.dat$mark), guide = F) +
+  theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
+        axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
+        strip.text.x = element_text(size = 16))
+ggsave(file.path(plotdir, 'num_as_snps.pdf'), q1, width = 13.6, height = 11.8)
+q2 = ggplot(hit.dat) + geom_boxplot(aes(x = mark, y = hits, fill = mark)) + 
+  xlab('') + ylab('# AS-SNPs') + theme_bw() + 
+  scale_fill_manual(values = mark.colors(hit.dat$mark), guide = F) +
+  theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
+        axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
+        strip.text.x = element_text(size = 16))
+ggsave(file.path(plotdir, 'num_as_snps_box.pdf'), q2, width = 6.5, height = 5.6)

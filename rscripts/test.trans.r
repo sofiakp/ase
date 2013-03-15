@@ -10,12 +10,34 @@ source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
 source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
 
 make.cor.plot = function(cor.dat, title){
-  return(ggplot(cor.dat) + geom_density(aes(x = cor, color = is.prox)) + 
-    theme_bw() + xlab('correlation') + ylab('density') + scale_color_discrete('') + ggtitle(title) +
-    theme(axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12),
-          axis.title.x = element_text(size = 15), axis.title.y = element_text(size = 15),
-          legend.text = element_text(size = 15), plot.title = element_text(size = 15)))
+  return(ggplot(cor.dat) + geom_density(aes(x = cor, color = is.prox), size = 1.5) + 
+    theme_bw() + xlab('Correlation') + ylab('Density') + scale_color_discrete('') + ggtitle(title) +
+    theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 15),
+          axis.title.x = element_text(size = 16), axis.title.y = element_text(size = 16),
+          legend.text = element_text(size = 15), plot.title = element_text(size = 16), legend.position = c(0.2, 0.8)))
 }
+get.cor = function(rna.counts, ac.counts, accoc){
+  cor.rand = cor.par(ac.counts[sample(1:nrow(ac.counts), sample.size),], rna.counts[sample(1:nrow(rna.counts), sample.size), ], method = 'pearson')
+  cor.prox = cor.par(ac.counts[assoc$ac.idx[is.prox],], rna.counts[assoc$gene.idx[is.prox], ], nchunks = 1, method = 'pearson')
+  cor.dist = cor.par(ac.counts[assoc$ac.idx[!is.prox],], rna.counts[assoc$gene.idx[!is.prox], ], nchunks = 1, method = 'pearson')
+  cor.all = cor.par(ac.counts[assoc$ac.idx,], rna.counts[assoc$gene.idx, ], nchunks = 1, method = 'pearson')
+  cat('proximal correlation, mean =', mean(cor.prox, na.rm = T), 'median =', median(cor.prox, na.rm = T), '\n')
+  cat('distal correlation, mean =', mean(cor.dist, na.rm = T), 'median =', median(cor.dist, na.rm = T), '\n')
+  cat('average correlation, mean =', mean(cor.dist, na.rm = T), 'median =', median(cor.all, na.rm = T), '\n')
+  cat(sprintf('Diff between proximal and distal P = %g\n', wilcox.test(cor.prox, cor.dist)$p.value))
+  cat(sprintf('Diff between proximal and random P = %g\n', wilcox.test(cor.prox, cor.rand)$p.value))
+  cat(sprintf('Diff between distal and random P = %g\n', wilcox.test(cor.rand, cor.dist)$p.value))
+  cat(sprintf('Diff between all and random P = %g\n', wilcox.test(cor.rand, cor.all)$p.value))
+  cor.dat = data.frame(cor = append(cor.rand, append(cor.prox, cor.dist)), 
+                       is.prox = append(rep('random', sample.size), append(rep('Proximal', sum(is.prox)), rep('Distal', sum(!is.prox)))))
+  p1 = make.cor.plot(cor.dat, 'Correlation with expression at TSS')
+  cor.dat = data.frame(cor = append(cor.rand, cor.all), 
+                       is.prox = append(rep('Random', sample.size), rep('True', length(cor.all))))
+  p2 = make.cor.plot(cor.dat, 'Correlation with expression at TSS')
+  return(list(p1 = p1, p2 = p2))
+}
+
+registerDoMC(2)
 
 # Dir with counts for RNA. Should contain files SNYDER_HG19_<indiv>_<mark>_0.RData with read counts for genes.
 # Each count matrix should have one column per replicate. The file should also have a vector size.factors with
@@ -25,7 +47,7 @@ peak.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/rdata'
 outdir = file.path('../../rawdata/enhancers/external/jason/plots')
 if(!file.exists(outdir)) dir.create(outdir)
 mark = 'H3K27AC' # signal in distal elements to correlate with expression
-outpref = 'jason_GM12878_allgenes_'
+outpref = 'all_jason_GM12878_'
 
 # Load TSSs. gene.meta has gene information and trans has positions of all TSSs as well as the index of 
 # the corresponding gene in gene.meta.
@@ -53,7 +75,7 @@ load(file.path(peak.dir, 'SNYDER_HG19_H3K4ME3_qn.RData'))
 row.means = rowMeans(counts)
 row.sds = rowSds(counts)
 cvs = row.sds / row.means
-good.rows = !is.na(cvs) #& row.means > asinh(0.2) & cvs > quantile(cvs, 0.4, na.rm = T)
+good.rows = !is.na(cvs) & row.means > asinh(0.2) & cvs > quantile(cvs, 0.2, na.rm = T)
 me.regions = regions[good.rows, ]
 me.counts = counts[good.rows, colnames(counts) %in% colnames(rna.counts)]
 stopifnot(all(colnames(me.counts) == colnames(rna.counts)))
@@ -100,7 +122,7 @@ load(file.path(peak.dir, paste('SNYDER_HG19', mark, 'qn.RData', sep = '_')))
 row.means = rowMeans(counts)
 row.sds = rowSds(counts)
 cvs = row.sds / row.means
-good.rows = !is.na(cvs) #& row.means > asinh(0.2) & cvs > quantile(cvs, 0.4, na.rm = T)
+good.rows = !is.na(cvs) & row.means > asinh(0.2) & cvs > quantile(cvs, 0.2, na.rm = T)
 ac.regions = regions[good.rows, ]
 ac.counts = counts[good.rows, colnames(counts) %in% colnames(rna.counts)]
 stopifnot(all(colnames(ac.counts) == colnames(rna.counts)))
@@ -127,7 +149,7 @@ stopifnot(all(colnames(ac.counts) == colnames(rna.counts)))
 # Stam links
 # assoc = read.table('../../rawdata/enhancers/external/stam/genomewideCorrs_above0.7_promoterPlusMinus500kb_withGeneNames_32celltypeCategories.bed8', header = F, sep = '\t')[, 4:8]
 # Jason links
-assoc = read.table('../../rawdata/enhancers/external/jason/GM12878_links_hg19_merged.bed', header = F, sep = '\t')[, c(4,1,2,3,5)]
+assoc = read.table('../../rawdata/enhancers/external/jason/all_links_hg19_merged.bed', header = F, sep = '\t')[, c(4,1,2,3,5)]
 # Discovered links
 # links = new.env()
 # load('../../rawdata/enhancers/rdata/enhancer_pred_l1_H3K27AC.RData', links)
@@ -157,25 +179,26 @@ cat('# proximal associations:', sum(is.prox), '(', sum(is.prox) * 100 / nrow(ass
 sample.size = min(c(5000, nrow(ac.counts), nrow(rna.counts)))
 
 cat('Correlations with RNA\n')
-cor.rand = cor.par(ac.counts[sample(1:nrow(ac.counts), sample.size),], rna.counts[sample(1:nrow(rna.counts), sample.size), ], method = 'pearson')
-cor.prox = cor.par(ac.counts[assoc$ac.idx[is.prox],], rna.counts[assoc$gene.idx[is.prox], ], nchunks = 1, method = 'pearson')
-cor.dist = cor.par(ac.counts[assoc$ac.idx[!is.prox],], rna.counts[assoc$gene.idx[!is.prox], ], nchunks = 1, method = 'pearson')
-cat('proximal correlation, mean =', mean(cor.prox, na.rm = T), 'median =', median(cor.prox, na.rm = T), '\n')
-cat('distal correlation, mean =', mean(cor.dist, na.rm = T), 'median =', median(cor.dist, na.rm = T), '\n')
-cor.dat = data.frame(cor = append(cor.rand, append(cor.prox, cor.dist)), 
-                     is.prox = append(rep('rand', sample.size), append(rep('proximal', sum(is.prox)), rep('distal', sum(!is.prox)))))
-p1 = make.cor.plot(cor.dat, 'Correlation with expression at TSS')
-#ggsave(file.path(outdir, paste(outpref, mark, '_cor_with_RZ.png', sep = '')), p1, width = 6.5, height = 5.6)
+p = get.cor(rna.counts, ac.counts, assoc)
+ggsave(file.path(outdir, paste(outpref, mark, '_cor_with_RZ.pdf', sep = '')), p$p1, width = 6.5, height = 5.6)
+ggsave(file.path(outdir, paste(outpref, mark, '_cor_with_RZ_merged.pdf', sep = '')), p$p2, width = 6.5, height = 5.6)
 
 cat('Correlations with H3K4me3 at TSSs\n')
-cor.prox = cor.par(ac.counts[assoc$ac.idx[is.prox],], me.match.counts[assoc$gene.idx[is.prox], ], nchunks = 1, method = 'pearson')
-cor.dist = cor.par(ac.counts[assoc$ac.idx[!is.prox],], me.match.counts[assoc$gene.idx[!is.prox], ], nchunks = 1, method = 'pearson')
-cat('proximal correlation, mean =', mean(cor.prox, na.rm = T), 'median =', median(cor.prox, na.rm = T), '\n')
-cat('distal correlation, mean =', mean(cor.dist, na.rm = T), 'median =', median(cor.dist, na.rm = T), '\n')
-cor.dat = data.frame(cor = append(cor.rand, append(cor.prox, cor.dist)), 
-                     is.prox = append(rep('rand', sample.size), append(rep('proximal', sum(is.prox)), rep('distal', sum(!is.prox)))))
-p2 = make.cor.plot(cor.dat, 'Correlation with H3K4me3 at TSS')
-#ggsave(file.path(outdir, paste(outpref, mark, '_cor_with_H3K4ME3.png', sep = '')), p2, width = 6.5, height = 5.6)
+q = get.cor(me.match.counts, ac.counts, assoc)
+ggsave(file.path(outdir, paste(outpref, mark, '_cor_with_H3K4ME3.pdf', sep = '')), q$p1, width = 6.5, height = 5.6)
+ggsave(file.path(outdir, paste(outpref, mark, '_cor_with_H3K4ME3_merged.pdf', sep = '')), q$p2, width = 6.5, height = 5.6)
+
+# cor.prox = cor.par(ac.counts[assoc$ac.idx[is.prox],], me.match.counts[assoc$gene.idx[is.prox], ], nchunks = 1, method = 'pearson')
+# cor.dist = cor.par(ac.counts[assoc$ac.idx[!is.prox],], me.match.counts[assoc$gene.idx[!is.prox], ], nchunks = 1, method = 'pearson')
+# cat('proximal correlation, mean =', mean(cor.prox, na.rm = T), 'median =', median(cor.prox, na.rm = T), '\n')
+# cat('distal correlation, mean =', mean(cor.dist, na.rm = T), 'median =', median(cor.dist, na.rm = T), '\n')
+# cat(sprintf('Diff between proximal and distal P = %g\n', wilcox.test(cor.prox, cor.dist)$p.value))
+# cat(sprintf('Diff between proximal and random P = %g\n', wilcox.test(cor.prox, cor.rand)$p.value))
+# cat(sprintf('Diff between distal and random P = %g\n', wilcox.test(cor.rand, cor.dist)$p.value))
+# cor.dat = data.frame(cor = append(cor.rand, append(cor.prox, cor.dist)), 
+#                      is.prox = append(rep('random', sample.size), append(rep('proximal', sum(is.prox)), rep('distal', sum(!is.prox)))))
+# p2 = make.cor.plot(cor.dat, 'Correlation with H3K4me3 at TSS')
+# ggsave(file.path(outdir, paste(outpref, mark, '_cor_with_H3K4ME3.pdf', sep = '')), p2, width = 6.5, height = 5.6)
 
 # is.prox = array(F, dim = c(nrow(assoc), 1))
 # for(i in 1:length(is.prox)){
