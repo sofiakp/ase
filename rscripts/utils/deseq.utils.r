@@ -1,11 +1,17 @@
 require(GenomicRanges)
 require(MASS)
 
-get.diff.count = function(filenames, qcut){
+get.diff.count = function(filenames, qcut, fold.cut = NULL, is.log = T){
   # Reads a set of files produced by doing pairwise comparisons with DESeq
   # and counts the number of times each region was found to be differential.
-  # Each file must have a counts and a regions data.frame. 
+  # Each file must have a counts and a regions data.frame.
+  # qcut is a qvalue cutoff for calling a region differential. 
+  # fold.cut is a cutoff on fold change (if !is.log) or log-fold-change (if is.log)
+  # for calling a region differential.
   
+  if(is.null(fold.cut)){
+    if(is.log){fold.cut = 0}else{fold.cut = 1}
+  }
   tmp = unlist(strsplit(basename(filenames), '_'))
   indivs1 = tmp[seq(1, length(tmp), 4)]
   indivs2 = tmp[seq(2, length(tmp), 4)]
@@ -22,6 +28,11 @@ get.diff.count = function(filenames, qcut){
       stopifnot(all(rownames(counts) == names))
     }
     sel = !is.nan(regions$qval) & regions$qval < qcut
+    if(is.log){
+      sel = sel & (regions$log2Fold > fold.cut | regions$log2Fold < -fold.cut) 
+    }else{
+      sel = sel & (regions$fold > fold.cut | regions$fold < 1/fold.cut)
+    }
     diff.count = diff.count + as.numeric(sel)
     pair.diff[which(indivs == indivs1[i]), which(indivs == indivs2[i])] = sum(sel)
   }
@@ -166,11 +177,11 @@ plot.pcs = function(data, eigen, dev, labels, groups = labels, all = F, ndim = 4
       }
     }
   }
-  p1 = ggplot(d) + geom_point(aes(x = x, y = y, color = groups, shape = groups), size = 5) + 
-    geom_text(aes(x = x, y = y, label = labels, color = groups), show_guide = F, size = 5, vjust = 2) + 
+  p1 = ggplot(d) + geom_point(aes(x = x, y = y, color = groups, shape = groups), size = 4) + 
+    geom_text(aes(x = x, y = y, label = labels, color = groups), show_guide = F, size = 4, vjust = 2) + 
     facet_wrap(~type, scales = 'free') + xlab('') + ylab('') + scale_color_manual('', values = get.pop.col(unique(groups))) + scale_shape_discrete('') +
-    theme(strip.text.x = element_text(size = 14), legend.text = element_text(size = 14),
-          axis.text.x = element_text(size = 14), axis.text.y = element_text(size = 14))
+    theme(strip.text.x = element_text(size = 12), legend.text = element_text(size = 12),
+          axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12))
   
   ###### Plot eigenvalues 
 #   pc.dat = data.frame(pca.fit$rotation[, 1:isva.fit$nsv])
@@ -185,7 +196,7 @@ plot.pcs = function(data, eigen, dev, labels, groups = labels, all = F, ndim = 4
   pc.labels = paste('PC', 1:ncol(data), sep = '')
   dev.dat = data.frame(dev = dev / sum(dev), pc = ordered(pc.labels, levels = pc.labels))
   p2 = ggplot(dev.dat) + geom_bar(aes(x = pc, y = dev), position = 'dodge', stat = 'identity') + xlab('') + ylab('') + 
-    theme(axis.text.x = element_text(size = 14, angle = -45, vjust = 1, hjust = 0), axis.text.y = element_text(size = 14))
+    theme(axis.text.x = element_text(size = 12, angle = -45, vjust = 1, hjust = 0), axis.text.y = element_text(size = 12))
   
   return(list(p1 = p1, p2 = p2))
 }
@@ -340,13 +351,17 @@ get.pop = function(indivs){
                     'GM2255' = 'San',
                     'GM2588' = 'San',
                     'GM2610' = 'San',
-                    'GM2630' = 'San')
+                    'GM2630' = 'San',
+                    'HG2255' = 'San',
+                    'HG2588' = 'San',
+                    'HG2610' = 'San',
+                    'HG2630' = 'San')
   }
   return(pop)
 }
 
 get.pop.col = function(pop){
-  colors = pop
+  colors = as.character(pop)
   for(i in 1:length(pop)){
     colors[i] = switch(as.character(pop[i]),
                        'CEU' = '#E69F00',
@@ -427,4 +442,49 @@ get.indivs = function(){
   return(c("GM10847", "GM12878", "GM12891", "GM12892", "GM12890", "SNYDER", 
            'GM18486', "GM18505", "GM19099", 'GM19193', "GM19238", "GM19239", "GM19240", "GM18526", "GM18951",
            'GM2255', 'GM2588', 'GM2610', 'GM2630'))
+}
+fix.indiv.names = function(indivs){
+  indivs[indivs == 'SNYDER'] = 'MS1'
+  indivs[indivs == 'GM2588'] = 'HG2588'
+  indivs[indivs == 'GM2255'] = 'HG2255'
+  indivs[indivs == 'GM2610'] = 'HG2610'
+  indivs[indivs == 'GM2630'] = 'HG2630'
+  return(indivs)
+}
+plot.tile = function(mat, x.ord.samples = NULL, y.ord.samples = NULL, xsep = NULL, ysep = NULL, ylabels = NULL, 
+                     low = 'blue', high = 'red', 
+                     midpoint = 1, ycolor = 'black', xcolor = 'black', draw.y.line = T,
+                     xcex = 12, ycex = 12, lcex = 14, xtitle = '', ytitle = ''){
+  dat = data.frame(melt(mat))
+  if(!is.factor(dat$X1)){
+    dat$X1 = -dat$X1
+  }else if(!is.null(y.ord.samples)){
+    dat$X1 = droplevels(ordered(factor(dat$X1, levels = y.ord.samples[seq(length(y.ord.samples), 1, -1)])))
+  }
+  if(!is.factor(dat$X2)){
+    dat$X2 = -dat$X2
+  }else if(!is.null(x.ord.samples)){
+    dat$X2 = droplevels(ordered(factor(dat$X2, levels = x.ord.samples)))
+  }
+  p = ggplot(dat) + geom_raster(aes(x = X2, y = X1, fill = value)) +
+    scale_fill_gradient2(low = low, high = high, mid = 'beige', midpoint = midpoint)
+  if(is.factor(dat$X2)){
+    p = p + scale_x_discrete(expand = c(0, 0))
+  }else{
+    p = p + scale_x_continuous(expand = c(0, 0))
+  }
+  if(is.factor(dat$X1)){
+    p = p + scale_y_discrete(expand = c(0, 0))
+  }else{
+    if(!is.null(ysep)){
+      p = p + scale_y_continuous(breaks = ysep, labels = ylabels, expand = c(0, 0)) 
+      if(draw.y.line) p = p + geom_hline(yintercept = -ysep, size = 0.6)
+    }else{p = p + scale_y_continuous(expand = c(0, 0))}
+  }
+  p = p + theme_bw() + xlab(xtitle) + ylab(ytitle) + 
+    theme(axis.text.x = element_text(size = xcex, angle = 90, vjust = 0.5, hjust = 1, color = xcolor),
+          axis.title.x = element_text(size = lcex),
+          axis.text.y = element_text(size = ycex, color = ycolor), axis.title.y = element_text(size = lcex),
+          legend.text = element_text(size = lcex), legend.title = element_blank())
+  return(p)
 }

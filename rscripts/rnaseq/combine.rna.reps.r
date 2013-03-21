@@ -21,11 +21,11 @@ concat.rna.reps = function(filenames, samples, outdir, meta = NULL){
     if(i == 1) agg.counts = array(0, c(dim(en$counts)[1], nfiles))
     agg.counts[, i] = rowSums(en$counts)
   } # COMPUTING SIZE FACTORS ON ALL DATA MIGHT TAKE FOREVER
-  print(head(agg.counts))
-  if(!is.null(meta)){
-    pass = !grepl('chr[XY]', meta$chr) # Do not use sex chromosomes in the computation of size factors
-  }else{pass = array(T, dim = c(dim(agg.counts)[1], 1))}
-  all.size.factors = estimateSizeFactorsForMatrix(agg.counts[pass, ])
+  #print(head(agg.counts))
+  #if(!is.null(meta)){
+  #  pass = !grepl('chr[XY]', meta$chr) # Do not use sex chromosomes in the computation of size factors
+  #}else{pass = array(T, dim = c(dim(agg.counts)[1], 1))}
+  #all.size.factors = estimateSizeFactorsForMatrix(agg.counts[pass, ])
   
   for(i in 1:length(indivs)){
     outfile = file.path(outdir, paste('SNYDER_HG19', indivs[i], mark, '0.RData', sep = '_'))
@@ -34,8 +34,8 @@ concat.rna.reps = function(filenames, samples, outdir, meta = NULL){
     regions = data.frame(mask = en$regions$mask, het = en$regions$het, phased = en$regions$phased, row.names = rownames(en$regions))
     counts = data.frame(agg.counts[, sel], row.names = rownames(en$counts))
     colnames(counts) = paste(indivs[i], mark, as.character(samples$rep[sel]), sep = '_')
-    size.factors = all.size.factors[sel]
-    save(counts, regions, size.factors, file = outfile)
+    #size.factors = all.size.factors[sel]
+    save(counts, regions, file = outfile)
   }
 }
 
@@ -115,14 +115,14 @@ is.gene = T # Read genecounts vs exoncounts
 if(is.gene){
   subdir = 'geneCounts'
   suf = 'genecounts'
-  load('rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData') # meta-data file
+  load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData') # meta-data file
 }else{
   subdir = 'exonCounts'
   suf = 'exoncounts'
-  load('rawdata/transcriptomes/gencode.v13.annotation.noM.flat.RData')
+  load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.flat.RData')
 }
 indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata', subdir, 'rdata')
-filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*\\.', suf, '\\.RData', sep = ''), full.name = T, recursive = F, include.dirs = F)
+filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*(2255|2588|2610|2630|19193).*\\.', suf, '\\.RData', sep = ''), full.name = T, recursive = F, include.dirs = F)
 if(rg){
   outdir = file.path(indir, 'reps/qvals')
 }else{outdir = file.path(indir, 'repsComb')}
@@ -130,7 +130,7 @@ if(!file.exists(outdir)) dir.create(outdir, recursive = T)
 
 all.info <- sample.info(filenames, paste('\\.', suf, '\\.RData$', sep = ''))
 overwrite = F
-males = c('SNYDER', 'GM12891', 'GM19239', 'GM18486')
+males = c('SNYDER', 'GM12891', 'GM19239', 'GM18486', 'GM2255', 'GM2588', 'GM2610', 'GM2630')
 
 if(rg){
   types = unique(all.info[, 1:2])

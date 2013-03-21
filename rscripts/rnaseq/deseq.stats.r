@@ -3,9 +3,9 @@ library(GenomicRanges)
 library(matrixStats)
 library(reshape)
 library(ggplot2)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
+source('utils/sample.info.r')
+source('utils/deseq.utils.r')
+source('utils/binom.val.r')
 source('/media/fusion10/work/sofiakp/scott/rfiles/plot.heatmap.R')
 
 # This snippet selects and outputs differential genes
@@ -31,16 +31,17 @@ source('/media/fusion10/work/sofiakp/scott/rfiles/plot.heatmap.R')
 #         axis.title.x = element_text(size = 16), axis.title.y = element_text(size = 16))
 # ggsave(file.path(plotdir, 'RZ_num_diff_pairs.png'), p, width = 6.5, height = 5.6)
 
-deseq.dir = '../../rawdata/signal/rep/countsAtPeaksBroad/repsComb/deseq/'
-files = list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T)
-deseq.dir = '../../rawdata/genomeGrid/hg19_w10k/rep/counts/repsComb/deseq/'
-files = append(files, list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T))
-deseq.dir = '../../rawdata/transcriptomes/rep/counts/repsComb/deseq/'
-files = append(files, list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T))
-deseq.dir = '../../rawdata/geneCounts/rdata/repsComb/deseq/'
-files = append(files, list.files(deseq.dir, pattern = '*RZ_deseq.RData', full.names = T))
+files = c()
+#deseq.dir = '../../rawdata/signal/rep/countsAtPeaksBroad/repsComb/deseq/'
+#files = list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T)
+#deseq.dir = '../../rawdata/genomeGrid/hg19_w10k/rep/counts/repsComb/deseq/'
+#files = append(files, list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T))
+#deseq.dir = '../../rawdata/transcriptomes/rep/counts/repsComb/deseq/'
+#files = append(files, list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T))
+deseq.dir = '../../rawdata/geneCounts/rdata/repsComb/deseq2/'
+files = append(files, list.files(deseq.dir, pattern = '*RZ_deseq2.RData', full.names = T))
 
-plotdir = '../../rawdata/signal/rep/countsAtPeaksBroad/repsComb/plots/'
+plotdir = '../../rawdata/geneCounts/rdata/repsComb/deseq2/plots' #'../../rawdata/signal/rep/countsAtPeaksBroad/repsComb/plots/'
 if(!file.exists(plotdir)) dir.create(plotdir)
 
 # We will use the pop-clustering data to reorder individuals if possible
@@ -56,17 +57,17 @@ uniq.marks = unique(marks)
 diff.all = NULL
 diff.all.norm = NULL
 
-for(m in uniq.marks[9]){
+for(m in uniq.marks){
   sel.files = files[grep(m, files)]
   print(length(sel.files))
-  diff.dat = get.diff.count(sel.files, 0.0001)
+  diff.dat = get.diff.count(sel.files, 0.001, is.log = T, fold.cut = log2(1.25))
   diff.counts = diff.dat$diff.count
   
   diff.sum = as.matrix(table(diff.counts)) # How many regions differ in X pairs of individuals? 
   n = as.numeric(rownames(diff.sum)) 
   diff.sum = cumsum(diff.sum[seq(length(diff.sum), 1, -1)])[seq(length(diff.sum), 1, -1)] # How many regions differ in >= X pairs of individuals?
-  diff.sum = diff.sum[n > 0 & n < 11]
-  diff.sum = data.frame(pairs = 1:10, count = diff.sum)
+  diff.sum = diff.sum[n > 0 & n < 21]
+  diff.sum = data.frame(pairs = 1:20, count = diff.sum)
   diff.sum$mark = rep(m, nrow(diff.sum))
   diff.all = rbind(diff.all, diff.sum)
   diff.sum$count = diff.sum$count / length(diff.counts)
@@ -100,7 +101,7 @@ diff.all.norm$mark = order.marks(diff.all.norm$mark)
 p = ggplot(diff.all, aes(group = mark)) + geom_line(aes(x = pairs, y = count, color = mark), size = 1) + 
   geom_point(aes(x = pairs, y = count, color = mark, shape = mark), size = 5) + 
   xlab('Number of pairwise comparisons') + ylab('Number of regions varying in at least X pairs') + theme_bw() + 
-  scale_x_continuous(breaks = 1:10) + #scale_color_discrete('') + 
+  scale_x_continuous(breaks = 1:20) + #scale_color_discrete('') + 
   scale_shape_manual(values = c(15, 16, 17, 15, 16, 17, 15, 16, 17)) + 
   scale_color_manual(values =  mark.colors(unique(diff.all$mark))) + 
   theme(axis.text.x = element_text(size = 14), axis.text.y = element_text(size = 14), 
@@ -111,7 +112,7 @@ ggsave(file.path(plotdir, 'num_diff_pairs.pdf'), p, width = 6.5, height = 5.6)
 q = ggplot(diff.all.norm, aes(group = mark)) + geom_line(aes(x = pairs, y = count, color = mark), size = 1) + 
   geom_point(aes(x = pairs, y = count, color = mark, shape = mark), size = 5) + 
   xlab('Number of pairwise comparisons') + ylab('Fraction of regions varying in at least X pairs') + theme_bw() + 
-  scale_x_continuous(breaks = 1:10) + 
+  scale_x_continuous(breaks = 1:20) + 
   scale_shape_manual(values = c(15, 16, 17, 15, 16, 17, 15, 16, 17)) + 
   scale_color_manual(values =  mark.colors(unique(diff.all$mark))) + 
   theme(axis.text.x = element_text(size = 14), axis.text.y = element_text(size = 14), 

@@ -4,16 +4,19 @@ library('GenomicRanges')
 #library(doMC)
 source('utils/binom.val.r')
 source('utils/sample.info.r')
+source('utils/deseq.utils.r')
 
 #registerDoMC(10)
 indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/geneCounts/')
-filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*2255.*_ambiguous.genecounts', sep = ''), full.name = T)
+filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*19193.*_ambiguous.genecounts', sep = ''), full.name = T)
 outdir = file.path(indir, 'rdata')
 if(!file.exists(outdir)) dir.create(outdir, recursive = T)
 # Bed files with regions to mask. Should be named <indiv>.blacklist.bed.
-mask.dir = '../../rawdata/variants/all/masks'
+mask.dir = '../../rawdata/variants/novelCalls/filtered//masks'
 # Files with phased SNPs - we want to mark genes that contain unphased SNPs
-geno.dir = '../../rawdata/variants/all/snps/'
+geno.dir = '../../rawdata/variants/novelCalls/filtered/snps/'
+# File with SNP metadata
+load('../../rawdata/variants/sanConsensus/snps/san.snps.RData')
 # Gene metadata: If the RData file does not exist, it will read the gtf and create the RData. Otherwise, it will read straight from the RData.
 gtf.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.gtf'
 gene.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData'
@@ -94,21 +97,15 @@ for(i in 1:nfiles){
       if(g == 1){
         indiv = samples$indiv[i]
         mask.file = file.path(mask.dir, paste(indiv, '.blacklist.bed', sep = ''))
-        mask.tab = read.table(mask.file, header = F, sep = '\t', comment.char = '#')
-        mask.ranges = GRanges(seqnames = Rle(mask.tab[,1]), 
-                              ranges = IRanges(start = mask.tab[, 2] + 1, end = mask.tab[, 3]),
-                              strand = Rle(rep('+', dim(mask.tab)[1])))  
+        mask.ranges = regions.to.ranges(read.bed(mask.file))  
         mask = countOverlaps(gene.ranges, mask.ranges, ignore.strand = T) > 0
         
-        geno.file = file.path(geno.dir, paste(indiv, '.snps.r', sep = ''))
+        geno.file = file.path(geno.dir, paste(indiv, '.snps.RData', sep = ''))
         load(geno.file)
-        het = geno.info[[paste(indiv, 'mat', sep = '.')]] != geno.info[[paste(indiv, 'pat', sep = '.')]]
-        unphased = !geno.info[[paste(indiv, 'phased', sep = '.')]]
-        snp.ranges = GRanges(seqnames = Rle(geno.info$chr), 
-                             ranges = IRanges(start = geno.info$pos, end = geno.info$pos),
-                             strand = Rle(rep('+', length(het))))
-        het.ov = countOverlaps(gene.ranges, snp.ranges[het, ], ignore.strand = T) > 0
-        unphased.ov = countOverlaps(gene.ranges, snp.ranges[unphased, ], ignore.strand = T) > 0
+        het = as.vector(geno.info$mat != geno.info$pat)
+        unphased = as.vector(geno.info$unphased)
+        het.ov = countOverlaps(gene.ranges, snps.to.ranges(snp.pos[het, ]), ignore.strand = T) > 0
+        unphased.ov = countOverlaps(gene.ranges, snps.to.ranges(snp.pos[unphased, ]), ignore.strand = T) > 0
       }
     }
     counts = data.frame(counts, row.names = rownames(gene.meta))

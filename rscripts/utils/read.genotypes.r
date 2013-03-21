@@ -6,18 +6,18 @@ library(Matrix)
 # CHROM, POS, ID, REF, ALT, GENOTYPE
 # The name of the files should be <indiv>suf.
 # The output will be written in <indiv>.snps.RData.
-suf = '.allNonSan.txt'
-snp.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan/')
+suf = '.san.txt'
+snp.dir = '../../rawdata/variants/sanConsensus/snps/'
 snp.files = list.files(snp.dir, pattern = paste(suf, sep = ''), full.names = T)
 # Bed files with regions to mask. Should be named <indiv>.blacklist.bed.
-mask.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/masks')
+mask.dir = '../../rawdata/variants/sanConsensus/masks/'
 overwrite = F
 
 # SNP positions will be written (or read from) here. The genotype files for all individuals are 
 # assumed to have the SAME SNPs in the SAME ORDER. However, the alternative allele for each individual
 # might differ. Therefore, we store the SNP positions, IDs, and reference alleles at one place, 
 # and for each individual only store the alternative allele, genotypes, and individual-specific masks.
-snp.pos.file = file.path(snp.dir, 'allNonSan.snps.RData')
+snp.pos.file = file.path(snp.dir, 'san.snps.RData')
 snp.pos = NULL
 
 # These will be completely removed from the output files
