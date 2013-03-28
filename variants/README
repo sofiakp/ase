@@ -1,0 +1,185 @@
+Variant calls for the individuals in the study.
+
+============== Converting pilot 1000GP data to hg19 =================
+
+a) Map VCF to hg19 coordinates
+cat CEU.trio.2010_09.genotypes.vcf.gz | python /media/fusion10/work/chromatinVariation/src/python/mapVariants.py > CEU.trio.2010_09.genotypes.tmp.vcf
+
+b) Sort
+egrep "#" CEU.trio.2010_09.genotypes.tmp.vcf > CEU.trio.2010_09.genotypes.tmp.sort.vcf; for c in {1..22}; do awk -v c=chr$c '{if($1==c) print $0}' CEU.trio.2010_09.genotypes.tmp.vcf | sort -k2,2n >> CEU.trio.2010_09.genotypes.tmp.sort.vcf; done; egrep chrX CEU.trio.2010_09.genotypes.tmp.vcf | sort -k2,2n >> CEU.trio.2010_09.genotypes.tmp.sort.vcf
+
+c) Add dbSNP version 135 IDs:
+java -jar /media/fusion10/work/tools/gatk/GenomeAnalysisTK.jar -T VariantAnnotator -R /media/fusion10/work/sofiakp/UCSC/hg19/hg19noYnoM.fa --variant CEU.trio.2010_09.genotypes.tmp.sort.vcf -o CEU.trio.2010_09.genotypes.tmp.sort.dbsnp135.vcf --dbsnp  /media/fusion10/work/tools/gatk/bundle/1.5/hg19/dbsnp_135.hg19.vcf
+
+NOTICE: VariantAnnotator seems to change some of the INFO fields. This doesn't affect us, since we only care about the genotypes, but keep in mind...
+
+d) Check against hg19 and remove SNPs for which neither the REF nor the ALT alleles match hg19. This step will also switch REF and ALT for SNPs where the hg19 reference allele is marked as ALT in the input VCF (so in the output VCF the REF allele should always agree with hg19).
+cat CEU.trio.2010_09.genotypes.tmp.sort.dbsnp135.vcf | python /media/fusion10/work/chromatinVariation/src/python/validateVcfAgainstFa.py /media/fusion10/work/sofiakp/UCSC/hg19/ > CEU.trio.2010_09.genotypes.hg19.vcf 2> CEU.trio.2010_09.sites.hg19diff.txt
+
+Get a separate file for each individual.
+/usr/local/bin/python2.7 ../supporting/splitLowCovSvs.py -o snps/ -s .snps.vcf -a  -v snps/CEU.trio.2010_09.genotypes.hg19.vcf
+/usr/local/bin/python2.7 ../supporting/splitLowCovSvs.py -o snps/ -s .snps.vcf -a  -v snps/YRI.trio.2010_09.genotypes.hg19.vcf
+NOTE: The files have the same SNPs for all individuals in the trio (i.e. it might have SNPs that are not actually present in each individual), and this is done on purpose, since it facilitates some downstream analyses.
+NOTE 2: The SNPs for the trios are incorrectly marked as VT=SV due to a bug, but this doesn't really affect any of the downstrean analyses.
+
+Get heterozygous variants:
+for i in `ls . | egrep "GM[0-9]+.snps.vcf"`; do p=${i/.snps.vcf/.snps.het.vcf}; cat $i | /usr/local/bin/python2.7 $MAYAROOT/src/python/selectVariants.py > $p; done
+
+=============== Extra steps for fathers of trios to incorporate chrY =================
+
+chrY SNPs are only available for the trio fathers. These don't seem to be lifted over to hg19, so some extra work is needed...
+
+a) Create a bed file with the SNP positions (UPDATE: It would be better to use mapSvs.py as with the duplications etc. But the results don't change - I tried it).
+zcat ../1000gp/pilot_data/paper_data_sets/a_map_of_human_variation/trio/snps/trio.2010_09.ychr.genotypes.vcf.gz | egrep -v "#" | awk '{print $1, $2-1, $2, "+"}' > trio.2010_09.ychr.genotypes.tmp.bed
+
+b) lift over allowing multiple mappings (as it turns out, there aren't any)
+../../../tools/ucscTools/liftOver trio.2010_09.ychr.genotypes.tmp.bed ../../../tools/gatk/chains/b36tob37.chain trio.2010_09.ychr.genotypes.tmp.lifted.bed trio.2010_09.ychr.genotypes.tmp.unmapped.bed -bedPlus=4 -multiple
+
+c) Map VCF to hg19 coordinates (remove NUYR, these seem to be low quality in repetitive regions)
+zcat ../1000gp/pilot_data/paper_data_sets/a_map_of_human_variation/trio/snps/trio.2010_09.ychr.genotypes.vcf.gz | /usr/local/bin/python2.7 ../../src/python/mapVariants.py --bed trio.2010_09.ychr.genotypes.tmp.lifted.bed | awk '{if($7 != "NUYR") print $0}' > trio.2010_09.ychr.genotypes.tmp.vcf
+
+d) Add dbSNP version 135 IDs as above
+java -jar /media/fusion10/work/tools/gatk/GenomeAnalysisTK.jar -T VariantAnnotator -R /media/fusion10/work/sofiakp/UCSC/hg19/chrY.fa --variant trio.2010_09.ychr.genotypes.tmp.vcf -o trio.2010_09.ychr.genotypes.tmp.dbsnp135.vcf --dbsnp  /media/fusion10/work/tools/gatk/bundle/1.5/hg19/dbsnp_135.hg19.vcf
+
+e) Check against hg19: cat trio.2010_09.ychr.genotypes.tmp.dbsnp135.vcf | python /media/fusion10/work/chromatinVariation/src/python/validateVcfAgainstFa.py /media/fusion10/work/sofiakp/UCSC/hg19/ > trio.2010_09.ychr.genotypes.hg19.vcf 2> trio.2010_09.ychr.sites.hg19diff.txt
+
+e) Restrict VCFs to only include the father and combine chrY with the rest of the chromosomes.
+(Don't use SelectVariants from GATK, no need to update the INFO fields):
+awk 'BEGIN{OFS="\t"}{if($1 ~ /^##/){print $0} else {print $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}}' CEU.trio.2010_09.genotypes.hg19.vcf > CEU.trio.2010_09.genotypes.hg19.NA12891.vcf
+awk 'BEGIN{OFS="\t"}{if($1 !~ /^#/){print $1,$2,$3,$4,$5,$6,$7,$8,$9,$11}}' trio.2010_09.ychr.genotypes.hg19.vcf >> CEU.trio.2010_09.genotypes.hg19.NA12891.vcf
+ 
+================ Steps for trio deletion sites =================
+
+a) First restrict the pilot file to the trio individuals
+vcf-subset -f -e -c trio_individuals.txt ../1000gp/pilot_data/paper_data_sets/companion_papers/mapping_structural_variation/union.2010_06.deletions.genotypes.vcf.gz > trio.2010_06.deletions.hg18.vcf
+
+b) Create a bed with the deletion regions and liftover the regions (keep the region names so you can distinguish multimapping or unmapped)
+cat trio.2010_06.deletions.hg18.vcf | /usr/local/bin/python2.7 ../mapSvs.py > trio.2010_06.deletions.hg18.tmp.bed
+/media/fusion10/work/tools/ucscTools/liftOver trio.2010_06.deletions.hg18.tmp.bed /media/fusion10/work/tools/gatk/chains/b36tob37.chain trio.2010_06.deletions.hg18.tmp.lifted.bed trio.2010_06.deletions.hg18.tmp.unmapped.bed -bedPlus=6 -multiple
+
+c) Split into separate files with the deletions appearing in each individual and then sort the BED files. Only select validated variants that are marked as PASSed in the VCF.
+cat trio.2010_06.deletions.hg18.vcf | /usr/local/bin/python2.7 ../splitSvs.py -s ".deletions.tmp.bed" -p -v trio.2010_06.deletions.hg18.tmp.lifted.bed
+for i in `ls *.tmp.bed`; do p=${i/.tmp.bed/.bed}; sort -V $i > $p; done
+
+================ Steps for trio tandem duplication sites =================
+
+a) vcf-subset -c ../trio_individuals.txt -f -u ../../1000gp/pilot_data/paper_data_sets/companion_papers/mapping_structural_variation/union.2010_09.TandemDuplications.genotypes.vcf.gz > trio.2010_09.tandem.hg18.vcf
+I don't use this file, since I can't figure out the actual genotype of individuals. Instead I use the lists of sites in a_map_of_human_variation. However, the file above seems to have more validated sites, so I add these to the list from a_map_of_human_variation.
+zcat ../../1000gp/pilot_data/paper_data_sets/a_map_of_human_variation/trio/sv/CEU.trio.2010_10.TandemDuplications.sites.vcf.gz| /usr/local/bin/python2.7 ../addValid.py trio.2010_09.tandem.hg18.vcf > CEU.trio.2010_10.tandem.hg18.vcf
+
+b) Create a bed with the duplication regions and lift it over to hg19
+cat CEU.trio.2010_10.tandem.hg18.vcf | /usr/local/bin/python2.7 ../mapSvs.py > CEU.trio.2010_10.tandem.hg18.tmp.bed
+/media/fusion10/work/tools/ucscTools/liftOver CEU.trio.2010_10.tandem.hg18.tmp.bed /media/fusion10/work/tools/gatk/chains/b36tob37.chain CEU.trio.2010_10.tandem.hg18.tmp.lifted.bed CEU.trio.2010_10.tandem.hg18.tmp.unmapped.bed -bedPlus=6 -multiple
+
+c) Select VALIDATED sites
+cat CEU.trio.2010_10.tandem.hg18.vcf | /usr/local/bin/python2.7 ../splitSvs.py -s CEU.trio.tandem.bed -p -v -t CEU.trio.2010_10.tandem.hg18.tmp.lifted.bed
+
+d) Repeat these steps for YRI.
+
+================ Steps for trio indels =================
+
+Similar to deletions
+zcat ../../1000gp/pilot_data/paper_data_sets/a_map_of_human_variation/trio/indels/CEU.trio.2010_10.indel.genotypes.vcf.gz | /usr/local/bin/python2.7 ../mapSvs.py > CEU.trio.2010_10.indel.hg18.tmp.bed
+
+/media/fusion10/work/tools/ucscTools/liftOver CEU.trio.2010_10.indel.hg18.tmp.bed /media/fusion10/work/tools/gatk/chains/b36tob37.chain CEU.trio.2010_10.indel.hg18.tmp.lifted.bed CEU.trio.2010_10.indel.hg18.tmp.unmapped.bed -bedPlus=6 -multiple
+
+zcat ../../1000gp/pilot_data/paper_data_sets/a_map_of_human_variation/trio/indels/CEU.trio.2010_10.indel.genotypes.vcf.gz | egrep "#|PASS" | /usr/local/bin/python2.7 ../splitSvs.py -s ".indel.bed" CEU.trio.2010_10.indel.hg18.tmp.lifted.bed
+
+================= Preprocessing for the low-coverage individuals =================
+
+1) Extract individuals of interest from 1000GP files (which are huge)
+for c in {1..22} X; do vcf-subset -c low_coverage_indiv.txt -e -f -u ../../../1000gp/phase1/analysis_results/integrated_call_sets/ALL.chr${c}.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz > low_coverage.chr${c}.20101123.vcf; done
+
+2) Merge chromosomes
+egrep "^#" low_coverage.chr1.20101123.vcf > low_coverage.snps.vcf; for c in {1..22} X; do egrep -v "^#" low_coverage.chr${c}.20101123.vcf | egrep "VT=SNP" >> low_coverage.snps.vcf; done
+Same for indels with egrep -v "VT=SNP".
+
+For 12890 I had to do the previous steps separately because I forgot to put it in the original list. Eg:
+egrep "^#" low_coverage.chr1.20101123.NA12890.vcf > low_coverage.indels.svs.NA12890.vcf
+for c in {1..22} X ; do egrep -v "^#" low_coverage.chr${c}.20101123.NA12890.vcf | egrep -v "VT=SNP" >> low_coverage.indels.svs.NA12890.vcf; done
+
+3) Add chrY to the one male
+vcf-subset -e -u -c NA18486 low_coverage.snps.vcf > low_coverage.snps.NA18486.vcf
+vcf-subset -e -u -c NA18486 ../../../1000gp/phase1/analysis_results/integrated_call_sets/ALL.chrY.phase1_samtools_si.20101123.snps.low_coverage.genotypes.vcf.gz | egrep -v "#" >> low_coverage.snps.NA18486.vcf
+vcf-subset -e -u -c NA18486 low_coverage.indels.svs.vcf > low_coverage.indels.svs.NA18486.vcf
+vcf-subset -e -u -c NA18486 ../../../1000gp/phase1/analysis_results/integrated_call_sets/ALL.chrY.genome_strip_hq.20101123.svs.low_coverage.genotypes.vcf.gz | egrep -v "#" >> low_coverage.indels.svs.NA18486.vcf
+
+Note: This step is somewhat unnecessary, since I don't ever use chrY. Also, there are NO PASSING SNPs on chrY, so all SNPs in chrY get filtered out in the next step.
+
+4) Write a (shortened) VCF with the SNPs for each individual:
+/usr/local/bin/python2.7 ../splitLowCovSvs.py -o snps/ -s .snps.vcf -v low_coverage.snps.vcf
+/usr/local/bin/python2.7 ../splitLowCovSvs.py -o snps/ -s .snps.vcf -v low_coverage.snps.NA12890.vcf
+DO NOT DO THIS:
+/usr/local/bin/python2.7 ../splitLowCovSvs.py -o snps/ -s .snps.vcf -v low_coverage.snps.NA18486.vcf
+I don't want SNPs in chrY, makes all downstream analyses messed up.
+
+Write BED files with the indels for each individual.
+/usr/local/bin/python2.7 ../splitLowCovSvs.py -o indels/ -s .indels.svs.tmp.bed low_coverage.indels.svs.vcf
+/usr/local/bin/python2.7 ../splitLowCovSvs.py -o indels/ -s .indels.svs.tmp.bed low_coverage.indels.svs.NA12890.vcf 
+/usr/local/bin/python2.7 ../splitLowCovSvs.py -o indels/ -s .indels.svs.tmp.bed low_coverage.indels.svs.NA18486.vcf
+NOTE: The last line will overwrite the results of the first for 18486.
+
+for i in `ls *.tmp.bed`; do p=${i/.tmp.bed/.bed}; sort -V $i > $p; done
+Rename files to match trio files:
+mv indels/ merged; cd merged; for i in `ls .`; do p=${i/indels.svs/variants}; mv $i $p; done
+
+NOTE: ALL the SNPs and indels are marked as PASSed. The only exceptions are the chrY files that also contain non-passing variants.
+
+5) Get heterozygous SNPs for each individual:
+for i in `ls . | egrep "GM[0-9]+.snps.vcf"`; do p=${i/.snps.vcf/.snps.het.vcf}; cat $i | /usr/local/bin/python2.7 $MAYAROOT/src/python/selectVariants.py > $p; done
+
+============================ Blacklists ===============================
+From variants/trio
+for i in `ls ./snps | egrep "GM[0-9]+.snps.het.vcf"`; do p=${i/.snps.het.vcf/}; echo $p; ../supporting/createBlacklist.sh ./ $p; done
+This will create blacklists in trio/masks/ and also a VCF file with the het SNPs that are not blacklisted.
+And same thing for low_coverage
+
+Move snps and blacklists to all/
+From variants/trio:
+mv snps/GM*.vcf all/snps/
+
+Create joint blacklist:
+cat *blacklist.bed | sort -V | mergeBed -i stdin > all.bed
+mv all.bed all.blacklist.bed
+
+========================= Create joint SNP lists ========================
+Create a common list of variants for all individuals. This list will contain any position that is variant in at least one individual.
+
+awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' SNYDER.snps.vcf | egrep "#" > allNonSan.sites.vcf
+awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' *snps.vcf | egrep -v "#" | sort -V | uniq | /usr/local/bin/python2.7 ../../supporting/rmDupSnps.py >> allNonSan.sites.vcf
+
+======================= San Indels
+SNPs and Indels in sanConsensus are merged calls from ChIP and sequencing created by Yuling. Min depth for a call is 10 and min quality is 60. The indels folder is called merged for consistency with the 1000GP processed data.
+
+The indel files from Yuling do not have headers. Add them:
+egrep "#" ../snps/SNYDER_HG19_SAN_chr1.vcf | cat - *vcf > all.indel.vcf
+Then split by individual, sort, and rename files:
+/usr/local/bin/python2.7 ../../supporting/splitLowCovSvs.py -o . -s .indels.tmp.bed all.indel.vcf
+for i in `ls *.tmp.bed`; do p=${i/.indels.tmp.bed/.variants.bed}; p=${p/SNYDER_HG19_/}; sort -V $i > $p; done
+
+Create blacklist files:
+for i in 2255 2588 2610 2630; do ../supporting/createBlacklist.sh . GM${i}; done
+
+====================== San SNPs
+
+Add dbSNP info:
+for i in 22 X Y; do java -jar /media/fusion10/work/tools/gatk/GenomeAnalysisTK.jar -T VariantAnnotator -R /media/fusion10/work/sofiakp/UCSC/hg19/hg19noM.fa --variant SNYDER_HG19_SAN_chr${i}.vcf -o SNYDER_HG19_SAN_chr${i}.dbsnp135.vcf --dbsnp  /media/fusion10/work/tools/gatk/bundle/1.5/hg19/dbsnp_135.hg19.vcf; done
+
+Create text files for read.genotypes.r
+/usr/local/bin/python2.7 /media/fusion10/work/chromatinVariation/src/python/getSanGenotypes.py /media/fusion10/work/chromatinVariation/rawdata/phasing/San/merged/CG_AFR_ /media/fusion10/work/chromatinVariation/rawdata/phasing/San/seqphaseOut/CG_AFR_seqphase_ SNYDER_HG19_SAN_ -o .
+
+======================= GM19193 indels 
+The SNPs in novelVariants are calls from the ChIP-seq data. The files in filtered/ are created by Yuling after restricting to quality > 60.
+egrep "#" SNYDER_HG19_GM19193_chr1_raw.vcf | cat - *raw.vcf > all.indels.vcf
+/usr/local/bin/python2.7 ../../../supporting/splitLowCovSvs.py -o . -s .indels.tmp.bed all.indels.vcf
+sort -V SNYDER_HG19_GM19193.indels.tmp.bed > GM19193.variants.bed
+../../supporting/createBlacklist.sh . GM19193
+
+====================== GM19193 SNPs
+Add dbSNP info:
+for i in {1..22} X; do java -jar /media/fusion10/work/tools/gatk/GenomeAnalysisTK.jar -T VariantAnnotator -R /media/fusion10/work/sofiakp/UCSC/hg19/hg19noM.fa --variant SNYDER_HG19_GM19193_chr${i}_raw.vcf -o SNYDER_HG19_GM19193_chr${i}.dbsnp135.vcf --dbsnp  /media/fusion10/work/tools/gatk/bundle/1.5/hg19/dbsnp_135.hg19.vcf; done
+
+/usr/local/bin/python2.7 /media/fusion10/work/chromatinVariation/src/python/getSanGenotypes.py /media/fusion10/work/chromatinVariation/rawdata/phasing/San/merged/CG_AFR_ /media/fusion10/work/chromatinVariation/rawdata/phasing/San/seqphaseOut/CG_AFR_seqphase_ SNYDER_HG19_GM19193_ -o .
+(I DID NOT INCLUDE chrX SNPs)
+
+mv GM19193.san.txt GM19193.gm19193.txt (to differentiate it from the San lists)
