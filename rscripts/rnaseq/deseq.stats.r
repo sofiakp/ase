@@ -32,14 +32,14 @@ source('/media/fusion10/work/sofiakp/scott/rfiles/plot.heatmap.R')
 # ggsave(file.path(plotdir, 'RZ_num_diff_pairs.png'), p, width = 6.5, height = 5.6)
 
 files = c()
-#deseq.dir = '../../rawdata/signal/rep/countsAtPeaksBroad/repsComb/deseq/'
-#files = list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T)
+deseq.dir = '../../rawdata/signal/rep/countsAtPeaksBroad/merged_Mar13/repsComb/deseq2/'
+files = list.files(deseq.dir, pattern = '*_deseq2.RData', full.names = T)
 #deseq.dir = '../../rawdata/genomeGrid/hg19_w10k/rep/counts/repsComb/deseq/'
 #files = append(files, list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T))
 #deseq.dir = '../../rawdata/transcriptomes/rep/counts/repsComb/deseq/'
 #files = append(files, list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T))
 deseq.dir = '../../rawdata/geneCounts/rdata/repsComb/deseq2/'
-files = append(files, list.files(deseq.dir, pattern = '*RZ_deseq2.RData', full.names = T))
+#files = append(files, list.files(deseq.dir, pattern = '*RZ_deseq2.RData', full.names = T))
 
 plotdir = '../../rawdata/geneCounts/rdata/repsComb/deseq2/plots' #'../../rawdata/signal/rep/countsAtPeaksBroad/repsComb/plots/'
 if(!file.exists(plotdir)) dir.create(plotdir)
@@ -60,7 +60,7 @@ diff.all.norm = NULL
 for(m in uniq.marks){
   sel.files = files[grep(m, files)]
   print(length(sel.files))
-  diff.dat = get.diff.count(sel.files, 0.001, is.log = T, fold.cut = log2(1.25))
+  diff.dat = get.diff.count(sel.files, 1e-5, is.log = T, fold.cut = log2(2))
   diff.counts = diff.dat$diff.count
   
   diff.sum = as.matrix(table(diff.counts)) # How many regions differ in X pairs of individuals? 
@@ -93,8 +93,8 @@ for(m in uniq.marks){
                cellnote = matrix(sprintf('%.2f', frac), ncol = nrow(pair.diff)), 
                ColSideColors = get.pop.col(get.pop(colnames(frac))), RowSideColors = get.pop.col(get.pop(colnames(frac))), 
                cex.row = 1.4, cex.col = 1.4, margins = c(9, 9), keysize = 1,
-               dist.metric='spearman', clust.method = "average", break.type='linear', palette = brewer.pal(9, 'Reds')[2:7],
-               to.file = file.path(plotdir, paste(m, 'num_diff.pdf', sep = '_')))
+               dist.metric='spearman', clust.method = "average", break.type='linear', palette = brewer.pal(9, 'Reds')[2:7])
+               #to.file = file.path(plotdir, paste(m, 'num_diff.pdf', sep = '_')))
 }
 diff.all$mark = order.marks(diff.all$mark)
 diff.all.norm$mark = order.marks(diff.all.norm$mark)
@@ -107,7 +107,7 @@ p = ggplot(diff.all, aes(group = mark)) + geom_line(aes(x = pairs, y = count, co
   theme(axis.text.x = element_text(size = 14), axis.text.y = element_text(size = 14), 
         axis.title.x = element_text(size = 16), axis.title.y = element_text(size = 16), 
         legend.position = c(.85, .75), legend.text = element_text(size = 14), legend.title = element_blank())
-ggsave(file.path(plotdir, 'num_diff_pairs.pdf'), p, width = 6.5, height = 5.6)
+#ggsave(file.path(plotdir, 'num_diff_pairs.pdf'), p, width = 6.5, height = 5.6)
 
 q = ggplot(diff.all.norm, aes(group = mark)) + geom_line(aes(x = pairs, y = count, color = mark), size = 1) + 
   geom_point(aes(x = pairs, y = count, color = mark, shape = mark), size = 5) + 
@@ -118,4 +118,4 @@ q = ggplot(diff.all.norm, aes(group = mark)) + geom_line(aes(x = pairs, y = coun
   theme(axis.text.x = element_text(size = 14), axis.text.y = element_text(size = 14), 
         axis.title.x = element_text(size = 16), axis.title.y = element_text(size = 16), 
         legend.position = c(.87, .75), legend.text = element_text(size = 14), legend.title = element_blank())
-ggsave(file.path(plotdir, 'frac_diff_pairs.pdf'), q, width = 6.5, height = 5.6)
+#ggsave(file.path(plotdir, 'frac_diff_pairs.pdf'), q, width = 6.5, height = 5.6)

@@ -18,12 +18,12 @@ set.seed(1)
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/segSignal/14indiv/extractSignal/fc/avgSig/') 
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig/') 
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/combrep/extractSignal/fc/avgSig/')
-counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/mergedInputs/combrep/extractSignal/fc/avgSig/')
+counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13')
 #counts.dir = '../../rawdata/dhs/alan/combrep/extractSignal/fc/avgSig/'
-counts.dir= file.path(Sys.getenv('MAYAROOT'), 'rawdata/geneCounts/rdata/repsComb/')
+#counts.dir= file.path(Sys.getenv('MAYAROOT'), 'rawdata/geneCounts/rdata/repsComb/')
 ########### CHANGE THIS !!!!!!!!!!!!!!!!!!!!!
 outpref = 'SNYDER_HG19_all_reg_' 
-outpref = 'gencode.v13.annotation.noM.genes_all_reg_'
+#outpref = 'gencode.v13.annotation.noM.genes_all_reg_'
 #outpref = 'txStates_10_11_12_'
 #outpref = 'hg19_w10k_all_reg_'
 #outpref = 'all_reg_'
@@ -35,10 +35,10 @@ if(!file.exists(plotdir)) dir.create(plotdir, recursive=T)
 if(!file.exists(outdir)) dir.create(outdir)
 
 k = 6
-is.genes = T # T for RZ data
+is.genes = F # T for RZ data
 plot.only = F
 quant = 0.4 # 0.4 for peak regions and transcriptomes
-mark = 'RZ'
+mark = 'H3K4ME1'
 load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
 
 if(!plot.only){
@@ -53,7 +53,7 @@ if(!plot.only){
     # region.file: BED file with regions to read. 
     # signal.files: should be txt files with just one column of values with the signal in each of the regions in region.file
     counts.dir = file.path(counts.dir, 'textFiles')
-    region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/mergedInputs/combrep/peakFiles/merged/', paste('SNYDER_HG19', mark, 'merged.bed.gz', sep = '_'))
+    region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/peakFiles/merged_Mar13/', paste('SNYDER_HG19', mark, 'merged.bed.gz', sep = '_'))
     #region.file = paste('../../rawdata/signal/combrep/peakFiles/merged/rand/SNYDER_HG19', mark, 'merged_rand.bed.gz', sep = '_')
     #region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k.bed')
     #region.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.bed'
@@ -61,10 +61,16 @@ if(!plot.only){
     #region.file = '../../rawdata/dhs/alan/pritchard_dhs_200bp_left.bed'
     signal.files = list.files(counts.dir, pattern = paste(gsub('.bed|.bed.gz', '', basename(region.file)), '_AT_SNYDER_HG19_.*', mark, '.*.txt', sep = ''), full.names = T)
     indivs = unique(gsub(paste('.*_AT_SNYDER_HG19_|_', mark, '.*.txt', sep = ''), '', basename(signal.files)))
+    sel.indivs = indivs != 'GM12890' & get.pop(indivs) != 'San'
+    indivs = indivs[sel.indivs]
     nindivs = length(indivs)
-    counts.dat = load.avg.sig.data(region.file, signal.files[non.san], indivs) 
+    counts.dat = load.avg.sig.data(region.file, signal.files[sel.indivs], indivs) 
     regions = counts.dat$regions
     counts = asinh(counts.dat$signal) 
+    bad.ranges = regions.to.ranges(read.bed('../../rawdata/genomes_local/masks/wgEncodeHg19ConsensusSignalArtifactRegions.bed'))
+    bad = countOverlaps(regions.to.ranges(regions), bad.ranges, ignore.strand = T) > 0
+    counts = counts[!bad, ]
+    regions = regions[!bad, ]
     if(basename(region.file) == 'gencode.v13.annotation.noM.genes.bed'){
       tmp = read.table(region.file, header = F, stringsAsFactors = T, sep = '\t')
       load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
@@ -103,7 +109,7 @@ if(!plot.only){
   
   ############### ISVA correction to remove batch effects
   pop = factor(get.pop(indivs))
-  isva.fit = DoISVA(counts.norm, pop, th = 0.05, ncomp = 2, sel.col = 1:nindivs) # th = 0.05, ncomp = 2) for peaks and transcriptomes
+  isva.fit = DoISVA(counts.norm, pop, th = 0.01, ncomp = 2, sel.col = 1:nindivs) # th = 0.05, ncomp = 2) for peaks and transcriptomes
   
   ############### Do PCA on the "un-corrected" data and plot eigenvalues
   counts.no.child = counts.norm[, !(indivs %in% c('GM12878', 'GM19240'))]

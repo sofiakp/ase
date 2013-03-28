@@ -1,7 +1,8 @@
 rm(list=ls())
 library(DESeq)
 library(GenomicRanges)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
+source('utils/sample.info.r')
+source('utils/deseq.utils.r')
 
 # Reads files with counts in regions (eg. peaks). Replicates are assumed to be in different files, eg.
 # SNYDER_HG19_GM12878_H3K4ME3_[123]_.*
@@ -10,14 +11,14 @@ source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
 # Optionally, size factors for each replicate are computed with DESeq. The size factors 
 # are based on ALL datasets for the same mark, eg. SNYDER_HG19_.*_H3K4ME3.*
 
-indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/rep/counts/') #rawdata/genomeGrid/hg19_w10k/rep/counts/') #'rawdata/signal/rep/countsAtPeaksBroad/')
+indir = '../../rawdata/genomeGrid/hg19_w10k/rep/counts_newNorm/' #'../../rawdata/transcriptomes/rep/counts_newNorm/' #'../../rawdata/signal/rep/countsAtPeaksBroad/merged_Mar13/'
 outdir = file.path(indir, 'repsComb')
 if(!file.exists(outdir)) dir.create(outdir)
 
-get.sf = T # Get size factors with DESeq using all datasets for the same mark.
-is.gene = T # T if you're reading counts at gene bodies. In this case, the 4th column is the gene name
+get.sf = F # Get size factors with DESeq using all datasets for the same mark.
+is.gene = F # T if you're reading counts at gene bodies. In this case, the 4th column is the gene name
 
-filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*BUB.*.bed', sep = ''), full.name = F)
+filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*.bed', sep = ''), full.name = F)
 fsplit = strsplit(gsub('.*_AT_', '', filenames), '_')
 marks = array(0, dim = c(length(filenames), 1))
 indivs = array(0, dim = c(length(filenames), 1))
@@ -30,10 +31,7 @@ for(i in 1:length(filenames)){
 uniq.marks = unique(marks)
 
 # ENCODE blacklisted regions: These will be completely removed from the output files
-bad.tab = read.table(file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomes_local/masks/wgEncodeHg19ConsensusSignalArtifactRegions.bed'), header = F, sep = '\t')
-bad.ranges = GRanges(seqnames = Rle(bad.tab[,1]), 
-                     ranges = IRanges(start = bad.tab[, 2] + 1, end = bad.tab[, 3]),
-                     strand = Rle(rep('+', dim(bad.tab)[1])))
+bad.ranges = regions.to.ranges(read.bed('../../rawdata/genomes_local/masks/wgEncodeHg19ConsensusSignalArtifactRegions.bed'))
 
 for(i in 1:length(uniq.marks)){
   uniq.indivs = unique(indivs[marks == uniq.marks[i]])

@@ -360,6 +360,38 @@ get.pop = function(indivs){
   return(pop)
 }
 
+get.sex = function(indivs){
+  pop = indivs
+  for(i in 1:length(indivs)){
+    pop[i] = switch(as.character(indivs[i]),
+                    'GM12878' = 'female',
+                    'GM12891' = 'male',
+                    'GM12892' = 'female',
+                    'GM12890' = 'female',
+                    'GM10847' = 'female',
+                    'GM18505' = 'female',
+                    'GM18526' = 'female',
+                    'GM18951' = 'female',
+                    'GM19099' = 'female',
+                    'GM19193' = 'female',
+                    'GM19238' = 'male',
+                    'GM19239' = 'female',
+                    'GM19240' = 'female',
+                    'SNYDER' = 'male',
+                    'MS1' = 'male',
+                    'GM18486' = 'male',
+                    'GM2255' = 'male',
+                    'GM2588' = 'male',
+                    'GM2610' = 'male',
+                    'GM2630' = 'male',
+                    'HG2255' = 'male',
+                    'HG2588' = 'male',
+                    'HG2610' = 'male',
+                    'HG2630' = 'male')
+  }
+  return(pop)
+}
+
 get.pop.col = function(pop){
   colors = as.character(pop)
   for(i in 1:length(pop)){
