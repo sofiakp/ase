@@ -44,24 +44,26 @@ get.wilc.enrich = function(regions, isva.fit, dat){
   enrich = c(mean(values.deg) / mean(values.non.deg), wilcox.test(values.deg, values.non.deg)$p.value)
   return(enrich)
 }
-isva.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig_withSan/rdata/' #'../../rawdata/segSignal/14indiv/extractSignal/fc/avgSig/rdata'
+
+is.rand = F
+isva.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/' #'../../rawdata/segSignal/14indiv/extractSignal/fc/avgSig/rdata'
 plotdir = file.path(isva.dir, '..', 'plots')
-files = list.files(isva.dir, pattern = 'all_reg_.*H3K4ME1.*_qn_isvaNull.RData', full.names = T)
-isva.dir = '../../rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig/rdata/'
+files = list.files(isva.dir, pattern = 'all_reg_.*_qn_isvaNull.RData', full.names = T)
+isva.dir = '../../rawdata/genomeGrid/hg19_w10k/combrep/rdata/'
 #files = append(files, list.files(isva.dir, pattern = 'hg19_w10k_all_reg.*_H3K27ME3.*_qn_isvaNull.RData', full.names = T))
 isva.dir = '../../rawdata/geneCounts/rdata/repsComb/rdata/'
 #files = append(files, list.files(isva.dir, pattern = 'all_reg.*_RZ.*_qn_isvaNull.RData', full.names = T))
 isva.dir = '../../rawdata/transcriptomes/combrep/extractSignal/fc/avgSig/rdata/'
 #files = append(files, list.files(isva.dir, pattern = 'gencode.v13.annotation.noM.genes_all_reg.*_H3K36ME3.*_qn_isvaNull.RData', full.names = T))
 isva.dir = '../../rawdata/signal/combrep/extractSignal/rand/fc/avgSig_withSan/rdata/'
-files = append(files, list.files(isva.dir, pattern = 'all_reg.*H3K4ME1.*_qn_isvaNull.RData', full.names = T))
-outpref = 'all_reg_H3K4ME1_rand_'
+#files = append(files, list.files(isva.dir, pattern = 'all_reg.*H3K4ME1.*_qn_isvaNull.RData', full.names = T))
+outpref = 'all_reg_compare_'
 geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan/')
 
-#files = files[!grepl('rand|th0', files)]
+if(!is.rand) files = files[!grepl('rand|th0', files)]
 
 # Load SNPs and genotype PCA
-load('../../rawdata/variants/all/snps/allNonSan/allNonSan.snps.RData')
+load('../../rawdata/variants/all_Mar13/snps.RData')
 #gp = new.env()
 #load('../../rawdata/variants/all/snps/allNonSan/genot_pca.RData', gp)
 #snp.pos = snp.pos[gp$pca.rows, 1:2] # SNPs that are variant
@@ -69,8 +71,8 @@ load('../../rawdata/variants/all/snps/allNonSan/allNonSan.snps.RData')
 # Load gene metadata
 load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
 
-ihs.dat = read.table('../../rawdata/selection/iHS_hg19.bed', header = F, sep = '\t')
-colnames(ihs.dat) = c('chr', 'start', 'end', 'value')
+#ihs.dat = read.table('../../rawdata/selection/iHS_hg19.bed', header = F, sep = '\t')
+#colnames(ihs.dat) = c('chr', 'start', 'end', 'value')
 #ihs.dat$pos = ihs.dat$end
 
 # Read SNPs with high Fst
@@ -100,7 +102,7 @@ penrich = NULL
 all.deg.snps = NULL
 all.non.deg.snps = NULL
 for(i in 1:length(files)){
-  load(gsub('_isvaNull|_rand_pop[0-9]*', '', files[i]))
+  load(gsub('_comp.*|_isvaNull|_rand_pop[0-9]*', '_qn.RData', files[i]))
   orig.counts = counts[good.rows, ]
   npeaks[i, 2] = length(good.rows) # Total number of regions, including those that were removed before ISVA
   load(files[i]) # Load the file with the ISVA results. This only has the regions used for ISVA.
@@ -167,7 +169,7 @@ for(i in 1:length(files)){
 
 #frac.peaks = npeaks[, 1] / npeaks[, 2]
 sel.marks = npeaks[, 2] > -1 & npeaks[, 1] > -1
-marks = gsub('_H3K4ME1', '', marks[sel.marks])
+marks = marks[sel.marks] #gsub('_H3K4ME1', '', marks[sel.marks])
 #marks = order.marks(marks)
 npeaks = npeaks[sel.marks, ]
 tot.len = tot.len[sel.marks]

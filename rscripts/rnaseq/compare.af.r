@@ -9,20 +9,28 @@ source('utils/binom.val.r')
 
 indir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/plots/qn_isvaNull_fits_all_reg_v2/'
 plotdir = indir
+overwrite = T
 mark = 'H3K27AC'
-overwrite = F
+pref = 'SNYDER_HG19_all_reg_'
+comp = 3
+qval = 0.05
+K = 6
+nrand = 100
+pref = paste(pref, mark, '_comp', comp, '_q', qval, sep = '')
+clust.pref = paste(pref, '_K', K, sep = '')
 
-bg.af.file = '../../rawdata/variants/af/1000gp_af_1in100.txt'
+bg.af.file = '../../rawdata/variants/af/1000gp_af_1in100_genes.txt'
 bg.af = as.matrix(read.table(bg.af.file, sep = '\t', header = F)[, 4:6])
 
-af.file = '../../rawdata/variants/af/1000gp_af.txt'
-regions.file = file.path(indir, paste('SNYDER_HG19_all_reg_isva_sign_', mark, '.txt', sep = ''))
-tmp.file = file.path(indir, paste('SNYDER_HG19_all_reg_isva_sign_', mark, '_af.txt', sep = ''))
-if(!file.exists(tmp.file) || overwrite) system(paste("awk 'BEGIN{OFS=\"\t\"}{print $1,$2-1,$2,\".\",\"0\",\"+\",$3,$4,$5,$6}'", af.file, '| intersectBed -a stdin -b', regions.file, ' -wa >', tmp.file))
+af.file = '../../rawdata/variants/af/1000gp_af_genes.bed'
+regions.file = file.path(indir, paste(pref, '_sign.txt', sep = ''))
+tmp.file = file.path(indir, paste(pref, '_sign_af_genes.txt', sep = ''))
+if(!file.exists(tmp.file) || overwrite) system(paste('intersectBed -a', af.file, '-b', regions.file, ' -wa >', tmp.file))
+#system(paste("awk 'BEGIN{OFS=\"\t\"}{print $1,$2-1,$2,\".\",\"0\",\"+\",$3,$4,$5,$6}'", af.file, '| intersectBed -a stdin -b', regions.file, ' -wa >', tmp.file))
 af = read.table(tmp.file)
 af.pos = af[, c(1,3)]
 colnames(af.pos) = c('chr', 'pos')
-af = af[, 8:10]
+af = as.matrix(af[, 8:10])
 pop = c('YRI', 'CEU', 'Asian')
 # Read allele frequencies at SNPs overlapping positive and negative regions
 #af = read.table(file.path(indir, 'alleleFreq', paste('SNYDER_HG19_all_reg_isva_sign_', mark, '_AF.txt', sep = '')), header= F, sep='\t')
@@ -35,7 +43,6 @@ pop = c('YRI', 'CEU', 'Asian')
 #af.neg = matrix(as.numeric(unlist(strsplit(as.character(af.neg[,3]), ','))), ncol = 3, byrow = T)[, c(3,2,1)]
 #pop = c('CEU', 'YRI', 'Asian')
 cols = c()
-K = 6
 
 # Pairwise differences between all pairs of populations
 #af.diff = NULL
@@ -61,38 +68,50 @@ for(i in 1:2){
 # For each cluster find the SNPs overlapping the regions of the cluster, and compute the allele frequencies between 
 # all pairs of individuals.
 pop.diff.p = NULL
+pop.diff.cor = NULL
 pop.af = NULL
-san.freq = array(0, dim = c(K, 2))
 for(k in 1:K){
-  cregions = read.bed(file.path(indir, paste('SNYDER_HG19_all_reg_isva_', mark, '_k', K, '_clust', k, '.txt', sep = '')))
+  cregions = read.bed(file.path(indir, paste(clust.pref, '_clust', k, '.txt', sep = '')))
   print(dim(cregions))
   ov = findOverlaps(snps.to.ranges(af.pos), regions.to.ranges(cregions), select = 'first', ignore.strand = T)
   #ov = ov[!is.na(ov)]
   pvals = c()
+  rs = c()
   for(i in 1:2){
     for(j in (i + 1):3){
       #sel = !is.na(af[ov, i]) & !is.na(af[ov, j]) & af[ov, i] > 0 & af[ov, j] > 0
       sel = !is.na(ov) & !is.na(af[, i]) & !is.na(af[, j]) & (af[, i] > 0 & af[, j] > 0)
       bg.sel = bg.af[, i] > 0 & bg.af[, j] > 0
-      pvals = append(pvals, wilcox.test(af[sel, i] - af[sel, j], 
-                                        bg.af[bg.sel, i] - bg.af[bg.sel, j], paired = F, alternative = 'less')$p.value) #append(pvals, wilcox.test(af[sel, i], af[sel, j], paired = T)$p.value)
-      #pvals = append(pvals, wilcox.test(af[sel, i], af[sel, j], paired = T, alternative = 'two')$p.value) #append(pvals, wilcox.test(af[sel, i], af[sel, j], paired = T)$p.value)
+      
+      rs = append(rs, mean(abs(af[sel, i] - af[sel, j]) / rowMins(af[sel, c(i,j)])) / 
+        mean(abs(bg.af[bg.sel, i] - bg.af[bg.sel, j]) / rowMins(bg.af[bg.sel, c(i,j)])))
+                                        
+      #pvals = append(pvals, wilcox.test(abs(af[sel, i] - af[sel, j]) / rowMeans(af[sel, c(i,j)]), 
+      #                                  abs(bg.af[bg.sel, i] - bg.af[bg.sel, j]) / rowMeans(bg.af[bg.sel, c(i,j)]), 
+      #                                  paired = F, alternative = 'greater')$p.value) #append(pvals, wilcox.test(af[sel, i], af[sel, j], paired = T)$p.value)
+      pvals = append(pvals, wilcox.test(af[sel, i], af[sel, j], paired = T, alternative = 'two')$p.value) #append(pvals, wilcox.test(af[sel, i], af[sel, j], paired = T)$p.value)
     }
   }
   pop.diff.p = rbind(pop.diff.p, pvals)
-  
-  med.af = c()
-  for(i in 1:3){
-    sel = !is.na(ov) & af[, i] > 0
-    bg.sel = bg.af[, i] > 0
-    med.af = append(med.af, wilcox.test(af[sel, i], bg.af[bg.sel, i], alternative = 'less')$p.value)
-  }
-  pop.af = rbind(pop.af, med.af)
+  pop.diff.cor = rbind(pop.diff.cor, rs)
+  #med.af = c()
+  #for(i in 1:3){
+  #  sel = !is.na(ov) & af[, i] > 0
+  #  bg.sel = bg.af[, i] > 0
+  #  med.af = append(med.af, wilcox.test(af[sel, i], bg.af[bg.sel, i], alternative = 'less')$p.value)
+  #}
+  #pop.af = rbind(pop.af, med.af)
 }
 
-# pop.diff.dat = data.frame(-log10(pop.diff.p), row.names = 1:K)
-# colnames(pop.diff.dat) = cols
-# plot.heatmap(pop.diff.dat, filt.thresh = NA, row.cluster = F, show.dendro = "none", cellnote = matrix(as.character(as.integer(-log10(pop.diff.p))), ncol = 3), 
-#              col.cluster = F, row.title= '', col.title = '', cex.row = 4, cex.col = 4, margins = c(18, 18), keysize = 1,
-#              dist.metric='spearman', clust.method = "average", break.type='quantile', palette = brewer.pal(9, 'Reds')[2:7],
-#              to.file = file.path(indir, paste('SNYDER_HG19_all_reg_isva_', mark, '_k6_af.pdf', sep = '')))
+pop.diff.dat = data.frame(-log10(pop.diff.p), row.names = paste('cluster', 1:K, sep = '_'))
+colnames(pop.diff.dat) = cols
+pop.diff.cor = data.frame(pop.diff.cor, row.names = paste('cluster', 1:K, sep = '_'))
+colnames(pop.diff.cor) = cols
+plot.heatmap(pop.diff.dat, filt.thresh = NA, row.cluster = F, show.dendro = "none", cellnote = matrix(as.character(as.integer(-log10(pop.diff.p))), ncol = 3), 
+             col.cluster = F, row.title= '', col.title = '', cex.row = 4, cex.col = 4, margins = c(18, 18), keysize = 1,
+             palette = brewer.pal(9, 'Reds')[2:7],
+             to.file = file.path(indir, paste(clust.pref, '_af.pdf', sep = '')))
+plot.heatmap(pop.diff.cor, filt.thresh = NA, row.cluster = F, show.dendro = "none", 
+             col.cluster = F, row.title= '', col.title = '', cex.row = 4, cex.col = 4, margins = c(18, 18), keysize = 1,
+             dist.metric='spearman', clust.method = "average", break.type='quantile', palette = brewer.pal(9, 'Reds')[2:7],
+             to.file = file.path(indir, paste(clust.pref, '_af_ratio2Bg.pdf', sep = '')))

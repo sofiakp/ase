@@ -487,16 +487,26 @@ plot.tile = function(mat, x.ord.samples = NULL, y.ord.samples = NULL, xsep = NUL
                      low = 'blue', high = 'red', 
                      midpoint = 1, ycolor = 'black', xcolor = 'black', draw.y.line = T,
                      xcex = 12, ycex = 12, lcex = 14, xtitle = '', ytitle = ''){
-  dat = data.frame(melt(mat))
+  dat = data.frame(melt(as.matrix(mat)))
   if(!is.factor(dat$X1)){
     dat$X1 = -dat$X1
-  }else if(!is.null(y.ord.samples)){
-    dat$X1 = droplevels(ordered(factor(dat$X1, levels = y.ord.samples[seq(length(y.ord.samples), 1, -1)])))
+  }else{
+    if(is.null(y.ord.samples)){
+      dat$X1 = ordered(factor(dat$X1, levels = rownames(mat)[seq(length(rownames(mat)), 1, -1)]))
+    }else{
+      dat$X1 = droplevels(ordered(factor(dat$X1, levels = y.ord.samples[seq(length(y.ord.samples), 1, -1)])))
+    }
+    stopifnot(is.character(ycolor) || length(ycolor) == length(levels(dat$X1)))
+    if(length(ycolor) == length(levels(dat$X1))) ycolor = ycolor[seq(length(levels(dat$X1)), 1, -1)]
   }
   if(!is.factor(dat$X2)){
     dat$X2 = -dat$X2
-  }else if(!is.null(x.ord.samples)){
-    dat$X2 = droplevels(ordered(factor(dat$X2, levels = x.ord.samples)))
+  }else{
+    if(is.null(x.ord.samples)){
+      dat$X2 = ordered(factor(dat$X2, levels = colnames(mat)))
+    }else{
+      dat$X2 = droplevels(ordered(factor(dat$X2, levels = x.ord.samples)))
+    }
   }
   p = ggplot(dat) + geom_raster(aes(x = X2, y = X1, fill = value)) +
     scale_fill_gradient2(low = low, high = high, mid = 'beige', midpoint = midpoint)

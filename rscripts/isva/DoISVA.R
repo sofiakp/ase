@@ -90,9 +90,14 @@ DoISVA = function(data.mat, pheno, cf.m = NULL, pvthCF = 0.01, th = 0.05, ncomp 
   }
   
   if(length(sel.col) < ncol(data.mat)){
-    residNULL.other = data.mat[, -sel.col] - thetaNULL %*% t(model.matrix( ~ t(selisv.m[-sel.col,])))
+    if(ncol(data.mat) - length(sel.col) == 1){
+      residNULL.other = data.mat[, -sel.col] - thetaNULL %*% t(model.matrix( ~ t(selisv.m[-sel.col,])))
+      resid.other = data.mat[, -sel.col] - theta %*% t(model.matrix( ~ t(pheno[-sel.col]) + t(selisv.m[-sel.col,])))
+    }else{
+      residNULL.other = data.mat[, -sel.col] - thetaNULL %*% t(model.matrix( ~ selisv.m[-sel.col,]))
+      resid.other = data.mat[, -sel.col] - theta %*% t(model.matrix( ~ pheno[-sel.col] + selisv.m[-sel.col,]))
+    }
     residNULL = cbind(residNULL.other, residNULL)
-    resid.other = data.mat[, -sel.col] - theta %*% t(model.matrix( ~ pheno[-sel.col] + t(selisv.m[-sel.col,])))
     resid = cbind(resid.other, resid)
   }
   return(list(pval = pv.s$x, qval = qv.v, rank = pv.s$ix, ndeg = ntop, deg = pred.idx, isv = selisv.m, res.null = residNULL, res = resid))

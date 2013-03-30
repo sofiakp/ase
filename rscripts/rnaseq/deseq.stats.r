@@ -34,18 +34,18 @@ source('/media/fusion10/work/sofiakp/scott/rfiles/plot.heatmap.R')
 files = c()
 deseq.dir = '../../rawdata/signal/rep/countsAtPeaksBroad/merged_Mar13/repsComb/deseq2/'
 files = list.files(deseq.dir, pattern = '*_deseq2.RData', full.names = T)
-#deseq.dir = '../../rawdata/genomeGrid/hg19_w10k/rep/counts/repsComb/deseq/'
-#files = append(files, list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T))
-#deseq.dir = '../../rawdata/transcriptomes/rep/counts/repsComb/deseq/'
-#files = append(files, list.files(deseq.dir, pattern = '*_deseq.RData', full.names = T))
+deseq.dir = '../../rawdata/genomeGrid/hg19_w10k/rep/counts_newNorm/repsComb/deseq2/'
+files = append(files, list.files(deseq.dir, pattern = '*_deseq2.RData', full.names = T))
+deseq.dir = '../../rawdata/transcriptomes/rep/counts_newNorm/repsComb/deseq2/'
+files = append(files, list.files(deseq.dir, pattern = '*_deseq2.RData', full.names = T))
 deseq.dir = '../../rawdata/geneCounts/rdata/repsComb/deseq2/'
-#files = append(files, list.files(deseq.dir, pattern = '*RZ_deseq2.RData', full.names = T))
+files = append(files, list.files(deseq.dir, pattern = '*RZ_deseq2.RData', full.names = T))
 
-plotdir = '../../rawdata/geneCounts/rdata/repsComb/deseq2/plots' #'../../rawdata/signal/rep/countsAtPeaksBroad/repsComb/plots/'
+plotdir = '../../rawdata/signal/rep/countsAtPeaksBroad/merged_Mar13/repsComb/plots/' #'../../rawdata/geneCounts/rdata/repsComb/deseq2/plots'
 if(!file.exists(plotdir)) dir.create(plotdir)
 
 # We will use the pop-clustering data to reorder individuals if possible
-isva.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/rdata/'
+isva.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/'
 isva.files = c() #list.files(isva.dir, pattern = 'SNYDER_HG19_all_reg_.*_qn_isvaNull_clust.RData', full.names = T)
 isva.files = isva.files[!grepl('rand', isva.files)]
 

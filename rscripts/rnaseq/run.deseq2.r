@@ -34,10 +34,10 @@ concat.counts = function(filenames, name.expr = "rownames(regions)"){
 # The file should contain a counts matrix with columns of the form indiv_mark_rep, a 
 # regions data.frame and a size.factors array with size factors corresponding to the 
 # columns of counts.
-mark = 'BUB'
+mark = 'CTCF'
 fit.type = 'parametric' 
 beta.prior = T
-indir = '../../rawdata/transcriptomes/rep/counts_newNorm/repsComb/' #'../../rawdata/signal/rep/countsAtPeaksBroad/merged_Mar13/repsComb/' #../../rawdata/geneCounts/rdata/repsComb/'
+indir = '../../rawdata/signal/rep/countsAtPeaksBroad/merged_Mar13/repsComb/' #'../../rawdata/genomeGrid/hg19_w10k/rep/counts_newNorm/repsComb/' #../../rawdata/transcriptomes/rep/counts_newNorm/repsComb/' #../../rawdata/geneCounts/rdata/repsComb/'
 load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
 meta = NULL # SET TO NULL UNLESS YOU'RE USING GENECOUNTS
 sel.filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*_', mark, '_0.RData', sep = ''))

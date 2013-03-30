@@ -35,10 +35,13 @@ if(!file.exists(plotdir)) dir.create(plotdir, recursive=T)
 if(!file.exists(outdir)) dir.create(outdir)
 
 k = 6
+comp = 3
+qval = 0.05
 is.genes = F # T for RZ data
 plot.only = F
 quant = 0.4 # 0.4 for peak regions and transcriptomes
-mark = 'H3K4ME1'
+mark = 'SA1'
+outpref = paste(outpref, mark, sep = '')
 load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
 
 if(!plot.only){
@@ -61,7 +64,7 @@ if(!plot.only){
     #region.file = '../../rawdata/dhs/alan/pritchard_dhs_200bp_left.bed'
     signal.files = list.files(counts.dir, pattern = paste(gsub('.bed|.bed.gz', '', basename(region.file)), '_AT_SNYDER_HG19_.*', mark, '.*.txt', sep = ''), full.names = T)
     indivs = unique(gsub(paste('.*_AT_SNYDER_HG19_|_', mark, '.*.txt', sep = ''), '', basename(signal.files)))
-    sel.indivs = indivs != 'GM12890' & get.pop(indivs) != 'San'
+    sel.indivs = indivs != 'GM12890' #& get.pop(indivs) != 'San'
     indivs = indivs[sel.indivs]
     nindivs = length(indivs)
     counts.dat = load.avg.sig.data(region.file, signal.files[sel.indivs], indivs) 
@@ -102,31 +105,32 @@ if(!plot.only){
   }else{
     good.rows = good.rows & !grepl('chr[XY]', gene.meta$chr)
   }
-  if(!is.null(outdir)) save(regions, counts, good.rows, file = file.path(outdir, paste(outpref, mark, '_qn.RData', sep = '')))
+  if(!is.null(outdir)) save(regions, counts, good.rows, file = file.path(outdir, paste(outpref, '_qn.RData', sep = '')))
   counts = counts[good.rows, ]
   counts.norm = scale(counts) #apply(counts, 2, function(x) (x - row.means[good.rows])/row.sds[good.rows])
   regions = regions[good.rows, ]
-  
-  ############### ISVA correction to remove batch effects
-  pop = factor(get.pop(indivs))
-  isva.fit = DoISVA(counts.norm, pop, th = 0.01, ncomp = 2, sel.col = 1:nindivs) # th = 0.05, ncomp = 2) for peaks and transcriptomes
   
   ############### Do PCA on the "un-corrected" data and plot eigenvalues
   counts.no.child = counts.norm[, !(indivs %in% c('GM12878', 'GM19240'))]
   pca.fit = prcomp(t(counts.no.child), center = F, scale = F)
   p.dat = plot.pcs(t(counts.norm) %*% pca.fit$rotation,  pca.fit$rotation, pca.fit$sdev, labels = colnames(counts), groups = get.pop(colnames(counts)), all = T)
-  ggsave(file.path(plotdir, paste(outpref, 'pca_preIsva_', mark, '.pdf', sep = '')), p.dat$p1, width = 9, height = 6.8)
-  ggsave(file.path(plotdir, paste(outpref, 'eigen_', mark, '.pdf', sep = '')), p.dat$p2, width = 6.5, height = 5.6)
+  ggsave(file.path(plotdir, paste(outpref, '_pca_preIsva.pdf', sep = '')), p.dat$p1, width = 9, height = 6.8)
+  ggsave(file.path(plotdir, paste(outpref, '_eigen.pdf', sep = '')), p.dat$p2, width = 6.5, height = 5.6)
   
+  ############### ISVA correction to remove batch effects
+  pop = factor(get.pop(indivs))
+  isva.fit = DoISVA(counts.norm, pop, th = qval, ncomp = comp, sel.col = 1:nindivs) # th = 0.05, ncomp = 2) for peaks and transcriptomes
+  
+  outpref2 = paste(outpref, '_comp', comp, '_q', qval, sep = '')
   counts = normalize.quantiles(isva.fit$res.null) # Get residuals after removing ISVs and renormalize
   colnames(counts) = indivs
   counts.norm = scale(counts)
-  if(!is.null(outdir)) save(regions, counts, isva.fit, file = file.path(outdir, paste(outpref, mark, '_qn_isvaNull.RData', sep = ''))) 
+  if(!is.null(outdir)) save(regions, counts, isva.fit, file = file.path(outdir, paste(outpref2, '_qn_isvaNull.RData', sep = ''))) 
   
   sel = isva.fit$deg # Regions significantly correlated with population
   # Write the significant regions
   oldsc = options(scipen = 100) # prevent scientific notation in output
-  outfile = file.path(plotdir, paste(outpref, 'isva_sign_', mark, '.txt', sep = ''))
+  outfile = file.path(plotdir, paste(outpref2, '_sign.txt', sep = ''))
   if(!is.null(regions$chr)){
     names = data.frame(chr = regions$chr, start = regions$start - 1, end = regions$end)[sel, ]
   }else{
@@ -143,10 +147,11 @@ if(!plot.only){
   p = ggplot(isv.dat) + geom_bar(aes(x = indiv, y = value), position = 'dodge', stat = 'identity') + facet_wrap(~variable) +
     xlab('') + ylab('ISV value') + 
     theme(strip.text.x = element_text(size = 16), axis.text.y = element_text(size = 14), axis.title.y = element_text(size = 16),
-          axis.text.x = element_text(size = 14, angle = -45, vjust = 1, hjust = 0))
-  ggsave(file.path(plotdir, paste(outpref, 'isvs_', mark, '.pdf', sep = '')), p, width = 9, height = 6.8)
+          axis.text.x = element_text(size = 11, angle = -65, vjust = 1, hjust = 0))
+  ggsave(file.path(plotdir, paste(outpref2, '_isvs.pdf', sep = '')), p, width = 9, height = 6.8)
 }else{
-  load(file.path(outdir, paste(outpref, mark, '_qn_isvaNull.RData', sep = '')))
+  outpref2 = paste(outpref, '_comp', comp, '_q', qval, sep = '')
+  load(file.path(outdir, paste(outpref2, '_qn_isvaNull.RData', sep = '')))
   indivs = colnames(counts)
   nindivs = length(indivs)
   counts.norm = scale(counts)  
@@ -183,7 +188,7 @@ for(i in 1:(nindivs - 1)){
 plot.heatmap(corr.mat, filt.thresh = NA, symm.cluster = T, lab.row = indivs, lab.col = indivs, row.title= '', col.title = '', cex.row = 1.5, cex.col = 1.5,
              dist.metric='spearman', clust.method = "average", break.type='linear', palette = brewer.pal(9, 'Reds'), ColSideColors = get.pop.col(get.pop(indivs)),
              RowSideColors = get.pop.col(get.pop(indivs)), keysize = 1,
-             to.file = file.path(plotdir, paste(outpref, 'corrMat_', mark, '.pdf', sep = '')))
+             to.file = file.path(plotdir, paste(outpref2, '_corrMat.pdf', sep = '')))
 
 ############### PCA
 # Rows are observations (cells), columns are variables
@@ -191,7 +196,7 @@ plot.heatmap(corr.mat, filt.thresh = NA, symm.cluster = T, lab.row = indivs, lab
 counts.no.child = counts.norm[, no.child.cols]
 pca.fit = prcomp(t(counts.no.child), center = F, scale = F)
 p=plot.pcs(t(counts.norm) %*% pca.fit$rotation,  pca.fit$rotation, pca.fit$sdev, labels = indivs, groups = get.pop(indivs), all = T)
-ggsave(file.path(plotdir, paste(outpref, 'pca_', mark, '.pdf', sep = '')), p$p1, width = 9, height = 6.8)
+ggsave(file.path(plotdir, paste(outpref2, '_pca.pdf', sep = '')), p$p1, width = 9, height = 6.8)
 
 # Write the genes or regions with the largest loadings for enrichment analysis
 # sel = order(pca.fit$rotation[, 1])[1:1000]
@@ -204,6 +209,7 @@ ggsave(file.path(plotdir, paste(outpref, 'pca_', mark, '.pdf', sep = '')), p$p1,
 # write.table(names, file = outfile, quote = F, row.names = F, col.names = F, sep = "\t")
 
 ############### Kmeans
+outpref3 = paste(outpref2, '_K', k, sep = '')
 if(isva.fit$ndeg > 10){
   kclusters = kmeans(counts.norm[isva.fit$deg, ], centers = k, iter.max = 1000, nstart = 10)
   kord = heatmap.2(scale(kclusters$centers))$rowInd
@@ -218,7 +224,7 @@ if(isva.fit$ndeg > 10){
   for(i in 1:k){
     sel = which(kclusters$cluster == kord[i])
     new.clusters$cluster[sel] = i
-    outfile = file.path(plotdir, paste(outpref, 'isva_', mark, '_k',k, '_clust', i, '.txt', sep = ''))
+    outfile = file.path(plotdir, paste(outpref3, '_clust', i, '.txt', sep = ''))
     if(!is.null(regions$chr)){
       names = data.frame(chr = regions$chr, start = regions$start - 1, end = regions$end)[isva.fit$deg[sel], ]
     }else{
@@ -241,22 +247,22 @@ if(isva.fit$ndeg > 10){
                RowSideColors = rep('white', length(sel.rows)), cex.col = 2, row.sep = row.sep, keysize = 1)
                #to.file = file.path(plotdir, paste(outpref, 'biclust_', mark, '_k', k, '.pdf', sep = '')))
   plot.cols = h$colInd
-  pdf(file.path(plotdir, paste(outpref, 'dendro_', mark, '_k', k, '.pdf', sep = '')))
+  pdf(file.path(plotdir, paste(outpref3, '_dendro.pdf', sep = '')))
   plot(h$colDendrogram)
   dev.off()
   h2 = plot.tile(counts.norm[isva.fit$deg[sel.rows], ], x.ord.samples = indivs[plot.cols], xcolor = get.pop.col(get.pop(indivs[plot.cols])), 
                  ysep = row.sep[-k] + 1, ylabels = array('', dim = c(k-1,1)), lcex = 12, xcex = 13)
-  ggsave(file.path(plotdir, paste(outpref, 'biclust_gg_', mark, '_k', k, '.pdf', sep = '')), h2, width = 7, height = 6.8)
-  save(kclusters, kord, plot.rows, plot.cols, file = file.path(outdir, paste(outpref, mark, '_qn_isvaNull_clust', k, '.RData', sep = '')))
+  ggsave(file.path(plotdir, paste(outpref3, '_biclust.pdf', sep = '')), h2, width = 7, height = 6.8)
+  save(kclusters, kord, plot.rows, plot.cols, file = file.path(outdir, paste(outpref3, '_clust.RData', sep = '')))
   
   orig = new.env()
-  load(file.path(outdir, paste(outpref, mark, '_qn.RData', sep = '')), orig)
+  load(file.path(outdir, paste(outpref, '_qn.RData', sep = '')), orig)
 
   # First select the rows that participated in ISVA. Then, get the same rows that were used in the above clustering.
   plot.counts = orig$counts[orig$good.rows, plot.cols][isva.fit$deg[sel.rows], ]
   h3 = plot.tile(scale(plot.counts), x.ord.samples = indivs[plot.cols], xcolor = get.pop.col(get.pop(indivs[plot.cols])), 
                  ysep = row.sep[-k] + 1, ylabels = array('', dim = c(k-1,1)), lcex = 12, xcex = 13)
-  ggsave(file.path(plotdir, paste(outpref, 'biclust_preIsva_', mark, '_k', k, '.pdf', sep = '')), h3, width = 7, height = 6.8)
+  ggsave(file.path(plotdir, paste(outpref3, '_biclust_preIsva.pdf', sep = '')), h3, width = 7, height = 6.8)
 #   plot.heatmap(scale(plot.counts), row.cluster = F, col.cluster = F, show.dendro = "none", row.title= '', col.title = '', lab.row = NA, lab.col = indivs[plot.cols], dist.metric = "euclidean", clust.method = "ward", 
 #                break.type='quantile', filt.thresh = NA, replace.na = F, palette = brewer.pal(9,  "RdYlBu")[seq(9,1,-1)], ColSideColors = get.pop.col(get.pop(indivs[plot.cols])), 
 #                RowSideColors = rep('white', length(sel.rows)), cex.col = 2, row.sep = row.sep, keysize = 1,
