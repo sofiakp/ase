@@ -471,9 +471,9 @@ mark.colors = function(marks){
 }
 
 get.indivs = function(){
-  return(c("GM10847", "GM12878", "GM12891", "GM12892", "GM12890", "SNYDER", 
+  return(c("GM10847", "GM12878", "GM12891", "GM12892", "GM12890", "MS1", 
            'GM18486', "GM18505", "GM19099", 'GM19193', "GM19238", "GM19239", "GM19240", "GM18526", "GM18951",
-           'GM2255', 'GM2588', 'GM2610', 'GM2630'))
+           'HG2255', 'HG2588', 'HG2610', 'HG2630'))
 }
 fix.indiv.names = function(indivs){
   indivs[indivs == 'SNYDER'] = 'MS1'

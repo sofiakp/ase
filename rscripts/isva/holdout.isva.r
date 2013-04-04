@@ -60,9 +60,9 @@ plot.stats = function(isv.cor.stats, centroid.cor.stats, cluster.ov.stats, ov.st
 }
 
 set.seed(2)
-k = 6
+k = 4
 comp = 3
-qval = 0.05
+qval = 0.01
 mark = 'H3K27AC'
 indir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/' #'../../rawdata/geneCounts/rdata/repsComb/'
 plot.dir = file.path(indir, 'plots', 'qn_isvaNull_fits_all_reg_v2', 'stability')
@@ -87,7 +87,7 @@ run.pairs = T
 indivs = colnames(original.data$counts)
 nindiv = length(indivs)
 counts = original.data$counts[original.data$good.rows, ]
-counts.norm = scale(counts)
+counts.norm = t(scale(t(counts)))
 regions = original.data$regions[original.data$good.rows, ]
 pop = factor(get.pop(indivs))
 stopifnot(ncol(original.fit$isva.fit$isv) == comp)
@@ -101,9 +101,9 @@ if(run.repeats){
   for(r in 1:nrepeats){
     isva.fit = DoISVA(counts.norm, pop, th = qval, ncomp = comp, sel.col = 1:nindiv)
     
-    new.counts = normalize.quantiles(isva.fit$res.null)
+    new.counts = t(scale(t(normalize.quantiles(isva.fit$res.null))))
     colnames(new.counts) = colnames(counts)
-    kclusters = kmeans(scale(new.counts[isva.fit$deg, ]), centers = k, iter.max = 1000, nstart = 10)
+    kclusters = kmeans(new.counts[isva.fit$deg, ], centers = k, iter.max = 1000, nstart = 10)
     
     cstats = get.clust.ov(original.fit$isva.fit, isva.fit, original.clust$kclusters, kclusters)
     # For each of the original ICs, get the maximum correlation with a new IC
@@ -117,6 +117,7 @@ if(run.repeats){
   }
   p = plot.stats(isv.cor.stats, centroid.cor.stats, cluster.ov.stats, ov.stats,
                  paste('repeat', 1:nrepeats), file.path(plot.dir, paste(clust.pref, 'repeatStats', sep = '_')))
+  save(isv.cor.stats, centroid.cor.stats, cluster.ov.stats, ov.stats, file = file.path(plot.dir, paste(clust.pref, 'repeatStats.RData', sep = '_')))
 }
 
 if(run.single){
@@ -128,7 +129,7 @@ if(run.single){
     sel.col = setdiff(1:nindiv, sel.out)
     isva.fit = DoISVA(counts.norm, pop, th = qval, ncomp = comp, sel.col = sel.col)
     
-    new.counts = normalize.quantiles(isva.fit$res.null)
+    new.counts = t(scale(t(normalize.quantiles(isva.fit$res.null))))
     colnames(new.counts) = colnames(counts)
     kclusters = kmeans(scale(new.counts[isva.fit$deg, ]), centers = k, iter.max = 1000, nstart = 10)
     
@@ -141,6 +142,7 @@ if(run.single){
   
   p = plot.stats(isv.cor.stats, centroid.cor.stats, cluster.ov.stats, ov.stats,
                  indivs, file.path(plot.dir, paste(clust.pref, 'hold1Out', sep = '_'))) 
+  save(isv.cor.stats, centroid.cor.stats, cluster.ov.stats, ov.stats, file = file.path(plot.dir, paste(clust.pref, 'hold1Out.RData', sep = '_')))
 }
 
 if(run.pairs){
@@ -158,7 +160,7 @@ if(run.pairs){
     sel.col = setdiff(1:nindiv, sel.out)
     isva.fit = DoISVA(counts.norm, pop, th = qval, ncomp = comp, sel.col = sel.col)
     
-    new.counts = normalize.quantiles(isva.fit$res.null)
+    new.counts = t(scale(t(normalize.quantiles(isva.fit$res.null))))
     colnames(new.counts) = colnames(counts)
     kclusters = kmeans(scale(new.counts[isva.fit$deg, ]), centers = k, iter.max = 1000, nstart = 10)
     cstats = get.clust.ov(original.fit$isva.fit, isva.fit, original.clust$kclusters, kclusters)
@@ -170,4 +172,5 @@ if(run.pairs){
   
   p = plot.stats(isv.cor.stats, centroid.cor.stats, cluster.ov.stats, ov.stats,
                  out.cols, file.path(plot.dir, paste(clust.pref, 'hold2Out', sep = '_'))) 
+  save(isv.cor.stats, centroid.cor.stats, cluster.ov.stats, ov.stats, file = file.path(plot.dir, paste(clust.pref, 'hold2Out.RData', sep = '_')))
 }

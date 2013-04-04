@@ -97,8 +97,15 @@ DoISVA = function(data.mat, pheno, cf.m = NULL, pvthCF = 0.01, th = 0.05, ncomp 
       residNULL.other = data.mat[, -sel.col] - thetaNULL %*% t(model.matrix( ~ selisv.m[-sel.col,]))
       resid.other = data.mat[, -sel.col] - theta %*% t(model.matrix( ~ pheno[-sel.col] + selisv.m[-sel.col,]))
     }
-    residNULL = cbind(residNULL.other, residNULL)
-    resid = cbind(resid.other, resid)
+    residNULL.tmp = array(0, dim = c(nrow(residNULL), ncol(data.mat)))
+    residNULL.tmp[, sel.col] = residNULL
+    residNULL.tmp[, -sel.col] = residNULL.other
+    residNULL = residNULL.tmp
+    
+    resid.tmp = array(0, dim = c(nrow(resid), ncol(data.mat)))
+    resid.tmp[, sel.col] = resid
+    resid.tmp[, -sel.col] = resid.other
+    resid = resid.tmp
   }
   return(list(pval = pv.s$x, qval = qv.v, rank = pv.s$ix, ndeg = ntop, deg = pred.idx, isv = selisv.m, res.null = residNULL, res = resid))
   
