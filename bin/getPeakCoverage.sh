@@ -58,10 +58,10 @@ while read inputline; do
     # Get the peak file corresponding to that input line
     if echo ${chip} | grep -q ';'; then
 	chipstub=$(echo ${inputline} | awk '{print $3}') # If multiple chip files then use column 3 in file as ChIPstub
-	mergechip=
+	#mergechip=
     else
 	chipstub=$(echo ${chip} | sed -r 's/\.bedpe.gz//g') # If one chip file then use remove .bed.gz from the file name and use that as ChIPstub
-	mergechip=${INDIR}/${chipstub}_0_reconcile.dedup.bedpe.gz
+	#mergechip=${INDIR}/${chipstub}_0_reconcile.dedup.bedpe.gz
     fi
     controlstub=$(echo ${inputline} | awk '{print $2}' | sed -r -e 's/;.*$//g' -e 's/\.bam//g') # If multiple inputs, first one is used as stub
 
@@ -80,7 +80,7 @@ while read inputline; do
 	    outpref=$(basename $PDIR)
 	    outpref=${outpref/.bed}_AT_${c/\.bedpe\.gz}.bed
 	else
-	    mergepeaks=${PDIR}/merged/${shortstub}_merged.bed.gz
+	    mergepeaks=${PDIR}/${shortstub}_merged.bed.gz
 	    if [ ! -f $mergepeaks ]; then echo "Missing file $mergepeaks" >&2; continue; fi
 	    
 	    outpref=${shortstub}_merged_AT_${c/\.bedpe\.gz/}.bed

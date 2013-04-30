@@ -64,8 +64,8 @@ bgadd -L 30 $JOBGRPID
 
 while read -r sname iname cell mark; do
     # Do this if stub name is used as prefix
-    #sname=`echo $sname | sed -r 's/_[0-9\.]+_reconcile.dedup//'`
-    sname=`echo $sname | sed -r 's/_reconcile.dedup//'`    
+    sname=`echo $sname | sed -r 's/_[0-9\.]+_reconcile.dedup//'`
+    #sname=`echo $sname | sed -r 's/_reconcile.dedup//'`    
     # The cell line is not used...
     # if [[ $(ls ${INDIR} | egrep ${sname}_VS_${iname}.*mat$ | wc -l) -ne 1 ]]; then
     if [[ $(ls ${INDIR} | egrep ${sname}.norm5.rawsignal.mat$ | wc -l) -ne 1 ]]; then
