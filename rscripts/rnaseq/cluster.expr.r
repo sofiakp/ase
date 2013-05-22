@@ -19,8 +19,9 @@ set.seed(1)
 
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/segSignal/14indiv/extractSignal/fc/avgSig/') 
 #counts.dir = '../../rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig_newNorm/'
-counts.dir = '../../rawdata/transcriptomes/combrep/extractSignal/fc/avgSig_newNorm/'
-#counts.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13'
+#counts.dir = '../../rawdata/transcriptomes/combrep/extractSignal/fc/avgSig_newNorm/'
+counts.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13'
+#counts.dir = '../../rawdata/signal/combrep/extractSignal/rand/fc/avgSig/merged_Mar13/'
 #counts.dir = '../../rawdata/dhs/alan/combrep/extractSignal/fc/avgSig/'
 #counts.dir = '../../rawdata/geneCounts/rdata/repsComb/'
 ########### CHANGE THIS !!!!!!!!!!!!!!!!!!!!!
@@ -42,7 +43,7 @@ qval = 0.01
 is.genes = F # T for RZ data
 plot.only = F
 quant = 0.4 # 0.4 for peak regions and transcriptomes
-mark = 'H3K36ME3'
+mark = 'H3K27AC'
 outpref = paste(outpref, mark, sep = '')
 load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
 
@@ -58,10 +59,10 @@ if(!plot.only){
     # region.file: BED file with regions to read. 
     # signal.files: should be txt files with just one column of values with the signal in each of the regions in region.file
     counts.dir = file.path(counts.dir, 'textFiles')
-    #region.file = file.path('../../rawdata/signal/combrep/peakFiles/merged_Mar13/', paste('SNYDER_HG19', mark, 'merged.bed.gz', sep = '_'))
-    #region.file = paste('../../rawdata/signal/combrep/peakFiles/merged/rand/SNYDER_HG19', mark, 'merged_rand.bed.gz', sep = '_')
+    region.file = file.path('../../rawdata/signal/combrep/peakFiles/merged_Mar13/', paste('SNYDER_HG19', mark, 'merged.bed.gz', sep = '_'))
+    #region.file = paste('../../rawdata/signal/combrep/peakFiles/merged_Mar13/rand/SNYDER_HG19', mark, 'merged_rand.bed.gz', sep = '_')
     #region.file = '../../rawdata/genomeGrid/hg19_w10k.bed'
-    region.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.bed'
+    #region.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.bed'
     #region.file = '../../rawdata/segSignal/14indiv/txStates_10_11_12.bed'
     #region.file = '../../rawdata/dhs/alan/pritchard_dhs_200bp_left.bed'
     signal.files = list.files(counts.dir, pattern = paste(gsub('.bed|.bed.gz', '', basename(region.file)), '_AT_SNYDER_HG19_.*', mark, '.*.txt', sep = ''), full.names = T)
@@ -115,8 +116,8 @@ if(!plot.only){
   ############### Do PCA on the "un-corrected" data and plot eigenvalues
   counts.no.child = counts.norm[, !(indivs %in% c('GM12878', 'GM19240'))]
   pca.fit = prcomp(t(counts.no.child), center = F, scale = F)
-  p.dat = plot.pcs(t(counts.norm) %*% pca.fit$rotation,  pca.fit$rotation, pca.fit$sdev, labels = indivs, groups = get.pop(indivs), all = T)
-  ggsave(file.path(plotdir, paste(outpref, '_pca_preIsva.pdf', sep = '')), p.dat$p1, width = 9, height = 6.8)
+  p.dat = plot.pcs(t(counts.norm) %*% pca.fit$rotation,  pca.fit$rotation, pca.fit$sdev, labels = array('', dim=c(ncol(counts.norm),1)), groups = get.pop(indivs), all = F, ndim = 2)
+  ggsave(file.path(plotdir, paste(outpref, '_pca_preIsva_small.pdf', sep = '')), p.dat$p1, width = 4, height = 3)
   ggsave(file.path(plotdir, paste(outpref, '_eigen.pdf', sep = '')), p.dat$p2, width = 6.5, height = 5.6)
   
   ############### ISVA correction to remove batch effects
@@ -197,8 +198,8 @@ plot.heatmap(corr.mat, filt.thresh = NA, symm.cluster = T, lab.row = indivs, lab
 # Remove daughters before PCA, but then project them too on the new dimensions
 counts.no.child = counts.norm[, no.child.cols]
 pca.fit = prcomp(t(counts.no.child), center = F, scale = F)
-p=plot.pcs(t(counts.norm) %*% pca.fit$rotation,  pca.fit$rotation, pca.fit$sdev, labels = indivs, groups = get.pop(indivs), all = T)
-ggsave(file.path(plotdir, paste(outpref2, '_pca.pdf', sep = '')), p$p1, width = 9, height = 6.8)
+p=plot.pcs(t(counts.norm) %*% pca.fit$rotation,  pca.fit$rotation, pca.fit$sdev, labels = array('', dim=c(ncol(counts.norm),1)), groups = get.pop(indivs), all = F, ndim = 2)
+ggsave(file.path(plotdir, paste(outpref2, '_pca_small.pdf', sep = '')), p$p1, width = 4, height = 3)
 
 # Write the genes or regions with the largest loadings for enrichment analysis
 # sel = order(pca.fit$rotation[, 1])[1:1000]

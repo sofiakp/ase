@@ -1,7 +1,7 @@
 rm(list=ls())
 library(GenomicRanges)
 library(Matrix)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
+source('utils/sample.info.r')
 
 # Reads SNP counts produced by AseQuantMultiRG.cpp.
 # All count files read are assumed to have the SAME SNPs in the SAME order.
@@ -9,16 +9,16 @@ source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
 # counts files (see read.genotypes.r) as well as 
 # a vector "black" that gives the SNPs that should be removed from the counts files.
 
-indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan') # count files should be here
-filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*.counts$', sep = ''), full.name = T)
+indir = '../../rawdata/alleleCounts/san/' # count files should be here
+filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*.counts.gz$', sep = ''), full.name = T)
 outdir = file.path(indir, 'rdata')
 if(!file.exists(file.path(outdir))) dir.create(file.path(outdir))
 
-snp.pos.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan/allNonSan.snps.RData')
+snp.pos.file = '../../rawdata/variants/sanConsensus/snps/san.snps.RData'
 load(snp.pos.file)
 nrows = length(black) # All counts files read must have this number of rows.
 
-samples = sample.info(filenames, '.counts')
+samples = sample.info(filenames, '.counts.gz')
 uniq.indivs = unique(as.character(samples$indiv))
 overwrite = F
 
@@ -32,7 +32,7 @@ for(i in 1:length(uniq.indivs)){
 
   sel.files = filenames[samples$indiv == uniq.indivs[i]]  
   for(f in sel.files){
-    outfile = file.path(outdir, gsub('.counts', '.RData', basename(f)))
+    outfile = file.path(outdir, gsub('.counts.*', '.RData', basename(f)))
     if(file.exists(outfile) && !overwrite){
       cat(paste('File', outfile, 'exists. Skipping sample.\n'), file = stderr())
       next
@@ -41,7 +41,7 @@ for(i in 1:length(uniq.indivs)){
     start = proc.time()
     tmp.file = paste(f, 'tmp', sep = '.')
     # Separate the counts into individual columns
-    system(paste('python', file.path(Sys.getenv('MAYAROOT'), '/src/python/parseCounts.py'), f, '>', tmp.file))
+    system(paste('python', '../python/parseCounts.py', f, '>', tmp.file))
     # Read all the counts into one big vector
     tab = scan(tmp.file, what = integer(), sep = '\t') #header = T, sep = '\t', comment.char = '')
     cat('Finished reading counts:', proc.time()[3] - start[3], 'sec\n', file = stderr())

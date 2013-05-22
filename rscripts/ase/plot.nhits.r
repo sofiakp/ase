@@ -1,20 +1,21 @@
 rm(list=ls())
 library(reshape)
 library(ggplot2)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
+source('utils/sample.info.r')
+source('utils/deseq.utils.r')
 
-indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata', 'reps')
+indir = '../../rawdata/alleleCounts/san/rdata/reps/'
 countdir = file.path(indir, 'qvals')
 plotdir = file.path(indir, 'plots')
 if(!file.exists(plotdir)) dir.create(plotdir)
 outpref = ''
 
-geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan') # genotype RData files should be here
+#geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan') # genotype RData files should be here
 
 read.lists = T # T: input is assumed to be indicators of significant positions, F: input is assumed to be data.frame with signif positions
 if(read.lists){
   filenames = list.files(countdir, pattern = 'SNYDER_HG19.*rep\\.RData', full.name = T)
+  filenames = append(filenames, list.files('../../rawdata/alleleCounts/allNonSan/rdata/reps/qvals/', pattern = 'SNYDER_HG19.*rep\\.RData', full.name = T))
   samples = sample.info(filenames, '\\.RData$')  
 }else{
   filenames = list.files(countdir, pattern = 'SNYDER_HG19.*rep\\.het\\.RData', full.name = T)
@@ -63,8 +64,7 @@ if(nsamples > 50){
   out.size = 5
 }
 
-new.indiv = as.character(samples$indiv)
-new.indiv[new.indiv == 'SNYDER'] = 'MS1'
+new.indiv = as.character(fix.indiv.names(samples$indiv))
 hit.dat = data.frame(indiv = new.indiv, mark = order.marks(samples$mark), hits = nhits, norm.hits = ncand)
 write.table(hit.dat, file = file.path(plotdir, 'num_as_snps_stats.txt'), row.names = F, col.names = T, sep = '\t', quote = F)
 

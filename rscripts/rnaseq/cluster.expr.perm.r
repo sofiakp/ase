@@ -16,89 +16,83 @@ set.seed(1)
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/segSignal/14indiv/extractSignal/fc/avgSig/') 
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig/') 
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/extractSignal/fc/avgSig/')
-counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/extractSignal/fc/avgSig_withSan/')
+counts.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/'
+rdir = file.path(counts.dir, 'rdata')
 #counts.dir= file.path(Sys.getenv('MAYAROOT'), 'rawdata/geneCounts/rdata/repsComb/')
 #deseq.dir = file.path(counts.dir, 'deseq/')
-########### CHANGE THIS !!!!!!!!!!!!!!!!!!!!!
-outpref = 'SNYDER_HG19_all_reg_' 
-#outpref = 'gencode.v13.annotation.noM.genes_all_reg_'
-#outpref = 'txStates_10_11_12_'
-#outpref = 'hg19_w10k_'
-#outpref = 'all_reg_'
 
-plotdir = file.path(counts.dir, 'plots', 'qn_isvaNull_fits_all_reg_withSan')
-outdir = file.path(counts.dir, 'rdata')
+plotdir = file.path(counts.dir, 'plots', 'qn_isvaNull_fits_all_reg_v2', 'perm')
+outdir = file.path(counts.dir, 'rdata', 'perm')
 if(!file.exists(plotdir)) dir.create(plotdir, recursive=T)
 if(!file.exists(outdir)) dir.create(outdir)
-counts.dir = file.path(counts.dir, 'textFiles')
+
 nperm = 10
-is.genes = F # T for RZ data
-quant = 0.4 # 0.4 for peak regions and transcriptomes
 mark = 'H3K4ME1'
+pref = 'SNYDER_HG19_all_reg_'
+comp = 3
+qval = 0.01
+K = 4
+nrand = 100
+pref = paste(pref, mark, sep = '')
 
-if(is.genes){
-  load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
-  indivs = unique(as.character(sample.info(list.files(counts.dir, pattern = 'SNYDER_HG19_.*RZ_0.RData'), '.RData')$indiv))
-  nindivs = length(indivs)
-  counts.dat = avg.counts(counts.dir, indivs, paste(mark, '_0.RData', sep = ''), meta = gene.meta, len.norm = F)
-  regions = counts.dat$regions
-  regions$gene.name = gene.meta$gene.name
-  counts = asinh(counts.dat$counts) 
-}else{
-  ############ Do this if you're using average signal (eg FC) in regions
-  # region.file: BED file with regions to read. 
-  # signal.files: should be txt files with just one column of values with the signal in each of the regions in region.file
-  
-  region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/peakFiles/merged_withSan/', paste('SNYDER_HG19', mark, 'merged.bed.gz', sep = '_'))
-  #egion.file = paste('../../rawdata/signal/combrep/peakFiles/merged/rand/SNYDER_HG19', mark, 'merged_rand.bed.gz', sep = '_')
-  #region.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/genomeGrid/hg19_w10k.bed')
-  #region.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.bed'
-  #region.file = '../../rawdata/segSignal/14indiv/txStates_10_11_12.bed'
-  signal.files = list.files(counts.dir, pattern = paste(gsub('.bed|.bed.gz', '', basename(region.file)), '_AT_SNYDER_HG19_.*', mark, '.*.txt', sep = ''), full.names = T)
-  indivs = unique(gsub(paste('.*_AT_SNYDER_HG19_|_', mark, '.*.txt', sep = ''), '', basename(signal.files)))
-  nindivs = length(indivs)
-  counts.dat = load.avg.sig.data(region.file, signal.files, indivs) 
-  regions = counts.dat$regions
-  counts = asinh(counts.dat$signal) 
-  if(basename(region.file) == 'gencode.v13.annotation.noM.genes.bed'){
-    tmp = read.table(region.file, header = F, stringsAsFactors = T, sep = '\t')
-    load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
-    match.id = match(tmp[, 4], rownames(gene.meta)) # remove genes not in the annotations
-    regions = regions[!is.na(match.id), ]
-    counts = counts[!is.na(match.id), ]
-    regions$gene.name = gene.meta$gene.name[match.id[!is.na(match.id)]]
-    regions = regions[order(match.id[!is.na(match.id)]), ] # Put in the same order as the annotation
-    counts = counts[order(match.id[!is.na(match.id)]), ]
-  }
-}
-
-indivs[indivs == 'SNYDER'] = 'MS1'
-############# Quantile normalization
-counts = normalize.quantiles(counts)
-colnames(counts) = indivs 
-
-# Remove rows with low variance or NaNs
-good.rows = apply(counts, 1, function(x) !any(is.na(x)))
+load(file.path(rdir, paste(pref, '_qn.RData', sep = '')))
+pref = paste(pref, '_comp', comp, '_q', qval, sep = '')
 counts = counts[good.rows, ]
-regions = regions[good.rows, ]
-row.means = rowMeans(counts)
-row.sds = rowSds(counts)
-cvs = row.sds / row.means
-good.rows = !is.na(cvs) & row.means > asinh(0.2) & cvs > quantile(cvs, quant, na.rm = T)
-#if(!is.null(outdir)) save(regions, counts, good.rows, file = file.path(outdir, paste(outpref, mark, '_qn.RData', sep = '')))
-orig.counts = counts[good.rows, ]
+counts.orig = t(scale(t(counts)))
 regions = regions[good.rows, ]
 
-############### ISVA correction to remove batch effects
+indivs = colnames(counts)
+nindivs = length(indivs)
+
 pop = factor(get.pop(indivs))
-print(pop)
 
 for(n in 1:nperm){
   sam = sample(1:nindivs, nindivs)
   print(pop[sam])
-  isva.fit = DoISVA(scale(orig.counts[, sam]), pop, pvth = 0.05, th = 0.05, ncomp = 3)
-  counts = normalize.quantiles(isva.fit$res.null) # Get residuals after removing SVs and renormalize
+  isva.fit = DoISVA(counts.orig[, sam], pop, th = qval, ncomp = comp, sel.col = 1:nindivs)
+  counts = normalize.quantiles(isva.fit$res.null) # Get residuals after removing ISVs and renormalize
   colnames(counts) = indivs
-  counts.norm = scale(counts)
-  if(!is.null(outdir)) save(regions, counts, isva.fit, sam, file = file.path(outdir, paste(outpref, 'rand_pop', n, '_', mark, '_qn_isvaNull.RData', sep = ''))) 
+  counts.norm = t(scale(t(counts)))
+  colnames(counts.norm) = indivs[sam]
+  indivs.tmp = indivs[sam]
+  perm.pref = paste(pref, '_rand_pop', n, sep = '')
+  if(!is.null(outdir)) save(regions, counts, isva.fit, sam, file = file.path(outdir, paste(perm.pref, '_qn_isvaNull.RData', sep = ''))) 
+  
+  perm.pref = paste(perm.pref, '_K', K, sep = '')
+  if(isva.fit$ndeg > 10){
+    kclusters = kmeans(counts.norm[isva.fit$deg, ], centers = K, iter.max = 1000, nstart = 10)
+    kord = heatmap.2(t(scale(t(kclusters$centers))))$rowInd
+    new.clusters = kclusters
+    new.clusters$size = kclusters$size[kord]
+    new.clusters$centers = kclusters$centers[kord, ]
+    new.clusters$withinss = kclusters$withinss[kord]
+    
+    sel.rows = c()
+    row.sep = c()
+    for(i in 1:K){
+      sel = which(kclusters$cluster == kord[i])
+      new.clusters$cluster[sel] = i
+      cluster.frac = length(sel) / length(isva.fit$deg) # fraction of regions belonging in the cluster
+      sel.rows = append(sel.rows, sel[sample(1:length(sel), min(length(sel), round(5000 * cluster.frac)))]) # Sample the cluster proportionally to its size
+      row.sep = append(row.sep, length(sel.rows))
+    }
+    kclusters = new.clusters
+    plot.rows = sel.rows
+    
+    nj.tree = nj(dist(t(counts.norm[isva.fit$deg, ])))
+    leaves.tmp = node.leaves(nj.tree, nindivs + 1)
+    root = which(get.pop(leaves.tmp) == 'San')[1]
+    leaves.tmp = append(leaves.tmp[root:nindivs], leaves.tmp[1:(root-1)])
+    lpops = unique(get.pop(leaves.tmp))
+    leaves = c()
+    for(i in 1:length(lpops)){
+      leaves = append(leaves, leaves.tmp[get.pop(leaves.tmp) == lpops[i]])
+    }
+    plot.cols = match(leaves, indivs)
+    
+    h2 = plot.tile(counts.norm[isva.fit$deg[sel.rows], plot.cols], x.ord.samples = indivs.tmp[plot.cols], xcolor = get.pop.col(get.pop(indivs.tmp[plot.cols])), 
+                   ysep = row.sep[-K] + 1, ylabels = array('', dim = c(K-1,1)), lcex = 12, xcex = 13)
+    ggsave(file.path(plotdir, paste(perm.pref, '_biclust.pdf', sep = '')), h2, width = 7, height = 6.8)
+    save(kclusters, kord, plot.rows, plot.cols, file = file.path(outdir, paste(perm.pref, '_clust.RData', sep = '')))
+  }
 }

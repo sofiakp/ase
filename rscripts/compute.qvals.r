@@ -2,14 +2,15 @@ rm(list=ls())
 #library('foreach')
 #library('doMC')
 library(GenomicRanges)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
+source('utils/binom.val.r')
+source('utils/sample.info.r')
+source('utils/deseq.utils.r')
 
 ############# Parameter setting 
 # Files with counts and pvalues. Each file should have a snp.info list with the following elements:
 # a (sparse) vector "bad" of problematic SNPs (see combine.reps) that were not included in the p-value computation.
 # a (sparse) vector of log10 p-values
-indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/reps/')
+indir = '../../rawdata/alleleCounts/san/rdata/reps/'
 outdir = file.path(indir, 'qvals') 
 # Indicators of significant SNPs will go here.
 if(!file.exists(file.path(outdir, 'hitLists'))) dir.create(file.path(outdir, 'hitLists'), recursive = T)
@@ -20,20 +21,18 @@ ninput = length(input.files)
 
 # Peak files will be used to mark (but not filter before q-value computation) SNPs that are not within 
 # enriched regions. These might result from high levels of background noise.
-peak.files = list.files(file.path(Sys.getenv('MAYAROOT'), 'rawdata/signal/combrep/peakFiles/bed/'), pattern = 'SNYDER_HG19_.*.bed', full.names = T)
+peak.files = list.files('../../rawdata/signal/combrep/peakFiles/', pattern = 'SNYDER_HG19_.*.encodePeak.gz', full.names = T)
 
 # SNP positions. All count files read MUST correspond to these positions.
-snp.pos.file = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan/allNonSan.snps.RData')
+snp.pos.file = '../../rawdata/variants/sanConsensus/snps/san.snps.RData'
 load(snp.pos.file)
-snp.ranges = GRanges(seqnames = Rle(snp.pos$chr), 
-                     ranges = IRanges(start = snp.pos$pos, end = snp.pos$pos),
-                     strand = Rle(rep('+', dim(snp.pos)[1])))
+snp.ranges = snps.to.ranges(snp.pos)
 
 # For each individual, there must be a file <geno.dir>/<indiv>.snps.RData, with genotype information.
-geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan')
+geno.dir = '../../rawdata/variants/sanConsensus/snps/'
 
 q.cut = -2 # Log-10 pvalue cutoff
-overwrite = T
+overwrite = F
 males = c('SNYDER', 'GM12891', 'GM19239', 'GM18486')
 ############# End parameter setting
 
@@ -51,7 +50,7 @@ for(n in 1:ninput){
   inputhit = as.vector(snp.info$pval < -2)
   
   # CHANGE THE PATTERN HERE IF YOU WANT TO ONLY GET A SUBSET OF MARKS
-  filenames = list.files(indir, pattern = paste('SNYDER_HG19_', indiv, '.*_H3K36ME3.*rep.*\\.RData', sep = ''), full.name = F)
+  filenames = list.files(indir, pattern = paste('SNYDER_HG19_', indiv, '.*rep.*\\.RData', sep = ''), full.name = F)
   marks = as.character(sample.info(filenames, '.RData')$mark)
   nfiles = length(filenames)
   
@@ -64,7 +63,7 @@ for(n in 1:ninput){
     
     if(!grepl('INPUT', filenames[i]) && (overwrite || !file.exists(outfile))){
       print(filenames[i]) 
-      peak.file.idx = grep(paste('SNYDER_HG19_', indiv, '_', marks[i], '.*\\.bed', sep = ''), peak.files)
+      peak.file.idx = grep(paste('SNYDER_HG19_', indiv, '_', marks[i], '.*\\.encodePeak.gz', sep = ''), peak.files)
       if(length(peak.file.idx) == 0){
         cat('Missing BED file with enriched regions.\n')
         next

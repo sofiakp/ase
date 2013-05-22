@@ -1,24 +1,24 @@
-binom.val <- function(x, y, p = 0.5){
+binom.val <- function(x, y, p = 0.5, alternative = 'two.sided'){
   nvals <- length(x)
   stopifnot(nvals == length(y))
   pvals <- array(0, dim = c(nvals, 1))
   for(i in 1:nvals){
     if(y[i] > 0){
-      pval = binom.test(x[i], y[i], p, alternative = 'two.sided')
+      pval = binom.test(x[i], y[i], p, alternative = alternative)
       pvals[i] <- pval$p.value
     }else{pvals[i] <- 1.0}
   }
   return(pvals)
 }
 
-binom.val.par <- function(x, y, p = 0.5, nchunks = 10){
+binom.val.par <- function(x, y, p = 0.5, nchunks = 10, alternative = 'two.sided'){
   nvals <- length(x)
   stopifnot(nvals == length(y))
   chunk.size = ceiling(nvals / nchunks)
   pvals = foreach(i = 1:nchunks, .combine = 'append', .inorder = T) %dopar%{
     chunk.start = (i - 1) * chunk.size + 1
     chunk.end = min(i * chunk.size, nvals)
-    binom.val(x[chunk.start:chunk.end], y[chunk.start:chunk.end], p)
+    binom.val(x[chunk.start:chunk.end], y[chunk.start:chunk.end], p, alternative = alternative)
   }
   return(pvals)
 }

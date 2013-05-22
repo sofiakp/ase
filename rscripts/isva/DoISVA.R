@@ -76,11 +76,13 @@ DoISVA = function(data.mat, pheno, cf.m = NULL, pvthCF = 0.01, th = 0.05, ncomp 
     pred.idx = pv.s$ix[qv.v < th];
     if(ntop == 1){
       lm.o = lm(data.mat[pred.idx, sel.col] ~ pheno[sel.col] + selisv.m[sel.col, ] )
+      tstats.v = summary(lm.o)
+      tstats.v = tstats.v$coeff[2,3]
     }else{
       # find t-stats of significant ones
       lm.o = lm(t(data.mat[pred.idx, sel.col]) ~ pheno[sel.col] + selisv.m[sel.col, ]) 
+      tstats.v = unlist(lapply(summary(lm.o), function(x){ x$coeff[2,3];}))
     }
-    tstats.v = unlist(lapply(summary(lm.o), function(x){ x$coeff[2,3];}))
     lm.m = cbind(tstats.v, pv.s$x[qv.v < th], qv.v[qv.v < th])
     colnames(lm.m) = c("t", "pval", "qval")
   } 

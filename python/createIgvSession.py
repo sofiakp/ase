@@ -46,7 +46,7 @@ lines = {}
 marks = {}
 for line in fileinput.input([]):
     fields = line.strip().split()
-    filename = fields[0] + '_VS_' + fields[1] + '.fc.signal.bw'
+    filename = fields[0] + '.norm5.rawsignal.bw' #+ '_VS_' + fields[1] + '.fc.signal.bw'
     lines[filename] = fields[2]
     marks[filename] = fields[3]
     print '\t\t<Resource path="' + bwdir + '/' + filename + '"/>'

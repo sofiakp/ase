@@ -107,17 +107,17 @@ select.reps = function(reps){
   return(good.reps)
 }
 
-registerDoMC(6)
+registerDoMC(3)
 rg = T # T: sup up replicates, keep read groups separate, F: one file per indiv and mark
 
-indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/')
+indir = '../../rawdata/alleleCounts/san/rdata/'
 filenames = list.files(indir, pattern = 'SNYDER_HG19_.*RData$', full.name = T, recursive = F, include.dirs = F)
 if(rg){
   outdir = file.path(indir, 'reps')
 }else{outdir = file.path(indir, 'repsComb')}
 if(!file.exists(outdir)) dir.create(outdir, recursive = T)
 
-geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan') # genotype RData files should be here
+geno.dir = '../../rawdata/variants/sanConsensus/snps/' # genotype RData files should be here
 
 all.info <- sample.info(filenames, '\\.RData$')
 uniq.indivs = unique(as.character(all.info$indiv))

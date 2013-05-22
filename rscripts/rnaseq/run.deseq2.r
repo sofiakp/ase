@@ -34,14 +34,14 @@ concat.counts = function(filenames, name.expr = "rownames(regions)"){
 # The file should contain a counts matrix with columns of the form indiv_mark_rep, a 
 # regions data.frame and a size.factors array with size factors corresponding to the 
 # columns of counts.
-mark = 'CTCF'
+mark = 'RZ'
 fit.type = 'parametric' 
 beta.prior = T
-indir = '../../rawdata/signal/rep/countsAtPeaksBroad/merged_Mar13/repsComb/' #'../../rawdata/genomeGrid/hg19_w10k/rep/counts_newNorm/repsComb/' #../../rawdata/transcriptomes/rep/counts_newNorm/repsComb/' #../../rawdata/geneCounts/rdata/repsComb/'
+indir = '../../rawdata/geneCounts/rdata/repsComb/' #'../../rawdata/signal/rep/countsAtPeaksBroad/merged_Mar13/repsComb/' #'../../rawdata/genomeGrid/hg19_w10k/rep/counts_newNorm/repsComb/' #../../rawdata/transcriptomes/rep/counts_newNorm/repsComb/'
 load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
-meta = NULL # SET TO NULL UNLESS YOU'RE USING GENECOUNTS
+meta = gene.meta # SET TO NULL UNLESS YOU'RE USING GENECOUNTS
 sel.filenames = list.files(indir, pattern = paste('SNYDER_HG19_.*_', mark, '_0.RData', sep = ''))
-outdir = file.path(indir, 'deseq2')
+outdir = file.path(indir, 'deseq2_May13')
 plotdir = file.path(outdir, 'plots')
 if(!file.exists(outdir)) dir.create(outdir)
 if(!file.exists(plotdir)) dir.create(plotdir)
@@ -65,6 +65,7 @@ for(i in 1:(length(indivs) - 1)){
       counts = c$counts
       regions = c$regions
       pass = rowSums(counts) > 10 #quantile(rowSums(counts), 0.4) # 0.4 for expression 0.4 for marks with many peaks
+      if(!is.null(gene.meta)) pass = rowMeans(counts) / gene.meta$len > 0.1
       
       if(indivs[i] %in% males || indivs[j] %in% males){
         # Don't consider sex chromosomes, they are expected to have high p-values in comparisons between
@@ -75,6 +76,7 @@ for(i in 1:(length(indivs) - 1)){
       }
       
       c.dat = counts[pass, ]
+      c$conds$cond = factor(c$conds$cond, levels = c(indivs[i], indivs[j]))
       cds = DESeqSummarizedExperimentFromMatrix(countData = c.dat, colData = c$conds, design = ~cond)
       dse = DESeq(cds, fitType = fit.type, betaPrior = beta.prior, pAdjustMethod = 'BH')
       pdf(file.path(plotdir, paste(outpref, '_dispersion', '.pdf', sep = '')))

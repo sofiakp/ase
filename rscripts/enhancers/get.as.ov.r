@@ -1,8 +1,8 @@
 rm(list=ls())
 library(reshape)
 library(GenomicRanges)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
+source('utils/sample.info.r')
+source('utils/deseq.utils.r')
 
 # Reads a set of region-gene associations (eg enhancer-gene links) and finds the pairs that are supported by allelic biases.
 # These are pairs such as the region has AS SNPs and the gene has a bias in the same direction as the SNPs.

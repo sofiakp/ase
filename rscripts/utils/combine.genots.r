@@ -1,6 +1,8 @@
 rm(list=ls())
 library(Matrix)
 library(ggplot2)
+library(ape)
+library(geiger)
 source('utils/deseq.utils.r')
 
 non.san = new.env()
@@ -71,7 +73,7 @@ load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.flat.RData')
 # SNPs on exons
 ov = findOverlaps(snps.to.ranges(snp.pos), regions.to.ranges(gene.meta), select = 'first', ignore.strand = T) 
 sel = !is.na(ov)
-genot.sample = genot[sel, ][sample(1:sum(sel), 100000), colnames(genot) != 'GM19193'] 
+genot.sample = genot[sel, ][sample(1:sum(sel), 100000), colnames(genot) != 'GM19193' & colnames(genot) != 'GM12890'] 
 colnames(genot.sample) = fix.indiv.names(colnames(genot.sample))
 nj.tree = nj(dist(t(genot.sample), method = 'manhattan'))
 edges = nj.tree$edge
@@ -80,18 +82,19 @@ sel.edges = edges[, 1] > ncol(genot) & edges[, 2] > ncol(genot) & edge.len > 10
 edge.lab = array('', dim = c(nrow(edges), 1))
 edge.lab[sel.edges] = edge.len[sel.edges]
 
-pdf('../../rawdata/variants/all_Mar13/genot_pca_noGM19193_exons_nj.pdf')
-plot(nj.tree, 'u', cex = 1, edge.width = 0.5, no.margin = T, lab4ut='axial', label.offset = 0.5, tip.col = get.pop.col(get.pop(colnames(genot))))
+pdf('../../rawdata/variants/all_Mar13/genot_pca_noGM19193_noGM12890_exons_nj.pdf')
+plot(nj.tree, 'u', cex = 1, edge.width = 0.5, no.margin = T, lab4ut='axial', label.offset = 0.5, tip.col = get.pop.col(get.pop(colnames(genot.sample))))
 edgelabels(edge.lab, frame = 'none', adj = c(1, 0.5), cex = 0.9)
 dev.off()
 
 # Select variable sites
 sel = rowSums(genot.sample == 0) < ncol(genot.sample) - 3 & rowSums(genot.sample == 1) < ncol(genot.sample) - 3 & rowSums(genot.sample == 2) < ncol(genot.sample) - 3
-genot.sample[genot.sample == 2] = 1 # Trios have much fewer homozygous alternative calls. This causes biases
+#genot.sample[genot.sample == 2] = 1 # Trios have much fewer homozygous alternative calls. This causes biases
 genot.norm = scale(genot.sample[sel, ])
 colnames(genot.norm) = colnames(genot.sample)
 pca.fit = prcomp(t(genot.norm[, !(colnames(genot.sample) %in% c('GM12878', 'GM19240'))]), center = F, scale = F)
-p=plot.pcs(t(genot.norm) %*% pca.fit$rotation,  pca.fit$rotation, pca.fit$sdev, labels = colnames(genot.sample), groups = get.pop(colnames(genot.sample)), all = F, ndim = 10)
+p=plot.pcs(t(genot.norm) %*% pca.fit$rotation,  pca.fit$rotation, pca.fit$sdev, labels = array('', dim=c(ncol(genot.sample),1)), groups = get.pop(colnames(genot.sample)), all = F, ndim = 2)
+ggsave('../../rawdata/variants/all_Mar13/genot_pca_noGM19193_noGM12890_exonsVariable_small.pdf', p$p1, width = 4, height = 3)
 save(genot.norm, pca.fit, file = '../../rawdata/variants/all_Mar13/genot_pca_noGM19193_exonsVariable_pca.RData')
 ggsave('../../rawdata/variants/all_Mar13/genot_pca_noGM19193_exonsVariable.pdf', p$p1, width = 13.6, height = 11.8)
 ggsave('../../rawdata/variants/all_Mar13/genot_eigen_noGM19193_exonsVariable.pdf', p$p2, width = 6.5, height = 5.6)

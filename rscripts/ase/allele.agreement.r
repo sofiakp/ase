@@ -1,21 +1,25 @@
 rm(list=ls())
 library('reshape')
 require('ggplot2')
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
+source('utils/sample.info.r')
+source('utils/deseq.utils.r')
 
-indir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/reps')
+indir = '../../rawdata/alleleCounts/allNonSan/rdata/reps'
 countdir = file.path(indir, 'qvals')
 plotdir = file.path(indir, 'plots')
 if(!file.exists(plotdir)) dir.create(plotdir)
-outpref = 'repress_' # eg. foo_
+outpref = 'active_' # eg. foo_
 
 # Read overlap matrices from here instead of regenerating them. Set to NULL to generate from scratch.
-read.from = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/reps/plots/mergedRep_overlaps.RData')
+read.from = NULL #'rawdata/alleleCounts/allNonSan/rdata/reps/plots/mergedRep_overlaps.RData')
+filter.regions = read.bed('../../rawdata/segSignal/14indiv/allEnhStates.bed')
+load('../../rawdata/variants/all/snps/allNonSan/allNonSan.snps.RData')
+good.snps =  !is.na(findOverlaps(snps.to.ranges(snp.pos), regions.to.ranges(filter.regions), select = 'first', ignore.strand = T))
 
 # GM(19238|19239|19240|18505|19099|18486) all YRI
 # (GM(12878|12891|12892|12890|10847)|SNYDER) all CEU
 # activating (H3K4ME1|H3K4ME3|H3K27AC|H3K9AC)
-filenames = list.files(countdir, pattern = 'SNYDER_HG19.*(H3K27ME3|H3K9ME3).*rep\\.RData', full.name = T)
+filenames = list.files(countdir, pattern = 'SNYDER_HG19.*(H3K27AC).*rep\\.RData', full.name = T)
 samples = sample.info(filenames, '\\.RData$')
 
 epsilon = 1
@@ -32,26 +36,37 @@ if(is.null(read.from)){
     load(filenames[i])
     hits1 = snp.info$qval < q.cut # Significant hits
     pass1 = snp.info$pass # heterozygous, unmasked SNPs
+    hits1 = hits1 & pass1
     ov.mat[i, i] = sum(hits1)
     dir.mat[i, i] = 1
     corr.mat[i, i] = 1
     ratios1 = log((counts[, 1] + 1) / (counts[, 2] + 1), base = 2)
+    #hits1 = hits1 & ratios1 > log2(1.2)
     #if(i < nsamples){
     for(j in 1:nsamples){
       if(i == j) next
       load(filenames[j])
-      hits2 = snp.info$qval < q.cut
+      hits2 = snp.info$qval < q.cut & snp.info$pass
       ratios2 = log((counts[, 1] + 1) / (counts[, 2] + 1), base = 2)
+      #hits2 = hits2 & ratios2 > log2(1.2)
       ov.mat[i, j] = sum(hits1 & hits2) # SNPs that were significantly AS in both datasets
       # ov.mat[j, i] = ov.mat[i, j]
       # For the SNPs that are AS in at least one of the two datasets, and heterozygous (and unmasked)
       # in the other dataset, compute the correlation of allelic biases.
-      hit.union = as.vector((hits1 & snp.info$pass)) # | (hits2 & pass1))
+      hit.union = as.vector(((hits1 | hits2) & good.snps)) # | (hits2 & pass1))
       if(sum(hit.union) > 10){
         corr.mat[i, j] = cor(ratios1[hit.union], ratios2[hit.union]) 
         dir.mat[i, j] = sum(ratios1[hit.union] * ratios2[hit.union] > 0) / sum(hit.union)
         #corr.mat[j, i] = corr.mat[i, j]
         #dir.mat[j, i] = dir.mat[i, j]
+        if(i < j){
+          hit.dat = data.frame(cbind(x = ratios1[hit.union], y = ratios2[hit.union]))
+          q0 = ggplot(hit.dat) + geom_point(aes(x = x, y = y)) + xlab(samples$mark[i]) + ylab(samples$mark[j]) + 
+            theme_bw() + ggtitle(paste('Correlation of allelic biases', sprintf('%.4f', corr.mat[i,j]))) +
+            theme(axis.text.x = element_text(size = 14), axis.title.x = element_text(size = 14),
+                  axis.text.y = element_text(size = 14), axis.title.y = element_text(size = 14))
+          ggsave(file.path(plotdir, paste('mergedRep_', outpref, samples$indiv[i], '_', samples$mark[i], '_', samples$indiv[i], '_', samples$mark[j], '_corr.pdf', sep = '')), q0, width = 6.5, height = 5.6)                    
+        }
       }
     } 
   }
@@ -86,29 +101,30 @@ if(is.null(read.from)){
   ov.dat = ov.dat[sel, ]
 }
 
-out.size = 10
+out.size = 14
 if(nsamples > 50){out.size = 5}
 if(nsamples > 100){out.size = 4}
+
+#pop = sort(get.pop(as.character(samples$indiv)), index.return = T)
 
 # Plot[i,j]: what fraction of AS SNPs of dataset i overlap with dataset j
 q1 = ggplot(ov.dat) + geom_tile(aes(x = variable, y = sample, fill = value)) +
   scale_x_discrete('') + scale_y_discrete('') + scale_fill_gradient('Fraction', limits = c(0, 1), low = "beige", high = "tomato") +
   theme(axis.text.x = element_text(angle = -45, vjust = 1, hjust = 0, colour = 'grey30', size = out.size),
-        axis.text.y = element_text(hjust = 1, colour = 'grey30', size = out.size)) + 
-          ggtitle('Fraction of AS SNPs in each dataset overlapping every other dataset')
-ggsave(file.path(plotdir, paste('mergedRep_', outpref, 'overlaps.png', sep = '')), q1)
+        axis.text.y = element_text(hjust = 1, colour = 'grey30', size = out.size), plot.title = element_text(size = 14)) + 
+          ggtitle('Fraction of overlapping AS SNPs')
+ggsave(file.path(plotdir, paste('mergedRep_', outpref, 'overlaps.pdf', sep = '')), q1, width = 6.5, height = 5.6)
 q2 = ggplot(corr.dat) + geom_tile(aes(x = variable, y = sample, fill = value)) +
-  scale_x_discrete('') + scale_y_discrete('') + scale_fill_gradient2('Fraction', limits = c(-1, 1), low = "blue", mid = "white", high = "tomato") +
+  scale_x_discrete('') + scale_y_discrete('') + scale_fill_gradient2('Fraction', limits = c(-0.5, 0.5), low = "blue", mid = "white", high = "tomato") +
   theme(axis.text.x = element_text(angle = -45, vjust = 1, hjust = 0, colour = 'grey30', size = out.size),
-        axis.text.y = element_text(hjust = 1, colour = 'grey30', size = out.size)) +
+        axis.text.y = element_text(hjust = 1, colour = 'grey30', size = out.size), plot.title = element_text(size = 14)) +
           ggtitle('Correlation of biases in heterozygous SNPs')
-ggsave(file.path(plotdir, paste('mergedRep_', outpref, 'overlap_corr.png', sep = '')), q2)
-q3 = ggplot(dir.dat) + geom_tile(aes(x = variable, y = sample, fill = value)) +
+ggsave(file.path(plotdir, paste('mergedRep_', outpref, 'overlap_corr.pdf', sep = '')), q2, width = 6.5, height = 5.6)
+q3 = ggplot(dir.dat) + geom_tile(aes(x = variable, y = sample, fill = value)) + ggtitle('Fraction of overlapping AS SNPs with the same direction') +
   scale_x_discrete('') + scale_y_discrete('') + scale_fill_gradient2('Fraction', limits = c(0, 1), midpoint=0.5,low = "blue", mid = "white", high = "tomato") +
   theme(axis.text.x = element_text(angle = -45, vjust = 1, hjust = 0, colour = 'grey30', size = out.size),
-       axis.text.y = element_text(hjust = 1, colour = 'grey30', size = out.size)) +
-         ggtitle('Fraction of overlapping AS SNPs with the same direction')
-ggsave(file.path(plotdir, paste('mergedRep_', outpref, 'overlap_agreement.png', sep = '')), q3)
+       axis.text.y = element_text(hjust = 1, colour = 'grey30', size = out.size), plot.title = element_text(size = 14))
+ggsave(file.path(plotdir, paste('mergedRep_', outpref, 'overlap_agreement.pdf', sep = '')), q3, width = 6.5, height = 5.6)
 
 
 # filenames <- list.files(countdir, pattern = 'SNYDER_HG19.*rep\\.hits\\.RData', full.name = T)

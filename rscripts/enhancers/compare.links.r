@@ -2,8 +2,8 @@ rm(list=ls())
 library(GenomicRanges)
 library(ggplot2)
 source('utils/deseq.utils.r')
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/enhancers/get.as.ov.r'))
+source('utils/sample.info.r')
+#source('enhancers/get.as.ov.r')
 
 # Stam links
 stam.assoc = read.table('../../rawdata/enhancers/external/stam/genomewideCorrs_above0.7_promoterPlusMinus500kb_withGeneNames_32celltypeCategories.bed8', header = F, sep = '\t', na.strings = '?')[, 4:8]
@@ -21,13 +21,12 @@ ext.assoc$type = factor(append(rep('Thurman et al.', nrow(stam.assoc)),
                                 rep('Ernst et al.', nrow(j.all.assoc))))
                   
 # Discovered links
-link.files = c('../../rawdata/enhancers/rdata/enhancer_coef_elastic0.5_100kb_asinh0.2_cv0.2_H3K27AC_links.RData',
-               '../../rawdata/enhancers/rdata/enhancer_coef_ars_100kb_asinh0.2_cv0.2_H3K27AC_links_fdr0.01_perm_gene_pairs.RData')
-types = c('Regression', 'ARS')
+link.files = c('../../rawdata/enhancers/merged_Mar13/rdata/enhancer_coef_ars_100kb_asinh0.2_cv0.2_H3K27AC_links_fdr0.01_perm_gene_pairs.RData')
+types = c('ARS')
 
-plotdir = '../../rawdata/enhancers/plots/'
-outpref = 'enhancer_coef_elastic0.5_vs_ars_100kb_asinh0.2_cv0.2_H3K27AC_distToTSS' #gsub('.RData', '', basename(link.file))
-load(file.path(Sys.getenv('MAYAROOT'), 'rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')) # gene metadata
+plotdir = '../../rawdata/enhancers/merged_Mar13/plots/'
+outpref = 'enhancer_coef_ars_100kb_asinh0.2_cv0.2_H3K27AC_distToTSS' #gsub('.RData', '', basename(link.file))
+load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData') # gene metadata
 
 dist.dat.all = NULL
 ov.summary.all = NULL
@@ -137,15 +136,15 @@ for(i in 1:length(link.files)){
 col = c('darkblue', 'deepskyblue4')
 names(col) = types
 dist.dat.all$distance = dist.dat.all$distance / 1000
-p = ggplot(dist.dat.all, group = type) + geom_density(aes(x = distance, linetype = type, color = type), size = 1.5) + 
+p = ggplot(dist.dat.all, group = type) + geom_density(aes(x = distance), size = 1.5) + 
   xlab('Distance enhancer - TSS (Kb)') + ylab('Density') + theme_bw() + 
-  scale_color_manual(values = col) +
+  #scale_color_manual(values = col) +
   theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 15),
         axis.title.x = element_text(size = 16), axis.title.y = element_text(size = 16),
         legend.title = element_blank(), legend.text = element_text(size = 15), legend.position = c(.2, .8))
 ggsave(file = file.path(plotdir, paste(outpref, '_distToTSS.pdf', sep = '')), p, width = 5.2, height = 4.5)
 
-q = ggplot(ov.summary.all) + geom_bar(aes(x = annotation, y = hits, fill = type), position = 'dodge') +
+q = ggplot(ov.summary.all) + geom_bar(aes(x = annotation, y = hits), position = 'dodge') +
   xlab('Overlapping annotation') + ylab('# associations') + scale_fill_manual(values = col) + theme_bw() + 
   theme(axis.text.x = element_text(size = 15, angle = -60, hjust = 0, vjust = 1), axis.text.y = element_text(size = 15),
         axis.title.x = element_text(size = 16), axis.title.y = element_text(size = 16),

@@ -16,8 +16,9 @@ registerDoMC(10)
 # Each count matrix should have one column per replicate. The file should also have a vector size.factors with
 # the size factor (library size) for each column.
 rna.dir = '../../rawdata/geneCounts/rdata/repsComb'
-peak.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/rdata' 
-outdir = file.path('../../rawdata/enhancers/rdata')
+peak.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata' 
+outdir = file.path('../../rawdata/enhancers/merged_Mar13/rdata')
+if(!file.exists(outdir)) dir.create(outdir, recursive = T)
 mark = 'H3K27AC' # signal in distal elements to correlate with expression
 win.len = 100000 # will consider associations in a window [TSS-win.len, TSS+win.len]
 perm = ''
@@ -45,17 +46,19 @@ if(perm == ''){
   #rna.counts = normalize.quantiles(scale(rna.counts, center = T, scale = F))
   rna.counts = normalize.quantiles(rna.counts)
   trans = trans[trans$gene.idx %in% expr.genes, ] # Remove TSSs for lowly-expressed genes. Leave gene.meta unchanged for now.
-  colnames(rna.counts) = indivs
+  colnames(rna.counts) = fix.indiv.names(indivs)
+  indivs = fix.indiv.names(indivs)
   cat('# genes:', nrow(rna.counts), '\n')
   
   # Get the H3K4ME3 peak overlapping each differential TSS. These peaks give the "promoter domains".
-  load(file.path(peak.dir, 'SNYDER_HG19_H3K4ME3_qn.RData'))
+  load(file.path(peak.dir, 'SNYDER_HG19_all_reg_H3K4ME3_qn.RData'))
   row.means = rowMeans(counts)
   row.sds = rowSds(counts)
   cvs = row.sds / row.means
   good.rows = !is.na(cvs) & row.means > asinh(0.2) & cvs > quantile(cvs, 0.2, na.rm = T)
   me.regions = regions[good.rows, ]
-  me.counts = counts[good.rows, colnames(counts) %in% colnames(rna.counts)]
+  rna.counts = rna.counts[, colnames(rna.counts) %in% colnames(counts)]
+  me.counts = counts[good.rows, match(colnames(rna.counts), colnames(counts))]
   stopifnot(all(colnames(me.counts) == colnames(rna.counts)))
   
   me.ov = findOverlaps(snps.to.ranges(trans), regions.to.ranges(me.regions), select = 'all', ignore.strand = T)
@@ -74,13 +77,13 @@ if(perm == ''){
   me.regions = me.regions[me.ov.mat[, 2], ]
   
   # Load H3K27ac signal and peaks
-  load(file.path(peak.dir, paste('SNYDER_HG19', mark, 'qn.RData', sep = '_')))
+  load(file.path(peak.dir, paste('SNYDER_HG19_all_reg', mark, 'qn.RData', sep = '_')))
   row.means = rowMeans(counts)
   row.sds = rowSds(counts)
   cvs = row.sds / row.means
   good.rows = !is.na(cvs) & row.means > asinh(0.2) & cvs > quantile(cvs, 0.2, na.rm = T)
   ac.regions = regions[good.rows, ]
-  ac.counts = counts[good.rows, colnames(counts) %in% colnames(rna.counts)]
+  ac.counts = counts[good.rows, match(colnames(rna.counts), colnames(counts))]
   stopifnot(all(colnames(ac.counts) == colnames(rna.counts)))
   
   # For each gene, get the "proximal" K27ac peaks (those within the TSS associated H3K4me3 peak), 

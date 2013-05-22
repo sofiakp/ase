@@ -1,7 +1,7 @@
 require(GenomicRanges)
 require(MASS)
 
-get.diff.count = function(filenames, qcut, fold.cut = NULL, is.log = T){
+get.diff.count = function(filenames, qcut, fold.cut = NULL, is.log = T, sel.row = NULL){
   # Reads a set of files produced by doing pairwise comparisons with DESeq
   # and counts the number of times each region was found to be differential.
   # Each file must have a counts and a regions data.frame.
@@ -33,9 +33,11 @@ get.diff.count = function(filenames, qcut, fold.cut = NULL, is.log = T){
     }else{
       sel = sel & (regions$fold > fold.cut | regions$fold < 1/fold.cut)
     }
+    if(!is.null(sel.row)) sel = sel & sel.row
     diff.count = diff.count + as.numeric(sel)
     pair.diff[which(indivs == indivs1[i]), which(indivs == indivs2[i])] = sum(sel)
   }
+  if(!is.null(sel.row)) diff.count = diff.count[sel.row]
   pair.diff = pair.diff + t(pair.diff)
   colnames(pair.diff) = indivs
   rownames(pair.diff) = indivs
@@ -177,11 +179,13 @@ plot.pcs = function(data, eigen, dev, labels, groups = labels, all = F, ndim = 4
       }
     }
   }
-  p1 = ggplot(d) + geom_point(aes(x = x, y = y, color = groups, shape = groups), size = 4) + 
+  p1 = ggplot(d) + geom_point(aes(x = x, y = y, color = groups, shape = groups), size = 4) + theme_bw() + 
     geom_text(aes(x = x, y = y, label = labels, color = groups), show_guide = F, size = 4, vjust = 2) + 
     facet_wrap(~type, scales = 'free') + xlab('') + ylab('') + scale_color_manual('', values = get.pop.col(unique(groups))) + scale_shape_discrete('') +
+    
     theme(strip.text.x = element_text(size = 12), legend.text = element_text(size = 12),
-          axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12))
+          #axis.text.x = element_text(size = 12), axis.text.y = element_text(size = 12),
+          axis.ticks.x = element_blank(), axis.text.x = element_blank(), axis.ticks.y = element_blank(), axis.text.y = element_blank())
   
   ###### Plot eigenvalues 
 #   pc.dat = data.frame(pca.fit$rotation[, 1:isva.fit$nsv])
@@ -431,6 +435,9 @@ order.marks = function(marks, sub.rna = T){
   }
   levels = c('CTCF', 'PU1', 'SA1', 'H3K27AC', 'H3K4ME1', 'H3K4ME3', 'H2AZ', 'H3K9AC', 
              'RNA', 'polyA-RNA', 'POL4H8', 'EPOL', 'H3K36ME3', 'BUB', 'H3K27ME3','H3K9ME3', 'INPUT')
+  if(!all(marks %in% levels)){
+    return(marks)
+  }
   return(ordered(factor(marks, levels = levels)))
 }
 

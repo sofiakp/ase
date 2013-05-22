@@ -2,14 +2,14 @@ rm(list=ls())
 library(Matrix)
 source('utils/sample.info.r')
 
-snp.pos.file = '../../rawdata/variants/all/snps/allNonSan/allNonSan.snps.RData'
+snp.pos.file = '../../rawdata/variants/sanConsensus/snps/san.snps.RData'
 load(snp.pos.file)
 
-indir = '../../rawdata/alleleCounts/allNonSan/rdata/reps/qvals/'
+indir = '../../rawdata/alleleCounts/san/rdata/reps/qvals/'
 filenames = list.files(indir, pattern = 'SNYDER_HG19_.*\\_rep.*\\.RData', full.name = T, recursive = F, include.dirs = F)
 outdir = file.path(indir, 'hitLists', 'text_withCounts')
 if(!file.exists(outdir)) dir.create(outdir)
-geno.dir = '../../rawdata/variants/all/snps/allNonSan/'
+geno.dir = '../../rawdata/variants/sanConsensus/snps/'
 overwrite = T
 indivs = as.character(sample.info(filenames, '.RData')$indiv)
 uniq.indiv = unique(indivs)

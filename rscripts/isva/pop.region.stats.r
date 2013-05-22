@@ -17,7 +17,7 @@ get.enrich.corr = function(regions, isva.fit, dat, ov.deg, ov.non.deg, is.snp = 
   deg.sum = sum(!is.na(ov.deg) & !is.na(deg)) # Regions with variants (in our set of samples) AND high Fst SNPs
   non.deg.sum = sum(!is.na(ov.non.deg) & !is.na(non.deg))
   enrich[1, 1] = (deg.sum / ov.deg.sum) / (non.deg.sum / ov.non.deg.sum)
-  enrich[1, 2] = binom.val(deg.sum, ov.deg.sum, non.deg.sum / ov.non.deg.sum)
+  enrich[1, 2] = binom.val(deg.sum, ov.deg.sum, non.deg.sum / ov.non.deg.sum, alternative = 'greater')
   return(enrich)
 }
 
@@ -33,7 +33,7 @@ get.enrich = function(regions, isva.fit, dat, is.snp = T){
   deg.sum = sum(!is.na(deg))
   non.deg.sum = sum(!is.na(non.deg))
   enrich[1, 1] = (deg.sum / isva.fit$ndeg) / (non.deg.sum / (nrow(regions) - isva.fit$ndeg))
-  enrich[1, 2] = binom.val(deg.sum, isva.fit$ndeg, non.deg.sum / (nrow(regions) - isva.fit$ndeg))
+  enrich[1, 2] = binom.val(deg.sum, isva.fit$ndeg, non.deg.sum / (nrow(regions) - isva.fit$ndeg), alternative = 'greater')
   return(enrich)
 }
 get.wilc.enrich = function(regions, isva.fit, dat){
@@ -46,19 +46,28 @@ get.wilc.enrich = function(regions, isva.fit, dat){
 }
 
 is.rand = F
-isva.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/' #'../../rawdata/segSignal/14indiv/extractSignal/fc/avgSig/rdata'
-plotdir = file.path(isva.dir, '..', 'plots')
-files = list.files(isva.dir, pattern = 'all_reg_.*_qn_isvaNull.RData', full.names = T)
-isva.dir = '../../rawdata/genomeGrid/hg19_w10k/combrep/rdata/'
-#files = append(files, list.files(isva.dir, pattern = 'hg19_w10k_all_reg.*_H3K27ME3.*_qn_isvaNull.RData', full.names = T))
-isva.dir = '../../rawdata/geneCounts/rdata/repsComb/rdata/'
-#files = append(files, list.files(isva.dir, pattern = 'all_reg.*_RZ.*_qn_isvaNull.RData', full.names = T))
-isva.dir = '../../rawdata/transcriptomes/combrep/extractSignal/fc/avgSig/rdata/'
-#files = append(files, list.files(isva.dir, pattern = 'gencode.v13.annotation.noM.genes_all_reg.*_H3K36ME3.*_qn_isvaNull.RData', full.names = T))
-isva.dir = '../../rawdata/signal/combrep/extractSignal/rand/fc/avgSig_withSan/rdata/'
-#files = append(files, list.files(isva.dir, pattern = 'all_reg.*H3K4ME1.*_qn_isvaNull.RData', full.names = T))
-outpref = 'all_reg_compare_'
-geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan/')
+mark = '' # only used in rand
+isva.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata' #'../../rawdata/segSignal/14indiv/extractSignal/fc/avgSig/rdata'
+plotdir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/plots' # CHANGE THIS!
+files = list.files(isva.dir, pattern = paste('all_reg_', mark, '.*comp3_q0.01.*_qn_isvaNull.RData', sep = ''), full.names = T)
+files = files[!grepl('daughters', files)]
+outpref = 'SNYDER_HG19_all_reg_'
+if(is.rand){
+  isva.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/perm/'
+  files = append(files, list.files(isva.dir, pattern = paste('all_reg_', mark, '.*comp3_q0.01.*_qn_isvaNull.RData', sep = ''), full.names = T))
+  isva.dir = '../../rawdata/signal/combrep/extractSignal/rand/fc/avgSig/merged_Mar13/rdata/'
+  files = append(files, list.files(isva.dir, pattern = paste('all_reg_rand_', mark, '.*comp3_q0.01.*_qn_isvaNull.RData', sep = ''), full.names = T))
+  outpref = paste(outpref, mark, '_rand_', sep = '')
+}else{
+  #isva.dir = '../../rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig_newNorm/rdata/'
+  #files = append(files, list.files(isva.dir, pattern = 'all_reg.*_H3K27ME3.*comp3_q0.01.*_qn_isvaNull.RData', full.names = T))
+  #isva.dir = '../../rawdata/geneCounts/rdata/repsComb/rdata/'
+  #files = append(files, list.files(isva.dir, pattern = 'all_reg.*_RZ.*_qn_isvaNull.RData', full.names = T))
+  isva.dir = '../../rawdata/transcriptomes/combrep/extractSignal/fc/avgSig_newNorm/rdata/'
+  files = append(files, list.files(isva.dir, pattern = 'all_reg.*_(H3K36ME3|POL4H).*comp3_q0.01.*_qn_isvaNull.RData', full.names = T))
+}
+
+#geno.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/variants/all/snps/allNonSan/')
 
 if(!is.rand) files = files[!grepl('rand|th0', files)]
 
@@ -83,7 +92,7 @@ colnames(fst.dat) = c('chr', 'pos', 'fst')
 eqtl.dat = read.table('../../rawdata/QTL/eQTLs_uniq.txt')[, 1:2]
 colnames(eqtl.dat) = c('chr', 'pos')
 
-marks = gsub('SNYDER_HG19_|hg19_w.*k_|allEnhStates_|.*all_reg_|_qn_.*svaNull.RData', '', basename(files))
+marks = gsub('SNYDER_HG19_|hg19_w.*k_|allEnhStates_|.*all_reg_|_comp[0-9]*_q0.[0-9]*|_qn_.*svaNull.RData', '', basename(files))
 nmarks = length(marks)
 tot.len = array(0, dim = c(nmarks, 1))
 npeaks = array(0, dim = c(nmarks, 2))
@@ -102,7 +111,13 @@ penrich = NULL
 all.deg.snps = NULL
 all.non.deg.snps = NULL
 for(i in 1:length(files)){
-  load(gsub('_comp.*|_isvaNull|_rand_pop[0-9]*', '_qn.RData', files[i]))
+  qn.file = gsub('_comp.*', '_qn.RData', files[i])
+  if(is.rand & !file.exists(qn.file)){
+    qn.file = gsub('_comp.*|_isvaNull|_rand_pop[0-9]*', '_qn.RData', files[1])
+  }
+  print(basename(files[i]))
+  print(basename(qn.file))
+  load(qn.file)
   orig.counts = counts[good.rows, ]
   npeaks[i, 2] = length(good.rows) # Total number of regions, including those that were removed before ISVA
   load(files[i]) # Load the file with the ISVA results. This only has the regions used for ISVA.
@@ -124,7 +139,7 @@ for(i in 1:length(files)){
     ov.non.deg = findOverlaps(regions.to.ranges(regions[-isva.fit$deg, ]), snps.to.ranges(snp.pos), select = 'first', ignore.strand = T)
     ov.non.deg.sum = sum(!is.na(ov.non.deg))
     snp.enrich[i, 1] = (ov.deg.sum / isva.fit$ndeg) / (ov.non.deg.sum / (nrow(regions) - isva.fit$ndeg))
-    snp.enrich[i, 2] = binom.val(ov.deg.sum, isva.fit$ndeg, ov.non.deg.sum / (nrow(regions) - isva.fit$ndeg))
+    snp.enrich[i, 2] = binom.val(ov.deg.sum, isva.fit$ndeg, ov.non.deg.sum / (nrow(regions) - isva.fit$ndeg), alternative = 'greater')
     
     #ihs.enrich[i, ] = get.wilc.enrich(regions, isva.fit, ihs.dat) #get.enrich(regions, isva.fit, ihs.dat, is.snp = F)
     
@@ -170,7 +185,7 @@ for(i in 1:length(files)){
 #frac.peaks = npeaks[, 1] / npeaks[, 2]
 sel.marks = npeaks[, 2] > -1 & npeaks[, 1] > -1
 marks = marks[sel.marks] #gsub('_H3K4ME1', '', marks[sel.marks])
-#marks = order.marks(marks)
+marks = order.marks(marks)
 npeaks = npeaks[sel.marks, ]
 tot.len = tot.len[sel.marks]
 fenrich = fenrich[sel.marks, ]
@@ -180,15 +195,15 @@ len.dat = data.frame(mark = marks, len = tot.len / 1e6, tot = npeaks[,1], npeaks
                      p = snp.enrich[, 1], pp = snp.enrich[, 2], q = qtl.enrich[, 1], qp = qtl.enrich[, 2])
 #save(len.dat, file = file.path(plotdir, paste(outpref, 'enrich.RData', sep = '')))
 write.table(len.dat, file = file.path(plotdir, paste(outpref, 'enrich.txt', sep = '')), col.names = T, row.names = F, quote = F, sep = '\t')
-p1 = ggplot(len.dat) + geom_bar(aes(x = mark, y = len, fill = mark)) + xlab('') + 
+p1 = ggplot(len.dat) + geom_bar(aes(x = mark, y = len, fill = mark), stat = 'identity') + xlab('') + 
   ylab('Length of population specific regions (Mb)') + theme_bw() +
   scale_fill_manual(values =  mark.colors(len.dat$mark), guide = F) +
   theme(axis.text.y = element_text(size = 14), axis.title.y = element_text(size = 16),
         axis.text.x = element_text(size = 12, angle = -68, hjust = 0, vjust = 1))
 ggsave(file.path(plotdir, paste(outpref, 'pop_spec_len.pdf', sep = '')), p1, width = 6.5, height = 5.6)
 
-p2 = ggplot(len.dat) + geom_bar(aes(x = mark, y = npeaks, fill = mark)) + 
-  #annotate('text', x = len.dat$mark, y = len.dat$npeaks + 0.01, label = len.dat$tot, size = 5) + 
+p2 = ggplot(len.dat) + geom_bar(aes(x = mark, y = npeaks, fill = mark), stat = 'identity') + 
+  annotate('text', x = len.dat$mark, y = len.dat$npeaks + 0.01, label = len.dat$tot, size = 5) + 
   xlab('') + ylab('Fraction of population specific regions') + theme_bw() +
   scale_fill_manual(values =  mark.colors(len.dat$mark), guide = F) +
   theme(axis.text.y = element_text(size = 14), axis.title.y = element_text(size = 16),
@@ -196,10 +211,10 @@ p2 = ggplot(len.dat) + geom_bar(aes(x = mark, y = npeaks, fill = mark)) +
 ggsave(file.path(plotdir, paste(outpref, 'pop_spec_frac.pdf', sep = '')), p2, width = 6.5, height = 5.6)
 
 annot = array('', dim = c(nrow(len.dat), 1))
-annot[fenrich[, 2] < 0.1 & npeaks[, 1] > 0] = '*'
+annot[fenrich[, 2] < 0.05 & npeaks[, 1] > 0] = '*'
 annot.y = len.dat$f
 #annot.y[annot.y < 0] = annot.y[annot.y < 0] - 0.01
-p3 = ggplot(len.dat) + geom_bar(aes(x = mark, y = f, fill = mark)) + xlab('') + annotate('text', x = len.dat$mark, y = annot.y, label = annot, size = 10) + 
+p3 = ggplot(len.dat) + geom_bar(aes(x = mark, y = f, fill = mark), stat = 'identity') + xlab('') + annotate('text', x = len.dat$mark, y = annot.y, label = annot, size = 10) + 
   ylab('Enrichment in SNPs with high Fst') + theme_bw() + coord_cartesian(ylim = c(0.5, max(annot.y) + 0.25)) +
   scale_fill_manual(values =  mark.colors(len.dat$mark), guide = F) +
   theme(axis.text.y = element_text(size = 14), axis.title.y = element_text(size = 16),
@@ -207,10 +222,10 @@ p3 = ggplot(len.dat) + geom_bar(aes(x = mark, y = f, fill = mark)) + xlab('') + 
 ggsave(file.path(plotdir, paste(outpref, 'pop_spec_fst.pdf', sep = '')), p3, width = 6.5, height = 5.6)
 
 annot = array('', dim = c(nrow(len.dat), 1))
-annot[snp.enrich[, 2] < 0.1 & npeaks[, 1] > 0] = '*'
+annot[snp.enrich[, 2] < 0.05 & npeaks[, 1] > 0] = '*'
 annot.y = len.dat$p
 #annot.y[annot.y < 0] = annot.y[annot.y < 0] - 0.01
-p4 = ggplot(len.dat) + geom_bar(aes(x = mark, y = p, fill = mark)) + xlab('') + annotate('text', x = len.dat$mark, y = annot.y, label = annot, size = 10) + 
+p4 = ggplot(len.dat) + geom_bar(aes(x = mark, y = p, fill = mark), stat = 'identity') + xlab('') + annotate('text', x = len.dat$mark, y = annot.y, label = annot, size = 10) + 
   ylab('Enrichment in SNPs') + theme_bw() + ylim(c(0, 1.2)) + coord_cartesian(ylim = c(0.75, max(annot.y) + 0.05)) +
   scale_fill_manual(values =  mark.colors(len.dat$mark), guide = F) +
   theme(axis.text.y = element_text(size = 14), axis.title.y = element_text(size = 16),
@@ -218,10 +233,10 @@ p4 = ggplot(len.dat) + geom_bar(aes(x = mark, y = p, fill = mark)) + xlab('') + 
 ggsave(file.path(plotdir, paste(outpref, 'pop_spec_snp_enrich.pdf', sep = '')), p4, width = 6.5, height = 5.6)
 
 annot = array('', dim = c(nrow(len.dat), 1))
-annot[qtl.enrich[, 2] < 0.1 & npeaks[, 1] > 0] = '*'
+annot[qtl.enrich[, 2] < 0.05 & npeaks[, 1] > 0] = '*'
 annot.y = len.dat$q
 #annot.y[annot.y < 0] = annot.y[annot.y < 0] - 0.01
-p5 = ggplot(len.dat) + geom_bar(aes(x = mark, y = q, fill = mark)) + xlab('') + annotate('text', x = len.dat$mark, y = annot.y, label = annot, size = 10) + 
+p5 = ggplot(len.dat) + geom_bar(aes(x = mark, y = q, fill = mark), stat = 'identity') + xlab('') + annotate('text', x = len.dat$mark, y = annot.y, label = annot, size = 10) + 
   ylab('Enrichment in eQTLs') + theme_bw() +  coord_cartesian(ylim = c(0.5, max(annot.y) + 0.25)) +
   scale_fill_manual(values =  mark.colors(len.dat$mark), guide = F) +
   theme(axis.text.y = element_text(size = 14), axis.title.y = element_text(size = 16),

@@ -14,8 +14,8 @@ source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/isva/EstDimRMT.R'))
 
 plotdir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/plots/qn_isvaNull_fits_all_reg_v2/states'
 if(!file.exists(plotdir)) dir.create(plotdir, recursive = T)
-rdir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/'
-mark = 'CTCF'
+rdir = '../../rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig_newNorm/rdata/' #../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/'
+mark = 'H3K27ME3'
 pref = 'SNYDER_HG19_all_reg_'
 comp = 3
 qval = 0.01

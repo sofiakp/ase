@@ -13,14 +13,16 @@ qc.dat = rbind(qc.dat, read.table('../../rawdata/mapped/bam/reference/stats/qc.s
 qc.dat[, 1] = gsub('_reconcile.dedup.bam|_dedup.bam', '', qc.dat[, 1])
 qc.dat[, 2] = as.numeric(gsub(',.*', '', qc.dat[, 2]))
 colnames(qc.dat) = c('dataset', 'fraglen', 'nsc')
+qc.dat = qc.dat[order(qc.dat$dataset), ]
+qc.dat = qc.dat[!duplicated(qc.dat$dataset), ]
 
-read.counts = read.table('../../rawdata/mapped/bam/personal/stats/readCounts.txt', header = F, sep = '\t')
-read.counts = rbind(read.counts, read.table('../../rawdata/mapped/bam/reference/stats/readCounts.txt', header = F, sep = '\t'))
+read.counts = read.table('../../rawdata/mapped/bam/personal/stats/readCounts_q30_14Mar13.txt', header = F, sep = '\t')
+#read.counts = rbind(read.counts, read.table('../../rawdata/mapped/bam/reference/stats/readCounts.txt', header = F, sep = '\t'))
 read.counts[, 1] = gsub('_reconcile.dedup.bed|_dedup.bed', '', read.counts[, 1])
 colnames(read.counts) = c('dataset', 'reads')
 qc.dat$reads = read.counts[match(qc.dat[,1], read.counts[,1]), 2]
 
-rna.counts = read.table('../../rawdata/mapped/bam/personal/stats/readCounts_rna.txt', header = F, sep = '\t')
+rna.counts = read.table('../../rawdata/mapped/bam/personal/stats/readCounts_rna_Apr13.txt', header = F, sep = '\t')
 rna.counts[, 1] = gsub('_reconcile.dedup', '', rna.counts[, 1])
 colnames(rna.counts) = c('dataset', 'reads')
 rna.counts$fraglen = rep(NA, nrow(rna.counts))
@@ -29,7 +31,7 @@ qc.dat = rbind(qc.dat, rna.counts)
 
 qc.dat$mark = order.marks(sample.info(qc.dat[,1], '')$mark)
 qc.dat$indiv = as.character(sample.info(qc.dat[,1], '')$indiv)
-qc.dat$indiv[qc.dat$indiv == 'SNYDER'] = 'MS1'
+qc.dat$indiv = fix.indiv.names(qc.dat$indiv)
 qc.dat$rep = sample.info(qc.dat[,1], '')$rep
 
 write.table(qc.dat[is.na(qc.dat$fraglen), -c(2,3)], file = paste(outpref, '_rna.txt', sep = ''), col.names = T, row.names = F, quote = F, sep = '\t')
@@ -38,7 +40,8 @@ qc.dat2 = cast(qc.dat, mark+indiv~., function(x) sum(x), value = 'reads')
 colnames(qc.dat2)[3] = 'reads'
 q4 = ggplot(qc.dat2) + geom_bar(aes(x = indiv, y = reads/1e6), stat = "identity", position = "dodge") + theme_bw() +
   facet_wrap(~mark, scales = 'free_y') + scale_x_discrete("") + scale_y_continuous("# Q30 reads after duplicate removal (millions)") +
-  theme(axis.text.x = element_text(angle = -65, vjust = 1, hjust = 0, size = 10), axis.text.y = element_text(size = 12),
+  theme(axis.text.x = element_text(angle = -65, vjust = 1, hjust = 0, size = 10, color = get.pop.col(get.pop(unique(qc.dat$indiv)))), 
+        axis.text.y = element_text(size = 12),
         axis.title.y = element_text(size = 16), strip.text = element_text(size = 14))
 ggsave(paste(outpref, '_qreads.pdf', sep = ''), width = 13.6, height = 11.8)
 
