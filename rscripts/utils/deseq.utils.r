@@ -491,7 +491,7 @@ fix.indiv.names = function(indivs){
   return(indivs)
 }
 plot.tile = function(mat, x.ord.samples = NULL, y.ord.samples = NULL, xsep = NULL, ysep = NULL, ylabels = NULL, 
-                     low = 'blue', high = 'red', 
+                     low = 'blue', high = 'red', mid = 'beige',
                      midpoint = 1, ycolor = 'black', xcolor = 'black', draw.y.line = T,
                      xcex = 12, ycex = 12, lcex = 14, xtitle = '', ytitle = ''){
   dat = data.frame(melt(as.matrix(mat)))
@@ -516,7 +516,7 @@ plot.tile = function(mat, x.ord.samples = NULL, y.ord.samples = NULL, xsep = NUL
     }
   }
   p = ggplot(dat) + geom_raster(aes(x = X2, y = X1, fill = value)) +
-    scale_fill_gradient2(low = low, high = high, mid = 'beige', midpoint = midpoint)
+    scale_fill_gradient2(low = low, high = high, mid = mid, midpoint = midpoint)
   if(is.factor(dat$X2)){
     p = p + scale_x_discrete(expand = c(0, 0))
   }else{

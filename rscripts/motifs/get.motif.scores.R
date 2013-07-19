@@ -16,7 +16,8 @@ inpref = 'Gm12878_allTFBS.sorted.noPol.'
 #indir = '../../rawdata/TFs/jaspar/'
 #tf.file = '../../rawdata/TFs/jaspar/motif_names.txt'
 signal.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/'
-outdir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/tfRegress_at_H3K27AC'
+mark = 'H3K27AC'
+outdir = paste('../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/tfRegress_at_', mark, sep = '')
 if(!file.exists(outdir)) dir.create(outdir)
 
 bed.regions = read.bed(bed.file)
@@ -29,7 +30,7 @@ bed.regions = read.bed(bed.file)
 #tfs = read.table(tf.file)
 #ntfs = length(tfs)
 
-load(file.path(signal.dir, 'rdata/SNYDER_HG19_all_reg_H3K27AC_qn.RData'))
+load(file.path(signal.dir, 'rdata', paste('SNYDER_HG19_all_reg_', mark, '_qn.RData', sep = '')))
 regions$start = pmax(regions$start - 200, 1)
 regions$end = regions$end + 200
 regions = regions[good.rows, ]
@@ -40,14 +41,18 @@ nindivs = length(indivs)
 # We only care about the signal at the signal regions with overlaps with TFs 
 ov = findOverlaps(regions.to.ranges(regions), regions.to.ranges(bed.regions), select = 'all', ignore.strand = T)
 ov.mat = cbind(queryHits(ov), subjectHits(ov))
+stopifnot(all(ov.mat[,1]==sort(ov.mat[,1]))) # Make sure the first column is already sorted.
 sel.regions = sort(unique(ov.mat[, 1]))
 cat('Percentage of regions with overlap ', length(sel.regions) * 100 / nrow(regions), '\n')
 cat('Average number of overlaps per region ', nrow(ov.mat) / length(sel.regions), '\n')
 
+region.max = rowMaxs(counts[sel.regions, ])
 for(i in 1:(nindivs - 1)){  
   for(j in (i + 1):nindivs){
-    log.scores = log2(counts[sel.regions, i] / counts[sel.regions, j])
-    outfile = file.path(outdir, paste(inpref, indivs[i], '_vs_', indivs[j], '_H3K27AC.txt', sep = ''))
+    log.scores = counts[sel.regions, i] - counts[sel.regions, j]
+    weights = 2 / (1 + exp(region.max - pmax(counts[sel.regions, i], counts[sel.regions, j])))
+    log.scores = weights * log.scores
+    outfile = file.path(outdir, paste(inpref, indivs[i], '_vs_', indivs[j], '_', mark, '_v2.txt', sep = ''))
     write.table(log.scores, outfile, sep = '\t', row.names = F, col.names = F, quote = F)
   }
 }
@@ -55,7 +60,10 @@ for(i in 1:(nindivs - 1)){
 idx.map = array(0, dim = c(nrow(regions), 1))
 idx.map[1:nrow(regions) %in% sel.regions] = 1:length(sel.regions)
 ov.mat[, 1] = idx.map[ov.mat[, 1]]
-write.table(ov.mat, file.path(outdir, paste(inpref, 'idx_H3K27AC.txt', sep = '')), 
+write.table(ov.mat, file.path(outdir, paste(inpref, 'idx_', mark, '.txt', sep = '')), 
+            sep = '\t', row.names = F, col.names = F, quote = F)
+out.regions = regions[sel.regions, ]
+write.table(out.regions, file.path(outdir, paste(inpref, 'regions_', mark, '.txt', sep = '')), 
             sep = '\t', row.names = F, col.names = F, quote = F)
 # Finally, output the overlaps between signal regions and TF regions, so we can create the log-odd motif scores
 # in matlab.

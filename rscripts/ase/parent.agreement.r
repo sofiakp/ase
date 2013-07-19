@@ -9,7 +9,7 @@ geno.dir = '../../rawdata/variants/all/snps/allNonSan/' # Directory with genotyp
 count.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/reps/qvals')
 plotdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/reps/plots')
 if(!file.exists(plotdir)) dir.create(plotdir)
-pop = 'YRI'
+pop = 'CEU'
 if(pop == 'CEU'){
   child = 'GM12878'
   mom = 'GM12892'
@@ -36,7 +36,7 @@ epsilon = 1
 nfiles = length(filenames)
 rdat = NULL
 rdat2 = NULL
-for(i in 1:1){#nfiles){
+for(i in 1:nfiles){
   mat.file = gsub(child, mom, filenames[i])
   pat.file = gsub(child, dad, filenames[i])
   
@@ -65,7 +65,7 @@ for(i in 1:1){#nfiles){
   agree.frac = sum(child.ratio * par.ratio > 0) / length(child.ratio)
   rtmp = data.frame(child = child.ratio, par = par.ratio, mark1 = sample.info(filenames[i])$mark[1],
                     mark = paste(sample.info(filenames[i])$mark[1], sprintf('%.4f', corr)))
-  rtmp2 = data.frame(mark = sample.info(filenames[i])$mark, f = agree.frac)
+  rtmp2 = data.frame(mark = sample.info(filenames[i])$mark, f = agree.frac, c = corr)
   rdat = rbind(rdat, rtmp)
   rdat2 = rbind(rdat2, rtmp2)
 }
@@ -77,20 +77,24 @@ uniq.marks.corr = levels(rdat$mark)
 tmp = unlist(strsplit(uniq.marks.corr, ' ')) 
 uniq.marks.corr = uniq.marks.corr[match(uniq.marks, tmp[seq(1, length(tmp), 2)])]
 
-p = ggplot(rdat) + geom_point(aes(x = child, y = par, color = mark1), size = 2) + theme_bw() + 
+p = ggplot(rdat) + geom_point(aes(x = child, y = par, color = mark1), shape = 1, size = 1, alpha = 0.6) + theme_bw() + 
   scale_x_continuous('log(maternal/paternal)') + scale_y_continuous('child:log(maternal/paternal)') +
   scale_color_manual(values =  mark.colors(levels(rdat$mark1)), 
                      breaks = uniq.marks, labels = uniq.marks.corr) +
   theme(axis.title.x = element_text(size = 14), axis.title.y = element_text(size = 14),
         axis.text.x = element_text(size = 14), axis.text.y = element_text(size = 14),
-        legend.title = element_blank(), legend.text = element_text(size = 14))
-ggsave(file = file.path(plotdir, paste(pop, '.child_par_cor.pdf', sep = '')), p, width = 6.5, height = 5.6)
+        legend.title = element_blank(), legend.text = element_text(size = 14), panel.grid.major = element_blank())
+for(i in 1:nrow(rdat2)){
+  p = p + geom_abline(intercept = 0, slope = rdat2$c, color = mark.colors(rdat2$mark), size = 0.3)
+}
+save(rdat, rdat2, p, file = file.path(plotdir, paste(pop, '.child_par_cor_plot.RData', sep = '')))
+ggsave(file = file.path(plotdir, paste(pop, '.child_par_cor.pdf', sep = '')), p, width =8, height = 5.6)
 q = ggplot(rdat2) + geom_bar(aes(x = mark, y = f, fill = mark), stat = "identity") + scale_x_discrete('') + theme_bw() + 
   scale_y_continuous('Fraction of AS SNPs with the same direction') +
   scale_fill_manual(values =  mark.colors(levels(rdat2$mark)), guide = F) +
   theme(axis.text.x = element_text(angle = -65, vjust = 1, hjust = 0, size = 14), axis.text.y = element_text(size = 14),
         axis.title.x = element_text(size = 14), axis.title.y = element_text(size = 14))
-ggsave(file = file.path(plotdir, paste(pop, '.child_par_agreement.pdf', sep = '')), q, width = 6.5, height = 5.6)
+#ggsave(file = file.path(plotdir, paste(pop, '.child_par_agreement.pdf', sep = '')), q, width = 6.5, height = 5.6)
 
 # countdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/reps_15Sep12/qvals')
 # plotdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/reps_15Sep12/plots')

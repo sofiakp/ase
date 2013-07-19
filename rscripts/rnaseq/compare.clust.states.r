@@ -14,8 +14,8 @@ source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/isva/EstDimRMT.R'))
 
 plotdir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/plots/qn_isvaNull_fits_all_reg_v2/states'
 if(!file.exists(plotdir)) dir.create(plotdir, recursive = T)
-rdir = '../../rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig_newNorm/rdata/' #../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/'
-mark = 'H3K27ME3'
+rdir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/' #'../../rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig_newNorm/rdata/'
+mark = 'H3K27AC'
 pref = 'SNYDER_HG19_all_reg_'
 comp = 3
 qval = 0.01
@@ -65,9 +65,9 @@ for(k in 1:K){
   }else{
     stats.all = cbind(stats.all, stats / sum(mem))
   }
-  p = plot.tile(t(stats[plot.cols, ]), x.ord.samples = indivs[plot.cols], xcolor = get.pop.col(get.pop(indivs[plot.cols])),
-                xcex = 15, ycex = 15)
-  ggsave(file.path(plotdir, paste(clust.pref, '_clust', k, '_statesHeat.pdf', sep = '')), p, width = 6.5, height = 5.6)
+  #p = plot.tile(t(stats[plot.cols, ]), x.ord.samples = indivs[plot.cols], xcolor = get.pop.col(get.pop(indivs[plot.cols])),
+  #              xcex = 15, ycex = 15)
+  #ggsave(file.path(plotdir, paste(clust.pref, '_clust', k, '_statesHeat.pdf', sep = '')), p, width = 6.5, height = 5.6)
 #   plot.heatmap(t(stats[plot.cols, ]), row.cluster = F, col.cluster = F, show.dendro = "none", row.title= '', col.title = '',
 #                dist.metric = "euclidean", clust.method = "ward", margins = c(15, 15), keysize = 1,
 #                break.type = 'linear', filt.thresh = NA, replace.na = F, palette = brewer.pal(9,  "RdYlBu")[seq(9,1,-1)], 
@@ -87,6 +87,24 @@ for(s in 1:nstates){
 #                ColSideColors = get.pop.col(get.pop(indivs[plot.cols])), cex.row = 3, cex.col = 3, margins = c(15, 15), keysize = 1,
 #                to.file = file.path(plotdir, paste(clust.pref, '_state', s, '_clustHeat.pdf', sep = '')))
 }
+
+sel.mat = array(0, dim = c(nindiv, K))
+for(s in c('EnhA', 'TxEnhA', 'Enh', 'TxEnh', 'EnhW', 'TxEnhW')){
+  sel.mat = sel.mat + stats.all[plot.cols, s == colnames(stats.all)]
+}
+colnames(sel.mat) = paste('cluster', 1:K)
+p = plot.tile(t(sel.mat), x.ord.samples = indivs[plot.cols], xcolor = get.pop.col(get.pop(indivs[plot.cols])),
+              xcex = 15, ycex = 15, midpoint = 0, mid = 'white') + ggtitle('Enhancer states')
+ggsave(file.path(plotdir, paste(clust.pref, '_enhStates_withW_clustHeat.pdf', sep = '')), p, width = 6.5, height = 5.6)
+
+sel.mat = array(0, dim = c(nindiv, K))
+for(s in c('EnhP', 'ReprPC')){
+  sel.mat = sel.mat + stats.all[plot.cols, s == colnames(stats.all)]
+}
+colnames(sel.mat) = paste('cluster', 1:K)
+p = plot.tile(t(sel.mat), x.ord.samples = indivs[plot.cols], xcolor = get.pop.col(get.pop(indivs[plot.cols])),
+              xcex = 15, ycex = 15, midpoint = 0, mid = 'white') + ggtitle('Repressed/poised states')
+ggsave(file.path(plotdir, paste(clust.pref, '_repStates_clustHeat.pdf', sep = '')), p, width = 6.5, height = 5.6)
 
 seg.2 = data.frame(seg.ov[plot.rows,])
 rownames(seg.2) = 1:nrow(seg.2)

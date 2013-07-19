@@ -31,7 +31,7 @@ registerDoMC(nchunks)
 
 plotdir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/plots/qn_isvaNull_fits_all_reg_v2/'
 rdir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/rdata/'
-mark = 'H3K27AC'
+mark = 'H3K4ME1'
 pref = 'SNYDER_HG19_all_reg_'
 comp = 3
 qval = 0.01
@@ -110,46 +110,46 @@ rownames(frac.div) = paste('cluster', 1:K)
 p = plot.tile(frac.div, x.ord.samples = colnames(frac.div), y.ord.sample = rownames(frac.div), midpoint = 0)
 ggsave(file.path(plotdir, paste(clust.pref, '_genot_frac.pdf', sep = '')), p, width = 7, height = 6)
 
-frac.div = frac.div / matrix(rep(colMaxs(frac.div), each = 4), nrow = K)
-p = plot.tile(frac.div, x.ord.samples = colnames(frac.div), y.ord.sample = rownames(frac.div), midpoint = 0.8)
+frac.div.n = frac.div / matrix(rep(colMaxs(frac.div), each = 4), nrow = K)
+p = plot.tile(frac.div.n, x.ord.samples = colnames(frac.div), y.ord.sample = rownames(frac.div), midpoint = 0.8, ycex = 20, xcex = 20, lcex = 16)
 ggsave(file.path(plotdir, paste(clust.pref, '_genot_frac_norm.pdf', sep = '')), p, width = 7, height = 6)
 
-sel.indivs = grep('CEU|YRI', pop) # Only consider these two populations
-pop = get.pop(indivs[sel.indivs])
-min.indiv = min(table(pop)) # Get the same number of individuals for each population
-sel.indivs = append(sample(sel.indivs[pop == 'CEU'], min.indiv), sample(sel.indivs[pop == 'YRI'], min.indiv))
-pop.genot = as.matrix(genot[cor.dat.pop$pos.idx, sel.indivs])
-pop.match.counts = counts[cor.dat.pop$region.idx, sel.indivs]
-no.pop.genot = as.matrix(genot[cor.dat.neg$pos.idx, sel.indivs])
-no.pop.match.counts = no.pop.counts[cor.dat.neg$region.idx, sel.indivs]
-pop = factor(get.pop(indivs[sel.indivs]))
-pop.coefs = array(NaN, dim = c(nrow(pop.genot), 2))
-no.pop.coefs = array(NaN, dim = c(nrow(no.pop.genot), 2))
-#sum(rowSums(pop.genot[, pop == 'CEU'] > 0) > 0 & rowSums(pop.genot[, pop == 'YRI'] > 0) > 0 & rowSums(pop.genot[, pop == 'CEU'] == 0) > 0 & rowSums(pop.genot[, pop == 'YRI'] == 0) > 0)
-
-# Compute correlations signal-genot and signal-pop
-for(i in 1:nrow(no.pop.coefs)){
-  # Only take regions with 2 different alleles present in equal proportions
-  if(sum(no.pop.genot[i, ] == 0) < 5 && sum(no.pop.genot[i, ] == 1) < 5 && sum(no.pop.genot[i, ] == 2) < 5 && length(unique(no.pop.genot[i, ])) == 2){
-    no.pop.coefs[i, 1] = cor(no.pop.match.counts[i, ], no.pop.genot[i, ], method = 'spearman')
-    no.pop.coefs[i, 2] = cor(no.pop.match.counts[i, ], as.numeric(pop), method = 'spearman')
-    #go = glm(pop.match.counts[i, sel.pop] ~ (pop.genot[i, sel.pop] > 0) + pop[sel.pop])
-    #coefs[i, 1] = coefficients(go)[2]
-    #coefs[i, 2] = coefficients(go)[3]
-  }
-}
-
-for(i in 1:nrow(pop.coefs)){
-  if(sum(pop.genot[i, ] == 0) < 5 && sum(pop.genot[i, ] == 1) < 5 && sum(pop.genot[i, ] == 2) < 5 && length(unique(pop.genot[i, ])) == 2){
-    pop.coefs[i, 1] = cor(pop.match.counts[i, ], pop.genot[i, ], method = 'spearman')
-    pop.coefs[i, 2] = cor(pop.match.counts[i, ], as.numeric(pop), method = 'spearman')
-    #go = glm(pop.match.counts[i, sel.pop] ~ (pop.genot[i, sel.pop] > 0) + pop[sel.pop])
-    #coefs[i, 1] = coefficients(go)[2]
-    #coefs[i, 2] = coefficients(go)[3]
-  }
-}
-sum(abs(no.pop.coefs[,1]) < abs(no.pop.coefs[,2]), na.rm=T) / sum(abs(no.pop.coefs[,1]) != abs(no.pop.coefs[,2]), na.rm=T)
-sum(abs(pop.coefs[,1]) < abs(pop.coefs[,2]), na.rm=T) / sum(abs(pop.coefs[,1]) != abs(pop.coefs[,2]), na.rm=T)
+# sel.indivs = grep('CEU|YRI', pop) # Only consider these two populations
+# pop = get.pop(indivs[sel.indivs])
+# min.indiv = min(table(pop)) # Get the same number of individuals for each population
+# sel.indivs = append(sample(sel.indivs[pop == 'CEU'], min.indiv), sample(sel.indivs[pop == 'YRI'], min.indiv))
+# pop.genot = as.matrix(genot[cor.dat.pop$pos.idx, sel.indivs])
+# pop.match.counts = counts[cor.dat.pop$region.idx, sel.indivs]
+# no.pop.genot = as.matrix(genot[cor.dat.neg$pos.idx, sel.indivs])
+# no.pop.match.counts = no.pop.counts[cor.dat.neg$region.idx, sel.indivs]
+# pop = factor(get.pop(indivs[sel.indivs]))
+# pop.coefs = array(NaN, dim = c(nrow(pop.genot), 2))
+# no.pop.coefs = array(NaN, dim = c(nrow(no.pop.genot), 2))
+# #sum(rowSums(pop.genot[, pop == 'CEU'] > 0) > 0 & rowSums(pop.genot[, pop == 'YRI'] > 0) > 0 & rowSums(pop.genot[, pop == 'CEU'] == 0) > 0 & rowSums(pop.genot[, pop == 'YRI'] == 0) > 0)
+# 
+# # Compute correlations signal-genot and signal-pop
+# for(i in 1:nrow(no.pop.coefs)){
+#   # Only take regions with 2 different alleles present in equal proportions
+#   if(sum(no.pop.genot[i, ] == 0) < 5 && sum(no.pop.genot[i, ] == 1) < 5 && sum(no.pop.genot[i, ] == 2) < 5 && length(unique(no.pop.genot[i, ])) == 2){
+#     no.pop.coefs[i, 1] = cor(no.pop.match.counts[i, ], no.pop.genot[i, ], method = 'spearman')
+#     no.pop.coefs[i, 2] = cor(no.pop.match.counts[i, ], as.numeric(pop), method = 'spearman')
+#     #go = glm(pop.match.counts[i, sel.pop] ~ (pop.genot[i, sel.pop] > 0) + pop[sel.pop])
+#     #coefs[i, 1] = coefficients(go)[2]
+#     #coefs[i, 2] = coefficients(go)[3]
+#   }
+# }
+# 
+# for(i in 1:nrow(pop.coefs)){
+#   if(sum(pop.genot[i, ] == 0) < 5 && sum(pop.genot[i, ] == 1) < 5 && sum(pop.genot[i, ] == 2) < 5 && length(unique(pop.genot[i, ])) == 2){
+#     pop.coefs[i, 1] = cor(pop.match.counts[i, ], pop.genot[i, ], method = 'spearman')
+#     pop.coefs[i, 2] = cor(pop.match.counts[i, ], as.numeric(pop), method = 'spearman')
+#     #go = glm(pop.match.counts[i, sel.pop] ~ (pop.genot[i, sel.pop] > 0) + pop[sel.pop])
+#     #coefs[i, 1] = coefficients(go)[2]
+#     #coefs[i, 2] = coefficients(go)[3]
+#   }
+# }
+# sum(abs(no.pop.coefs[,1]) < abs(no.pop.coefs[,2]), na.rm=T) / sum(abs(no.pop.coefs[,1]) != abs(no.pop.coefs[,2]), na.rm=T)
+# sum(abs(pop.coefs[,1]) < abs(pop.coefs[,2]), na.rm=T) / sum(abs(pop.coefs[,1]) != abs(pop.coefs[,2]), na.rm=T)
 
 # for(i in 1:100){
 #   if(sum(pop.genot[i, ] == 1) > 3){

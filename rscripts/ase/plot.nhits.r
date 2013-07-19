@@ -16,9 +16,11 @@ read.lists = T # T: input is assumed to be indicators of significant positions, 
 if(read.lists){
   filenames = list.files(countdir, pattern = 'SNYDER_HG19.*rep\\.RData', full.name = T)
   filenames = append(filenames, list.files('../../rawdata/alleleCounts/allNonSan/rdata/reps/qvals/', pattern = 'SNYDER_HG19.*rep\\.RData', full.name = T))
+  filenames = filenames[!grepl('BUB', filenames)]
   samples = sample.info(filenames, '\\.RData$')  
 }else{
   filenames = list.files(countdir, pattern = 'SNYDER_HG19.*rep\\.het\\.RData', full.name = T)
+  filenames = filenames[!grepl('BUB', filenames)]
   samples = sample.info(filenames, '\\.het\\.RData$')  
 }
 nsamples = length(filenames)
@@ -66,45 +68,47 @@ if(nsamples > 50){
 
 new.indiv = as.character(fix.indiv.names(samples$indiv))
 hit.dat = data.frame(indiv = new.indiv, mark = order.marks(samples$mark), hits = nhits, norm.hits = ncand)
-write.table(hit.dat, file = file.path(plotdir, 'num_as_snps_stats.txt'), row.names = F, col.names = T, sep = '\t', quote = F)
+#write.table(hit.dat, file = file.path(plotdir, 'num_as_snps_stats.txt'), row.names = F, col.names = T, sep = '\t', quote = F)
 
 p1 = ggplot(hit.dat) + geom_bar(aes(x = indiv, y = norm.hits, fill = mark), stat = "identity") + 
   facet_wrap(~mark, scales = "free_y") + scale_y_continuous('AS-SNPs / het SNPs (%)') + scale_x_discrete('') + theme_bw() +
   scale_fill_manual(values =  mark.colors(hit.dat$mark), guide = F) +
-  theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
+  theme(axis.text.x = element_text(size = 15, angle = 50, vjust = 1, hjust = 1), axis.title.x = element_text(size = 16),
         axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
-        strip.text.x = element_text(size = 16))
-ggsave(file.path(plotdir, 'num_as_snps_norm.pdf'), p1, width = 13.6, height = 11.8)
+        strip.text.x = element_text(size = 16),
+        panel.grid.major = element_blank(), axis.ticks.x = element_blank())
+#ggsave(file.path(plotdir, 'num_as_snps_norm.pdf'), p1, width = 13.6, height = 11.8)
 p2 = ggplot(hit.dat) + geom_boxplot(aes(x = mark, y = norm.hits, fill = mark)) + 
   xlab('') + ylab('AS-SNPs / het SNPs (%)') + theme_bw() + 
   scale_fill_manual(values =  mark.colors(hit.dat$mark), guide = F) +
-  theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
-        axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
-        strip.text.x = element_text(size = 16))
+  theme(axis.text.x = element_text(size = 18, angle = 50, vjust = 1, hjust = 1), axis.title.x = element_text(size = 18),
+        axis.text.y = element_text(size = 18), axis.title.y = element_text(size = 18),
+        strip.text.x = element_text(size = 18),
+        panel.grid.major = element_blank(), axis.ticks.x = element_blank())
 ggsave(file.path(plotdir, 'num_as_snps_norm_box.pdf'), p2, width = 6.5, height = 5.6)
 
-if(read.lists){
-  for(d in new.indiv){
-    hit.dat = rbind(hit.dat, data.frame(indiv = factor(d), mark = 'union', hits = sum(all.hits[[d]]), norm.hits = 1))
-  }
-}else{
-  for(d in new.indiv){
-    hit.dat = rbind(hit.dat, data.frame(indiv = factor(d), mark = 'union', hits = length(all.hits[[d]]), norm.hits = 1))
-  }  
-}
-
-lev = levels(hit.dat$mark)
-q1 = ggplot(hit.dat) + geom_bar(aes(x = indiv, y = hits, fill = mark), stat = "identity") + 
-  facet_wrap(~mark, scales = "free_y") + scale_y_continuous('# AS-SNPs') + scale_x_discrete('') + theme_bw() +
-  scale_fill_manual(values =  mark.colors(hit.dat$mark), guide = F) +
-  theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
-        axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
-        strip.text.x = element_text(size = 16))
-ggsave(file.path(plotdir, 'num_as_snps.pdf'), q1, width = 13.6, height = 11.8)
-q2 = ggplot(hit.dat) + geom_boxplot(aes(x = mark, y = hits, fill = mark)) + 
-  xlab('') + ylab('# AS-SNPs') + theme_bw() + 
-  scale_fill_manual(values = mark.colors(hit.dat$mark), guide = F) +
-  theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
-        axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
-        strip.text.x = element_text(size = 16))
-ggsave(file.path(plotdir, 'num_as_snps_box.pdf'), q2, width = 6.5, height = 5.6)
+# if(read.lists){
+#   for(d in new.indiv){
+#     hit.dat = rbind(hit.dat, data.frame(indiv = factor(d), mark = 'union', hits = sum(all.hits[[d]]), norm.hits = 1))
+#   }
+# }else{
+#   for(d in new.indiv){
+#     hit.dat = rbind(hit.dat, data.frame(indiv = factor(d), mark = 'union', hits = length(all.hits[[d]]), norm.hits = 1))
+#   }  
+# }
+# 
+# lev = levels(hit.dat$mark)
+# q1 = ggplot(hit.dat) + geom_bar(aes(x = indiv, y = hits, fill = mark), stat = "identity") + 
+#   facet_wrap(~mark, scales = "free_y") + scale_y_continuous('# AS-SNPs') + scale_x_discrete('') + theme_bw() +
+#   scale_fill_manual(values =  mark.colors(hit.dat$mark), guide = F) +
+#   theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
+#         axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
+#         strip.text.x = element_text(size = 16))
+# #ggsave(file.path(plotdir, 'num_as_snps.pdf'), q1, width = 13.6, height = 11.8)
+# q2 = ggplot(hit.dat) + geom_boxplot(aes(x = mark, y = hits, fill = mark)) + 
+#   xlab('') + ylab('# AS-SNPs') + theme_bw() + 
+#   scale_fill_manual(values = mark.colors(hit.dat$mark), guide = F) +
+#   theme(axis.text.x = element_text(size = 15, angle = -65, vjust = 1, hjust = 0), axis.title.x = element_text(size = 16),
+#         axis.text.y = element_text(size = 15), axis.title.y = element_text(size = 16),
+#         strip.text.x = element_text(size = 16))
+# #ggsave(file.path(plotdir, 'num_as_snps_box.pdf'), q2, width = 6.5, height = 5.6)

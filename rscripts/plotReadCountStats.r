@@ -7,7 +7,7 @@ source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
 source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
 source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
 
-outpref = '../../rawdata/mapped/bam/personal/stats/qcStats_6Jan13'
+outpref = '../../rawdata/mapped/bam/personal/stats/qcStats_Jun13'
 qc.dat = read.table('../../rawdata/mapped/bam/personal/stats/qc.stats', header = F, sep = '\t')[, c(1,3,9)]
 qc.dat = rbind(qc.dat, read.table('../../rawdata/mapped/bam/reference/stats/qc.stats', header = F, sep = '\t')[, c(1,3,9)])
 qc.dat[, 1] = gsub('_reconcile.dedup.bam|_dedup.bam', '', qc.dat[, 1])
@@ -33,7 +33,7 @@ qc.dat$mark = order.marks(sample.info(qc.dat[,1], '')$mark)
 qc.dat$indiv = as.character(sample.info(qc.dat[,1], '')$indiv)
 qc.dat$indiv = fix.indiv.names(qc.dat$indiv)
 qc.dat$rep = sample.info(qc.dat[,1], '')$rep
-
+qc.dat = qc.dat[qc.dat$mark != 'BUB', ]
 write.table(qc.dat[is.na(qc.dat$fraglen), -c(2,3)], file = paste(outpref, '_rna.txt', sep = ''), col.names = T, row.names = F, quote = F, sep = '\t')
 
 qc.dat2 = cast(qc.dat, mark+indiv~., function(x) sum(x), value = 'reads')
