@@ -7,6 +7,9 @@ library(glmnet)
 source('utils/deseq.utils.r')
 source('utils/binom.val.r')
 
+# Regresses signal log-scores on motif log-ratios. See get.motif.features.R for a newer version
+# that uses random forests instead.
+
 indir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13/tfRegress_at_H3K27AC/'
 inpref = 'Gm12878_allTFBS.sorted.noPol.'
 insuf = '.jaspar.scores'

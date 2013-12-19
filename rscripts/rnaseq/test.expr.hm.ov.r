@@ -6,6 +6,8 @@ library(ggplot2)
 source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
 source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
 
+# Regresses gene's expression on H3K4me3 and H3K27ac.
+
 load('rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData') # Gene metadata
 rna.deseq.dir = 'rawdata/geneCounts/rdata/repsComb/deseq/'
 rna.dir = 'rawdata/geneCounts/rdata/repsComb'
