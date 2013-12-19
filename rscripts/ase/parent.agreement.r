@@ -1,13 +1,13 @@
 rm(list=ls())
 require(ggplot2)
 library(DESeq)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
+source('utils/binom.val.r')
+source('utils/sample.info.r')
+source('utils/deseq.utils.r')
 
 geno.dir = '../../rawdata/variants/all/snps/allNonSan/' # Directory with genotype data, should have a file <indiv>.snps.RData for each individual.
-count.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/reps/qvals')
-plotdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/allNonSan/rdata/reps/plots')
+count.dir = '../../rawdata/alleleCounts/allNonSan/rdata/reps/qvals'
+plotdir = '../../rawdata/alleleCounts/allNonSan/rdata/reps/plots'
 if(!file.exists(plotdir)) dir.create(plotdir)
 pop = 'CEU'
 if(pop == 'CEU'){
@@ -88,13 +88,16 @@ for(i in 1:nrow(rdat2)){
   p = p + geom_abline(intercept = 0, slope = rdat2$c, color = mark.colors(rdat2$mark), size = 0.3)
 }
 save(rdat, rdat2, p, file = file.path(plotdir, paste(pop, '.child_par_cor_plot.RData', sep = '')))
+
+rdat = droplevels(rdat[!(as.character(rdat$mark1) %in% c('H2AZ', 'H3K9AC', 'POL4H8')), ])
+rdat2 = droplevels(rdat2[!(as.character(rdat2$mark) %in% c('H2AZ', 'H3K9AC', 'POL4H8')), ])
 ggsave(file = file.path(plotdir, paste(pop, '.child_par_cor.pdf', sep = '')), p, width =8, height = 5.6)
-q = ggplot(rdat2) + geom_bar(aes(x = mark, y = f, fill = mark), stat = "identity") + scale_x_discrete('') + theme_bw() + 
-  scale_y_continuous('Fraction of AS SNPs with the same direction') +
+q = ggplot(rdat2) + geom_bar(aes(x = mark, y = f, fill = mark, width = 0.3), color = 'black', stat = "identity", position = 'identity') + scale_x_discrete('') + theme_bw() + 
+  scale_y_continuous('Fraction of AS SNPs') +
   scale_fill_manual(values =  mark.colors(levels(rdat2$mark)), guide = F) +
-  theme(axis.text.x = element_text(angle = -65, vjust = 1, hjust = 0, size = 14), axis.text.y = element_text(size = 14),
-        axis.title.x = element_text(size = 14), axis.title.y = element_text(size = 14))
-#ggsave(file = file.path(plotdir, paste(pop, '.child_par_agreement.pdf', sep = '')), q, width = 6.5, height = 5.6)
+  theme(axis.text.x = element_text(angle = -65, vjust = 1, hjust = 0, size = 14), axis.text.y = element_text(size = 16),
+        axis.title.x = element_text(size = 16), axis.title.y = element_text(size = 16))
+ggsave(file = file.path(plotdir, paste(pop, '.child_par_agreement_new.pdf', sep = '')), q, width = 4, height = 5)
 
 # countdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/reps_15Sep12/qvals')
 # plotdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/alleleCounts/reps_15Sep12/plots')

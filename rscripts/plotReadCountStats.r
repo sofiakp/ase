@@ -3,9 +3,9 @@
 rm(list=ls())
 library(ggplot2)
 library(reshape)
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
+source('utils/sample.info.r')
+source('utils/binom.val.r')
+source('utils/deseq.utils.r')
 
 outpref = '../../rawdata/mapped/bam/personal/stats/qcStats_Jun13'
 qc.dat = read.table('../../rawdata/mapped/bam/personal/stats/qc.stats', header = F, sep = '\t')[, c(1,3,9)]
@@ -33,16 +33,16 @@ qc.dat$mark = order.marks(sample.info(qc.dat[,1], '')$mark)
 qc.dat$indiv = as.character(sample.info(qc.dat[,1], '')$indiv)
 qc.dat$indiv = fix.indiv.names(qc.dat$indiv)
 qc.dat$rep = sample.info(qc.dat[,1], '')$rep
-qc.dat = qc.dat[qc.dat$mark != 'BUB', ]
+qc.dat = qc.dat[!(qc.dat$mark %in% c('BUB', 'EPOL', 'POL4H8', 'H2AZ', 'RZ', 'H3K9AC', 'H3K9ME3', 'polyA-RNA', 'PU1')), ]
 write.table(qc.dat[is.na(qc.dat$fraglen), -c(2,3)], file = paste(outpref, '_rna.txt', sep = ''), col.names = T, row.names = F, quote = F, sep = '\t')
 
 qc.dat2 = cast(qc.dat, mark+indiv~., function(x) sum(x), value = 'reads')
 colnames(qc.dat2)[3] = 'reads'
 q4 = ggplot(qc.dat2) + geom_bar(aes(x = indiv, y = reads/1e6), stat = "identity", position = "dodge") + theme_bw() +
   facet_wrap(~mark, scales = 'free_y') + scale_x_discrete("") + scale_y_continuous("# Q30 reads after duplicate removal (millions)") +
-  theme(axis.text.x = element_text(angle = -65, vjust = 1, hjust = 0, size = 10, color = get.pop.col(get.pop(unique(qc.dat$indiv)))), 
-        axis.text.y = element_text(size = 12),
-        axis.title.y = element_text(size = 16), strip.text = element_text(size = 14))
+  theme(axis.text.x = element_text(angle = -65, vjust = 1, hjust = 0, size = 14, color = get.pop.col(get.pop(unique(qc.dat$indiv)))), 
+        axis.text.y = element_text(size = 16),
+        axis.title.y = element_text(size = 20), strip.text = element_text(size = 20))
 ggsave(paste(outpref, '_qreads.pdf', sep = ''), width = 13.6, height = 11.8)
 
 qc.dat = qc.dat[!is.na(qc.dat$fraglen), ]

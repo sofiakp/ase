@@ -19,8 +19,8 @@ set.seed(1)
 
 #counts.dir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/segSignal/14indiv/extractSignal/fc/avgSig/') 
 #counts.dir = '../../rawdata/genomeGrid/hg19_w10k/combrep/fc/avgSig_newNorm/'
-#counts.dir = '../../rawdata/transcriptomes/combrep/extractSignal/fc/avgSig_newNorm/'
-counts.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13'
+counts.dir = '../../rawdata/transcriptomes/combrep/extractSignal/fc/avgSig_newNorm/'
+#counts.dir = '../../rawdata/signal/combrep/extractSignal/fc/avgSig/merged_Mar13'
 #counts.dir = '../../rawdata/signal/combrep/extractSignal/rand/fc/avgSig/merged_Mar13/'
 #counts.dir = '../../rawdata/dhs/alan/combrep/extractSignal/fc/avgSig/'
 #counts.dir = '../../rawdata/geneCounts/rdata/repsComb/'
@@ -43,7 +43,7 @@ qval = 0.01
 is.genes = F # T for RZ data
 plot.only = F
 quant = 0.4 # 0.4 for peak regions and transcriptomes
-mark = 'H3K27AC'
+mark = 'H3K36ME3'
 outpref = paste(outpref, mark, sep = '')
 load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
 
@@ -62,7 +62,7 @@ if(!plot.only){
     region.file = file.path('../../rawdata/signal/combrep/peakFiles/merged_Mar13/', paste('SNYDER_HG19', mark, 'merged.bed.gz', sep = '_'))
     #region.file = paste('../../rawdata/signal/combrep/peakFiles/merged_Mar13/rand/SNYDER_HG19', mark, 'merged_rand.bed.gz', sep = '_')
     #region.file = '../../rawdata/genomeGrid/hg19_w10k.bed'
-    #region.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.bed'
+    region.file = '../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.bed'
     #region.file = '../../rawdata/segSignal/14indiv/txStates_10_11_12.bed'
     #region.file = '../../rawdata/dhs/alan/pritchard_dhs_200bp_left.bed'
     signal.files = list.files(counts.dir, pattern = paste(gsub('.bed|.bed.gz', '', basename(region.file)), '_AT_SNYDER_HG19_.*', mark, '.*.txt', sep = ''), full.names = T)

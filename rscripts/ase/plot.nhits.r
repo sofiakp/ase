@@ -16,10 +16,12 @@ read.lists = T # T: input is assumed to be indicators of significant positions, 
 if(read.lists){
   filenames = list.files(countdir, pattern = 'SNYDER_HG19.*rep\\.RData', full.name = T)
   filenames = append(filenames, list.files('../../rawdata/alleleCounts/allNonSan/rdata/reps/qvals/', pattern = 'SNYDER_HG19.*rep\\.RData', full.name = T))
-  filenames = filenames[!grepl('BUB', filenames)]
+  samples = sample.info(filenames, '\\.RData$')  
+  filenames = filenames[!(samples$mark %in% c('BUB', 'EPOL', 'POL4H8', 'H2AZ', 'RZ', 'H3K9AC', 'H3K9ME3', 'polyA-RNA', 'PU1'))]
   samples = sample.info(filenames, '\\.RData$')  
 }else{
   filenames = list.files(countdir, pattern = 'SNYDER_HG19.*rep\\.het\\.RData', full.name = T)
+  
   filenames = filenames[!grepl('BUB', filenames)]
   samples = sample.info(filenames, '\\.het\\.RData$')  
 }
@@ -85,7 +87,7 @@ p2 = ggplot(hit.dat) + geom_boxplot(aes(x = mark, y = norm.hits, fill = mark)) +
         axis.text.y = element_text(size = 18), axis.title.y = element_text(size = 18),
         strip.text.x = element_text(size = 18),
         panel.grid.major = element_blank(), axis.ticks.x = element_blank())
-ggsave(file.path(plotdir, 'num_as_snps_norm_box.pdf'), p2, width = 6.5, height = 5.6)
+ggsave(file.path(plotdir, 'num_as_snps_norm_box_new.pdf'), p2, width = 6.5, height = 5.6)
 
 # if(read.lists){
 #   for(d in new.indiv){

@@ -1,14 +1,14 @@
 rm(list=ls())
 require(ggplot2)
 library('DESeq')
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/binom.val.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/sample.info.r'))
-source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
+source('utils/binom.val.r')
+source('utils/sample.info.r')
+source('utils/deseq.utils.r')
 
-countdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/geneCounts/rdata/reps/qvals')
-plotdir = file.path(Sys.getenv('MAYAROOT'), 'rawdata/geneCounts/rdata/reps/plots')
+countdir = '../../rawdata/geneCounts/rdata/reps/qvals'
+plotdir = '../../rawdata/geneCounts/rdata/reps/plots'
 if(!file.exists(plotdir)) dir.create(plotdir)
-pop = 'CEU'
+pop = 'YRI'
 
 if(pop == 'CEU'){
   child = 'GM12878'
@@ -23,6 +23,7 @@ if(pop == 'CEU'){
 load('../../rawdata/transcriptomes/gencode.v13.annotation.noM.genes.RData')
 
 filenames <- list.files(countdir, pattern = paste(child, '.*rep\\.RData', sep = ''), full.name = T)
+filenames = filenames[!grepl(x = filenames, pattern = '_RNA_rep')]
 epsilon <- 1
 nfiles = length(filenames)
 rdat = NULL
@@ -82,7 +83,9 @@ tmp = unlist(strsplit(uniq.marks.corr, ' '))
 uniq.marks.corr = uniq.marks.corr[match(uniq.marks, tmp[seq(1, length(tmp), 2)])]
 
 other = new.env()
-load('../../rawdata/alleleCounts/allNonSan/rdata/reps/plots/CEU.child_par_cor_plot.RData', other)
+load(paste('../../rawdata/alleleCounts/allNonSan/rdata/reps/plots/', pop, '.child_par_cor_plot.RData', sep = ''), other)
+other$rdat = droplevels(other$rdat[!(as.character(other$rdat$mark1) %in% c('H2AZ', 'H3K9AC', 'POL4H8')), ])
+other$rdat2 = droplevels(other$rdat2[!(as.character(other$rdat2$mark) %in% c('H2AZ', 'H3K9AC', 'POL4H8')), ])
 merged = rbind(other$rdat, rdat)
 merged2 = rbind(other$rdat2, rdat2)
 uniq.marks = order.marks(levels(merged$mark1), sub.rna = F)
@@ -90,7 +93,7 @@ uniq.marks.corr = levels(merged$mark)
 tmp = unlist(strsplit(uniq.marks.corr, ' ')) 
 uniq.marks.corr = uniq.marks.corr[match(uniq.marks, tmp[seq(1, length(tmp), 2)])]
 
-q1 = ggplot(merged) + geom_point(aes(x = child, y = par, color = mark1), shape=1, alpha = 0.8, size = 1) + scale_x_continuous('log(maternal/paternal)') + 
+q1 = ggplot(merged) + geom_point(aes(x = child, y = par, color = mark1), shape = 1, alpha = 0.8, size = 2) + scale_x_continuous('log(maternal/paternal)') + 
   scale_y_continuous('child:log(maternal/paternal)') + theme_bw() + 
   scale_color_manual(values =  mark.colors(levels(merged$mark1)), 
                      breaks = uniq.marks, labels = uniq.marks.corr) +
@@ -99,7 +102,7 @@ q1 = ggplot(merged) + geom_point(aes(x = child, y = par, color = mark1), shape=1
         legend.title = element_blank(), legend.text = element_text(size = 14), panel.grid.major = element_blank())
 for(i in 1:nrow(merged2)){
   co = coef(lm(merged[merged$mark1 == as.character(merged2$mark[i]), 2] ~ merged[merged$mark1 == as.character(merged2$mark[i]), 1]))
-  q1 = q1 + geom_abline(intercept = co[1], slope = co[2], color = mark.colors(merged2$mark[i]), size = 0.3)
+  q1 = q1 + geom_abline(intercept = co[1], slope = co[2], color = mark.colors(merged2$mark[i]), size = 0.5)
   #q1 = q1 + geom_abline(intercept = co[1], slope = co[2], color = mark.colors(merged2$mark[i]), size = 0.3)
 }
 ggsave(file = file.path(plotdir, paste(pop, '.child_par_gene_cor.pdf', sep = '')), q1, width = 8, height = 5.6)
@@ -109,4 +112,4 @@ q2 = ggplot(rdat2) + geom_bar(aes(x = mark, y = f, fill = mark), stat = "identit
   theme(axis.title.x = element_text(size = 14), axis.title.y = element_text(size = 14),
         axis.text.x = element_text(angle = -45, vjust = 1, hjust = 0, size = 14), axis.text.y = element_text(size = 14),
         legend.title = element_blank(), legend.text = element_text(size = 14))
-#ggsave(file = file.path(plotdir, paste(pop, '.child_par_gene_agreement.pdf', sep = '')), q2, width = 6.5, height = 5.6)
+ggsave(file = file.path(plotdir, paste(pop, '.child_par_gene_agreement.pdf', sep = '')), q2, width = 6.5, height = 5.6)
