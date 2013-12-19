@@ -12,6 +12,8 @@ source(file.path(Sys.getenv('MAYAROOT'), 'src/rscripts/utils/deseq.utils.r'))
 
 registerDoMC(10)
 
+# Runs elastic net regression to link enhancers to genes.
+
 # Dir with counts for RNA. Should contain files SNYDER_HG19_<indiv>_<mark>_0.RData with read counts for genes.
 # Each count matrix should have one column per replicate. The file should also have a vector size.factors with
 # the size factor (library size) for each column.

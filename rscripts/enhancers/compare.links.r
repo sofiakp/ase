@@ -5,6 +5,8 @@ source('utils/deseq.utils.r')
 source('utils/sample.info.r')
 #source('enhancers/get.as.ov.r')
 
+# Computes overlaps between different sets of enhancer-gene links.
+
 # Stam links
 stam.assoc = read.table('../../rawdata/enhancers/external/stam/genomewideCorrs_above0.7_promoterPlusMinus500kb_withGeneNames_32celltypeCategories.bed8', header = F, sep = '\t', na.strings = '?')[, 4:8]
 colnames(stam.assoc) = c('gene.name', 'chr', 'start', 'end', 'corr')

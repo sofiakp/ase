@@ -10,6 +10,9 @@ library(doMC)
 source('utils/sample.info.r')
 source('utils/deseq.utils.r')
 
+# Uses the ARS statistic to link enhancers to genes. You must run enhancer.regress.r first to get the mappings
+# between genes and promoter regions.
+
 # Computes the ARS statistic. x and y are matrices NxM where N is the number of associations (pairs) 
 # for which the statistic will be computed, and M is the number of cell lines.
 # You should divide each row of x and y by the row max and median center before calling this.
