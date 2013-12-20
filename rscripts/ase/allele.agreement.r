@@ -4,6 +4,9 @@ require('ggplot2')
 source('utils/sample.info.r')
 source('utils/deseq.utils.r')
 
+# Computes correlation of allelic biases and overlaps of AS SNPs between selected pairs of files
+# (cell lines or marks).
+
 indir = '../../rawdata/alleleCounts/allNonSan/rdata/reps'
 countdir = file.path(indir, 'qvals')
 plotdir = file.path(indir, 'plots')
