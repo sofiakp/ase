@@ -1,0 +1,16 @@
+Code for the chromatin variation project (Kasowski et al. 2013). 
+
+bin: Mostly preprocessing stuff (alignment/cleaning up of reads, peak calling, signal track
+generation, QC etc). In many cases there's two scripts with similar names (eg. alignSample.sh and
+alignBatch.sh). In these cases, the "Sample" script does the actual work. The "Batch" script reads
+metadata (such as cell line name, factor name etc) and submits jobs that call the "Sample" script.
+
+matlab: Mostly code for computing average signal (calling extractsignal), finding dips (not used in
+the paper), and scanning motifs on the personal genomes.
+
+python: Code for creating personal genomes (the add*Snps* files). Various other utilities.
+
+rscripts: Post-processing (plots, statistics etc).
+
+variants: Code for cleaning up the 1000GP genotypes and generating lists of SNPs and indels for each
+individual.
