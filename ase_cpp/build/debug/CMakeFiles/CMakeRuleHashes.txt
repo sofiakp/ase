@@ -1,0 +1,5 @@
+# Hashes of file build rules.
+94a4b1d154d1d58170e00dfad948894d deps/bamtools/src/CMakeFiles/SharedHeaders
+0152bd9f1dfd811122d82c832325c8e3 deps/bamtools/src/api/CMakeFiles/APIHeaders
+c2d7ee4e6e428569c0099906bfd14c00 deps/swak/deps/yaml-cpp/CMakeFiles/debuggable
+dd9410024c1dc408e35f143bd61fc80f deps/swak/deps/yaml-cpp/CMakeFiles/releasable
