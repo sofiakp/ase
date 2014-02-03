@@ -13,7 +13,7 @@
 *.a
 
 # Makefiles
-Makefile
+# Makefile
 
 # Rstudio files
 *.Rproj

@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ test/CMakeFiles/Test.dir/Test.cpp.o.provides: test/CMakeFiles/Test.dir/Test.cpp.
 .PHONY : test/CMakeFiles/Test.dir/Test.cpp.o.provides
 
 test/CMakeFiles/Test.dir/Test.cpp.o.provides.build: test/CMakeFiles/Test.dir/Test.cpp.o
+.PHONY : test/CMakeFiles/Test.dir/Test.cpp.o.provides.build
 
 test/CMakeFiles/Test.dir/TestRodUtil.cpp.o: test/CMakeFiles/Test.dir/flags.make
 test/CMakeFiles/Test.dir/TestRodUtil.cpp.o: ../../test/TestRodUtil.cpp
@@ -94,6 +92,7 @@ test/CMakeFiles/Test.dir/TestRodUtil.cpp.o.provides: test/CMakeFiles/Test.dir/Te
 .PHONY : test/CMakeFiles/Test.dir/TestRodUtil.cpp.o.provides
 
 test/CMakeFiles/Test.dir/TestRodUtil.cpp.o.provides.build: test/CMakeFiles/Test.dir/TestRodUtil.cpp.o
+.PHONY : test/CMakeFiles/Test.dir/TestRodUtil.cpp.o.provides.build
 
 # Object files for target Test
 Test_OBJECTS = \
@@ -105,10 +104,10 @@ Test_EXTERNAL_OBJECTS =
 
 test/Test: test/CMakeFiles/Test.dir/Test.cpp.o
 test/Test: test/CMakeFiles/Test.dir/TestRodUtil.cpp.o
-test/Test: test/CMakeFiles/Test.dir/build.make
 test/Test: deps/swak/src/libswak.a
 test/Test: src/librod.a
 test/Test: deps/swak/deps/yaml-cpp/libyaml-cpp.a
+test/Test: test/CMakeFiles/Test.dir/build.make
 test/Test: test/CMakeFiles/Test.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable Test"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Test.dir/link.txt --verbose=$(VERBOSE)

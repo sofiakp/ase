@@ -16,7 +16,7 @@ preinstall:
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -38,13 +38,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -102,13 +99,13 @@ deps/swak/deps/yaml-cpp/preinstall: deps/swak/deps/yaml-cpp/util/preinstall
 deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/all:
 	$(MAKE) -f deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/build.make deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/depend
 	$(MAKE) -f deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/build.make deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  53
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 
 	@echo "Built target debuggable"
 .PHONY : deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/all
 
 # Build rule for subdir invocation for target.
 deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 	$(MAKE) -f CMakeFiles/Makefile2 deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : deps/swak/deps/yaml-cpp/CMakeFiles/debuggable.dir/rule
@@ -214,7 +211,7 @@ deps/swak/deps/yaml-cpp/test/preinstall:
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/all: deps/swak/deps/yaml-cpp/CMakeFiles/yaml-cpp.dir/all
 	$(MAKE) -f deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/build.make deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/depend
 	$(MAKE) -f deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/build.make deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  61 62 63 64
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  62 63 64
 	@echo "Built target run-tests"
 .PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/all
 
@@ -224,7 +221,7 @@ all: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/all
 
 # Build rule for subdir invocation for target.
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 22
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 21
 	$(MAKE) -f CMakeFiles/Makefile2 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/rule
@@ -264,7 +261,7 @@ deps/swak/deps/yaml-cpp/util/preinstall:
 deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/all: deps/swak/deps/yaml-cpp/CMakeFiles/yaml-cpp.dir/all
 	$(MAKE) -f deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/build.make deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/depend
 	$(MAKE) -f deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/build.make deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  59
 	@echo "Built target parse"
 .PHONY : deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/all
 
@@ -274,7 +271,7 @@ all: deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/all
 
 # Build rule for subdir invocation for target.
 deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 18
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 19
 	$(MAKE) -f CMakeFiles/Makefile2 deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/rule
@@ -438,7 +435,7 @@ clean: deps/swak/test/CMakeFiles/TestSwak.dir/clean
 deps/swak/test/CMakeFiles/parse-yaml.dir/all: deps/swak/deps/yaml-cpp/CMakeFiles/yaml-cpp.dir/all
 	$(MAKE) -f deps/swak/test/CMakeFiles/parse-yaml.dir/build.make deps/swak/test/CMakeFiles/parse-yaml.dir/depend
 	$(MAKE) -f deps/swak/test/CMakeFiles/parse-yaml.dir/build.make deps/swak/test/CMakeFiles/parse-yaml.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  59
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 
 	@echo "Built target parse-yaml"
 .PHONY : deps/swak/test/CMakeFiles/parse-yaml.dir/all
 
@@ -448,7 +445,7 @@ all: deps/swak/test/CMakeFiles/parse-yaml.dir/all
 
 # Build rule for subdir invocation for target.
 deps/swak/test/CMakeFiles/parse-yaml.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 19
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 18
 	$(MAKE) -f CMakeFiles/Makefile2 deps/swak/test/CMakeFiles/parse-yaml.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : deps/swak/test/CMakeFiles/parse-yaml.dir/rule
@@ -653,7 +650,7 @@ clean: deps/bamtools/src/api/CMakeFiles/APIHeaders.dir/clean
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/all:
 	$(MAKE) -f deps/bamtools/src/api/CMakeFiles/BamTools.dir/build.make deps/bamtools/src/api/CMakeFiles/BamTools.dir/depend
 	$(MAKE) -f deps/bamtools/src/api/CMakeFiles/BamTools.dir/build.make deps/bamtools/src/api/CMakeFiles/BamTools.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
 	@echo "Built target BamTools"
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/all
 
@@ -663,7 +660,7 @@ all: deps/bamtools/src/api/CMakeFiles/BamTools.dir/all
 
 # Build rule for subdir invocation for target.
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 15
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 16
 	$(MAKE) -f CMakeFiles/Makefile2 deps/bamtools/src/api/CMakeFiles/BamTools.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/rule
@@ -688,7 +685,7 @@ clean: deps/bamtools/src/api/CMakeFiles/BamTools.dir/clean
 deps/bamtools/src/api/CMakeFiles/BamTools-static.dir/all:
 	$(MAKE) -f deps/bamtools/src/api/CMakeFiles/BamTools-static.dir/build.make deps/bamtools/src/api/CMakeFiles/BamTools-static.dir/depend
 	$(MAKE) -f deps/bamtools/src/api/CMakeFiles/BamTools-static.dir/build.make deps/bamtools/src/api/CMakeFiles/BamTools-static.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  19 20 21 22 23 24 25 26 27 28 29 30 31 32 33
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  20 21 22 23 24 25 26 27 28 29 30 31 32 33 34
 	@echo "Built target BamTools-static"
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools-static.dir/all
 
@@ -738,7 +735,7 @@ deps/bamtools/src/utils/preinstall:
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/all: deps/bamtools/src/api/CMakeFiles/BamTools.dir/all
 	$(MAKE) -f deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/build.make deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/depend
 	$(MAKE) -f deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/build.make deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  34 35 36
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  35 36
 	@echo "Built target BamTools-utils"
 .PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/all
 
@@ -850,12 +847,12 @@ deps/bamtools/src/toolkit/preinstall:
 # Target rules for target deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir
 
 # All Build rule for target.
-deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/all: deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/all
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/all: deps/bamtools/src/api/CMakeFiles/BamTools.dir/all
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/all: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/all
+deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/all: deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/all
 	$(MAKE) -f deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/build.make deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/depend
 	$(MAKE) -f deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/build.make deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  44 45 46 47 48 49 50 51 52
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  45 46 47 48 49 50 51 52 53
 	@echo "Built target bamtools"
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/all
 
@@ -910,8 +907,8 @@ src/preinstall:
 # Target rules for target src/CMakeFiles/Ase.dir
 
 # All Build rule for target.
-src/CMakeFiles/Ase.dir/all: deps/swak/src/CMakeFiles/swak.dir/all
 src/CMakeFiles/Ase.dir/all: deps/swak/deps/yaml-cpp/CMakeFiles/yaml-cpp.dir/all
+src/CMakeFiles/Ase.dir/all: deps/swak/src/CMakeFiles/swak.dir/all
 src/CMakeFiles/Ase.dir/all: src/CMakeFiles/gene.dir/all
 src/CMakeFiles/Ase.dir/all: src/CMakeFiles/bam.dir/all
 src/CMakeFiles/Ase.dir/all: src/CMakeFiles/vcf.dir/all
@@ -928,7 +925,7 @@ all: src/CMakeFiles/Ase.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/Ase.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 56
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 59
 	$(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/Ase.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : src/CMakeFiles/Ase.dir/rule
@@ -953,7 +950,7 @@ clean: src/CMakeFiles/Ase.dir/clean
 src/CMakeFiles/bam.dir/all: deps/bamtools/src/api/CMakeFiles/BamTools.dir/all
 	$(MAKE) -f src/CMakeFiles/bam.dir/build.make src/CMakeFiles/bam.dir/depend
 	$(MAKE) -f src/CMakeFiles/bam.dir/build.make src/CMakeFiles/bam.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  44
 	@echo "Built target bam"
 .PHONY : src/CMakeFiles/bam.dir/all
 
@@ -963,7 +960,7 @@ all: src/CMakeFiles/bam.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/bam.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 15
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 17
 	$(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/bam.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : src/CMakeFiles/bam.dir/rule
@@ -1023,7 +1020,7 @@ clean: src/CMakeFiles/gene.dir/clean
 src/CMakeFiles/rod.dir/all:
 	$(MAKE) -f src/CMakeFiles/rod.dir/build.make src/CMakeFiles/rod.dir/depend
 	$(MAKE) -f src/CMakeFiles/rod.dir/build.make src/CMakeFiles/rod.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 
+	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles  61
 	@echo "Built target rod"
 .PHONY : src/CMakeFiles/rod.dir/all
 
@@ -1033,7 +1030,7 @@ all: src/CMakeFiles/rod.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/rod.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 1
 	$(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/rod.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : src/CMakeFiles/rod.dir/rule
@@ -1121,7 +1118,7 @@ all: test/CMakeFiles/Test.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/Test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 30
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 31
 	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/Test.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/CMakeFiles 0
 .PHONY : test/CMakeFiles/Test.dir/rule

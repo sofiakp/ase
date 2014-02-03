@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/swak/src/CMakeFiles/swak.dir/Swak.cpp.o.provides: deps/swak/src/CMakeFiles/
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/Swak.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/Swak.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/Swak.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/Swak.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/System.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/System.cpp.o: ../../deps/swak/src/System.cpp
@@ -94,6 +92,7 @@ deps/swak/src/CMakeFiles/swak.dir/System.cpp.o.provides: deps/swak/src/CMakeFile
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/System.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/System.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/System.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/System.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/Helpers.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/Helpers.cpp.o: ../../deps/swak/src/Helpers.cpp
@@ -117,6 +116,7 @@ deps/swak/src/CMakeFiles/swak.dir/Helpers.cpp.o.provides: deps/swak/src/CMakeFil
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/Helpers.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/Helpers.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/Helpers.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/Helpers.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/PolyExe.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/PolyExe.cpp.o: ../../deps/swak/src/PolyExe.cpp
@@ -140,6 +140,7 @@ deps/swak/src/CMakeFiles/swak.dir/PolyExe.cpp.o.provides: deps/swak/src/CMakeFil
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/PolyExe.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/PolyExe.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/PolyExe.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/PolyExe.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/FieldReader.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/FieldReader.cpp.o: ../../deps/swak/src/FieldReader.cpp
@@ -163,6 +164,7 @@ deps/swak/src/CMakeFiles/swak.dir/FieldReader.cpp.o.provides: deps/swak/src/CMak
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/FieldReader.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/FieldReader.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/FieldReader.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/FieldReader.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/StringUtil.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/StringUtil.cpp.o: ../../deps/swak/src/StringUtil.cpp
@@ -186,6 +188,7 @@ deps/swak/src/CMakeFiles/swak.dir/StringUtil.cpp.o.provides: deps/swak/src/CMake
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/StringUtil.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/StringUtil.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/StringUtil.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/StringUtil.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/StlUtil.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/StlUtil.cpp.o: ../../deps/swak/src/StlUtil.cpp
@@ -209,6 +212,7 @@ deps/swak/src/CMakeFiles/swak.dir/StlUtil.cpp.o.provides: deps/swak/src/CMakeFil
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/StlUtil.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/StlUtil.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/StlUtil.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/StlUtil.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/FoldedOutStream.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/FoldedOutStream.cpp.o: ../../deps/swak/src/FoldedOutStream.cpp
@@ -232,6 +236,7 @@ deps/swak/src/CMakeFiles/swak.dir/FoldedOutStream.cpp.o.provides: deps/swak/src/
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/FoldedOutStream.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/FoldedOutStream.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/FoldedOutStream.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/FoldedOutStream.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/FastaReader.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/FastaReader.cpp.o: ../../deps/swak/src/FastaReader.cpp
@@ -255,6 +260,7 @@ deps/swak/src/CMakeFiles/swak.dir/FastaReader.cpp.o.provides: deps/swak/src/CMak
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/FastaReader.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/FastaReader.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/FastaReader.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/FastaReader.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/FastqReader.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/FastqReader.cpp.o: ../../deps/swak/src/FastqReader.cpp
@@ -278,6 +284,7 @@ deps/swak/src/CMakeFiles/swak.dir/FastqReader.cpp.o.provides: deps/swak/src/CMak
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/FastqReader.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/FastqReader.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/FastqReader.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/FastqReader.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/OptionParser.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/OptionParser.cpp.o: ../../deps/swak/src/OptionParser.cpp
@@ -301,6 +308,7 @@ deps/swak/src/CMakeFiles/swak.dir/OptionParser.cpp.o.provides: deps/swak/src/CMa
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/OptionParser.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/OptionParser.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/OptionParser.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/OptionParser.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/Bio.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/Bio.cpp.o: ../../deps/swak/src/Bio.cpp
@@ -324,6 +332,7 @@ deps/swak/src/CMakeFiles/swak.dir/Bio.cpp.o.provides: deps/swak/src/CMakeFiles/s
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/Bio.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/Bio.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/Bio.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/Bio.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/SafeVec.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/SafeVec.cpp.o: ../../deps/swak/src/SafeVec.cpp
@@ -347,6 +356,7 @@ deps/swak/src/CMakeFiles/swak.dir/SafeVec.cpp.o.provides: deps/swak/src/CMakeFil
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/SafeVec.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/SafeVec.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/SafeVec.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/SafeVec.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/DensityEstimator.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/DensityEstimator.cpp.o: ../../deps/swak/src/DensityEstimator.cpp
@@ -370,6 +380,7 @@ deps/swak/src/CMakeFiles/swak.dir/DensityEstimator.cpp.o.provides: deps/swak/src
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/DensityEstimator.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/DensityEstimator.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/DensityEstimator.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/DensityEstimator.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/Window.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/Window.cpp.o: ../../deps/swak/src/Window.cpp
@@ -393,6 +404,7 @@ deps/swak/src/CMakeFiles/swak.dir/Window.cpp.o.provides: deps/swak/src/CMakeFile
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/Window.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/Window.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/Window.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/Window.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/ConfigReader.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/ConfigReader.cpp.o: ../../deps/swak/src/ConfigReader.cpp
@@ -416,6 +428,7 @@ deps/swak/src/CMakeFiles/swak.dir/ConfigReader.cpp.o.provides: deps/swak/src/CMa
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/ConfigReader.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/ConfigReader.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/ConfigReader.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/ConfigReader.cpp.o.provides.build
 
 deps/swak/src/CMakeFiles/swak.dir/gzstream.cpp.o: deps/swak/src/CMakeFiles/swak.dir/flags.make
 deps/swak/src/CMakeFiles/swak.dir/gzstream.cpp.o: ../../deps/swak/src/gzstream.cpp
@@ -439,6 +452,7 @@ deps/swak/src/CMakeFiles/swak.dir/gzstream.cpp.o.provides: deps/swak/src/CMakeFi
 .PHONY : deps/swak/src/CMakeFiles/swak.dir/gzstream.cpp.o.provides
 
 deps/swak/src/CMakeFiles/swak.dir/gzstream.cpp.o.provides.build: deps/swak/src/CMakeFiles/swak.dir/gzstream.cpp.o
+.PHONY : deps/swak/src/CMakeFiles/swak.dir/gzstream.cpp.o.provides.build
 
 # Object files for target swak
 swak_OBJECTS = \

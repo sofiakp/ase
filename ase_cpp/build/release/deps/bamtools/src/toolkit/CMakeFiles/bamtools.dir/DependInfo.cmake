@@ -32,14 +32,3 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
   "/media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/DependInfo.cmake"
   "/media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/DependInfo.cmake"
   )
-
-# The include file search paths:
-SET(CMAKE_C_TARGET_INCLUDE_PATH
-  "../../deps/bamtools/src"
-  "../../deps/bamtools/src/api"
-  "../../deps/bamtools/src/utils"
-  "../../deps/bamtools/src/third_party"
-  )
-SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
-SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
-SET(CMAKE_ASM_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamAlignment.cpp.o.provides: deps/
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamAlignment.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamAlignment.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamAlignment.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamAlignment.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamMultiReader.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamMultiReader.cpp.o: ../../deps/bamtools/src/api/BamMultiReader.cpp
@@ -94,6 +92,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamMultiReader.cpp.o.provides: dep
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamMultiReader.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamMultiReader.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamMultiReader.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamMultiReader.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamReader.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamReader.cpp.o: ../../deps/bamtools/src/api/BamReader.cpp
@@ -117,6 +116,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamReader.cpp.o.provides: deps/bam
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamReader.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamReader.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamReader.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamReader.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamWriter.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamWriter.cpp.o: ../../deps/bamtools/src/api/BamWriter.cpp
@@ -140,6 +140,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamWriter.cpp.o.provides: deps/bam
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamWriter.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamWriter.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamWriter.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/BamWriter.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamHeader.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamHeader.cpp.o: ../../deps/bamtools/src/api/SamHeader.cpp
@@ -163,6 +164,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamHeader.cpp.o.provides: deps/bam
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamHeader.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamHeader.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamHeader.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamHeader.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgram.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgram.cpp.o: ../../deps/bamtools/src/api/SamProgram.cpp
@@ -186,6 +188,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgram.cpp.o.provides: deps/ba
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgram.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgram.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgram.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgram.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgramChain.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgramChain.cpp.o: ../../deps/bamtools/src/api/SamProgramChain.cpp
@@ -209,6 +212,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgramChain.cpp.o.provides: de
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgramChain.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgramChain.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgramChain.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamProgramChain.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroup.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroup.cpp.o: ../../deps/bamtools/src/api/SamReadGroup.cpp
@@ -232,6 +236,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroup.cpp.o.provides: deps/
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroup.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroup.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroup.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroup.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroupDictionary.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroupDictionary.cpp.o: ../../deps/bamtools/src/api/SamReadGroupDictionary.cpp
@@ -255,6 +260,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroupDictionary.cpp.o.provi
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroupDictionary.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroupDictionary.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroupDictionary.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamReadGroupDictionary.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequence.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequence.cpp.o: ../../deps/bamtools/src/api/SamSequence.cpp
@@ -278,6 +284,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequence.cpp.o.provides: deps/b
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequence.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequence.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequence.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequence.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequenceDictionary.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequenceDictionary.cpp.o: ../../deps/bamtools/src/api/SamSequenceDictionary.cpp
@@ -301,6 +308,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequenceDictionary.cpp.o.provid
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequenceDictionary.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequenceDictionary.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequenceDictionary.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/SamSequenceDictionary.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamHeader_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamHeader_p.cpp.o: ../../deps/bamtools/src/api/internal/BamHeader_p.cpp
@@ -324,6 +332,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamHeader_p.cpp.o.provide
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamHeader_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamHeader_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamHeader_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamHeader_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamIndexFactory_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamIndexFactory_p.cpp.o: ../../deps/bamtools/src/api/internal/BamIndexFactory_p.cpp
@@ -347,6 +356,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamIndexFactory_p.cpp.o.p
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamIndexFactory_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamIndexFactory_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamIndexFactory_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamIndexFactory_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamMultiReader_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamMultiReader_p.cpp.o: ../../deps/bamtools/src/api/internal/BamMultiReader_p.cpp
@@ -370,6 +380,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamMultiReader_p.cpp.o.pr
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamMultiReader_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamMultiReader_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamMultiReader_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamMultiReader_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamRandomAccessController_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamRandomAccessController_p.cpp.o: ../../deps/bamtools/src/api/internal/BamRandomAccessController_p.cpp
@@ -393,6 +404,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamRandomAccessController
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamRandomAccessController_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamRandomAccessController_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamRandomAccessController_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamRandomAccessController_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamReader_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamReader_p.cpp.o: ../../deps/bamtools/src/api/internal/BamReader_p.cpp
@@ -416,6 +428,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamReader_p.cpp.o.provide
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamReader_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamReader_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamReader_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamReader_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamStandardIndex_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamStandardIndex_p.cpp.o: ../../deps/bamtools/src/api/internal/BamStandardIndex_p.cpp
@@ -439,6 +452,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamStandardIndex_p.cpp.o.
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamStandardIndex_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamStandardIndex_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamStandardIndex_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamStandardIndex_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamToolsIndex_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamToolsIndex_p.cpp.o: ../../deps/bamtools/src/api/internal/BamToolsIndex_p.cpp
@@ -462,6 +476,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamToolsIndex_p.cpp.o.pro
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamToolsIndex_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamToolsIndex_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamToolsIndex_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamToolsIndex_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamWriter_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamWriter_p.cpp.o: ../../deps/bamtools/src/api/internal/BamWriter_p.cpp
@@ -485,6 +500,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamWriter_p.cpp.o.provide
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamWriter_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamWriter_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamWriter_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BamWriter_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BgzfStream_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BgzfStream_p.cpp.o: ../../deps/bamtools/src/api/internal/BgzfStream_p.cpp
@@ -508,6 +524,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BgzfStream_p.cpp.o.provid
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BgzfStream_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BgzfStream_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BgzfStream_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/BgzfStream_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatParser_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatParser_p.cpp.o: ../../deps/bamtools/src/api/internal/SamFormatParser_p.cpp
@@ -531,6 +548,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatParser_p.cpp.o.p
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatParser_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatParser_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatParser_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatParser_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatPrinter_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatPrinter_p.cpp.o: ../../deps/bamtools/src/api/internal/SamFormatPrinter_p.cpp
@@ -554,6 +572,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatPrinter_p.cpp.o.
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatPrinter_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatPrinter_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatPrinter_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamFormatPrinter_p.cpp.o.provides.build
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamHeaderValidator_p.cpp.o: deps/bamtools/src/api/CMakeFiles/BamTools.dir/flags.make
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamHeaderValidator_p.cpp.o: ../../deps/bamtools/src/api/internal/SamHeaderValidator_p.cpp
@@ -577,6 +596,7 @@ deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamHeaderValidator_p.cpp.
 .PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamHeaderValidator_p.cpp.o.provides
 
 deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamHeaderValidator_p.cpp.o.provides.build: deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamHeaderValidator_p.cpp.o
+.PHONY : deps/bamtools/src/api/CMakeFiles/BamTools.dir/internal/SamHeaderValidator_p.cpp.o.provides.build
 
 # Object files for target BamTools
 BamTools_OBJECTS = \

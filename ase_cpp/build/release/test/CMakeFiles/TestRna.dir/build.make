@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ test/CMakeFiles/TestRna.dir/TestRna.cpp.o.provides: test/CMakeFiles/TestRna.dir/
 .PHONY : test/CMakeFiles/TestRna.dir/TestRna.cpp.o.provides
 
 test/CMakeFiles/TestRna.dir/TestRna.cpp.o.provides.build: test/CMakeFiles/TestRna.dir/TestRna.cpp.o
+.PHONY : test/CMakeFiles/TestRna.dir/TestRna.cpp.o.provides.build
 
 # Object files for target TestRna
 TestRna_OBJECTS = \
@@ -80,11 +78,11 @@ TestRna_OBJECTS = \
 TestRna_EXTERNAL_OBJECTS =
 
 test/TestRna: test/CMakeFiles/TestRna.dir/TestRna.cpp.o
-test/TestRna: test/CMakeFiles/TestRna.dir/build.make
 test/TestRna: deps/swak/src/libswak.a
 test/TestRna: src/libgene.a
 test/TestRna: deps/swak/src/libswak.a
 test/TestRna: deps/swak/deps/yaml-cpp/libyaml-cpp.a
+test/TestRna: test/CMakeFiles/TestRna.dir/build.make
 test/TestRna: test/CMakeFiles/TestRna.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable TestRna"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/TestRna.dir/link.txt --verbose=$(VERBOSE)

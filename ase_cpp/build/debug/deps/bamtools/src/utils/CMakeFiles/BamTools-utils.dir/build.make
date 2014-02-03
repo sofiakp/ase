@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_fasta.cpp.o.provi
 .PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_fasta.cpp.o.provides
 
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_fasta.cpp.o.provides.build: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_fasta.cpp.o
+.PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_fasta.cpp.o.provides.build
 
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_options.cpp.o: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/flags.make
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_options.cpp.o: ../../deps/bamtools/src/utils/bamtools_options.cpp
@@ -94,6 +92,7 @@ deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_options.cpp.o.pro
 .PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_options.cpp.o.provides
 
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_options.cpp.o.provides.build: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_options.cpp.o
+.PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_options.cpp.o.provides.build
 
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_pileup_engine.cpp.o: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/flags.make
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_pileup_engine.cpp.o: ../../deps/bamtools/src/utils/bamtools_pileup_engine.cpp
@@ -117,6 +116,7 @@ deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_pileup_engine.cpp
 .PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_pileup_engine.cpp.o.provides
 
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_pileup_engine.cpp.o.provides.build: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_pileup_engine.cpp.o
+.PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_pileup_engine.cpp.o.provides.build
 
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_utilities.cpp.o: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/flags.make
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_utilities.cpp.o: ../../deps/bamtools/src/utils/bamtools_utilities.cpp
@@ -140,6 +140,7 @@ deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_utilities.cpp.o.p
 .PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_utilities.cpp.o.provides
 
 deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_utilities.cpp.o.provides.build: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_utilities.cpp.o
+.PHONY : deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_utilities.cpp.o.provides.build
 
 # Object files for target BamTools-utils
 BamTools__utils_OBJECTS = \
@@ -155,8 +156,8 @@ BamTools__utils_EXTERNAL_OBJECTS =
 ../../lib/libbamtools-utils.so.1.0.2: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_options.cpp.o
 ../../lib/libbamtools-utils.so.1.0.2: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_pileup_engine.cpp.o
 ../../lib/libbamtools-utils.so.1.0.2: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/bamtools_utilities.cpp.o
-../../lib/libbamtools-utils.so.1.0.2: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/build.make
 ../../lib/libbamtools-utils.so.1.0.2: ../../lib/libbamtools.so.1.0.2
+../../lib/libbamtools-utils.so.1.0.2: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/build.make
 ../../lib/libbamtools-utils.so.1.0.2: deps/bamtools/src/utils/CMakeFiles/BamTools-utils.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX shared library ../../../../../../lib/libbamtools-utils.so"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/deps/bamtools/src/utils && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/BamTools-utils.dir/link.txt --verbose=$(VERBOSE)

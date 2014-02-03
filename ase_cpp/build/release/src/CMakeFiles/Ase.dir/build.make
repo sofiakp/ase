@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ src/CMakeFiles/Ase.dir/Ase.cpp.o.provides: src/CMakeFiles/Ase.dir/Ase.cpp.o.requ
 .PHONY : src/CMakeFiles/Ase.dir/Ase.cpp.o.provides
 
 src/CMakeFiles/Ase.dir/Ase.cpp.o.provides.build: src/CMakeFiles/Ase.dir/Ase.cpp.o
+.PHONY : src/CMakeFiles/Ase.dir/Ase.cpp.o.provides.build
 
 src/CMakeFiles/Ase.dir/Reconcile.cpp.o: src/CMakeFiles/Ase.dir/flags.make
 src/CMakeFiles/Ase.dir/Reconcile.cpp.o: ../../src/Reconcile.cpp
@@ -94,6 +92,7 @@ src/CMakeFiles/Ase.dir/Reconcile.cpp.o.provides: src/CMakeFiles/Ase.dir/Reconcil
 .PHONY : src/CMakeFiles/Ase.dir/Reconcile.cpp.o.provides
 
 src/CMakeFiles/Ase.dir/Reconcile.cpp.o.provides.build: src/CMakeFiles/Ase.dir/Reconcile.cpp.o
+.PHONY : src/CMakeFiles/Ase.dir/Reconcile.cpp.o.provides.build
 
 src/CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o: src/CMakeFiles/Ase.dir/flags.make
 src/CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o: ../../src/AseQuantMultiRG.cpp
@@ -117,6 +116,7 @@ src/CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o.provides: src/CMakeFiles/Ase.dir/As
 .PHONY : src/CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o.provides
 
 src/CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o.provides.build: src/CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o
+.PHONY : src/CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o.provides.build
 
 src/CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o: src/CMakeFiles/Ase.dir/flags.make
 src/CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o: ../../src/AseQuantMultiBAM.cpp
@@ -140,6 +140,7 @@ src/CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o.provides: src/CMakeFiles/Ase.dir/A
 .PHONY : src/CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o.provides
 
 src/CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o.provides.build: src/CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o
+.PHONY : src/CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o.provides.build
 
 src/CMakeFiles/Ase.dir/AseRegion.cpp.o: src/CMakeFiles/Ase.dir/flags.make
 src/CMakeFiles/Ase.dir/AseRegion.cpp.o: ../../src/AseRegion.cpp
@@ -163,6 +164,7 @@ src/CMakeFiles/Ase.dir/AseRegion.cpp.o.provides: src/CMakeFiles/Ase.dir/AseRegio
 .PHONY : src/CMakeFiles/Ase.dir/AseRegion.cpp.o.provides
 
 src/CMakeFiles/Ase.dir/AseRegion.cpp.o.provides.build: src/CMakeFiles/Ase.dir/AseRegion.cpp.o
+.PHONY : src/CMakeFiles/Ase.dir/AseRegion.cpp.o.provides.build
 
 # Object files for target Ase
 Ase_OBJECTS = \
@@ -180,7 +182,6 @@ src/Ase: src/CMakeFiles/Ase.dir/Reconcile.cpp.o
 src/Ase: src/CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o
 src/Ase: src/CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o
 src/Ase: src/CMakeFiles/Ase.dir/AseRegion.cpp.o
-src/Ase: src/CMakeFiles/Ase.dir/build.make
 src/Ase: deps/swak/deps/yaml-cpp/libyaml-cpp.a
 src/Ase: deps/swak/src/libswak.a
 src/Ase: src/libgene.a
@@ -191,6 +192,7 @@ src/Ase: deps/swak/src/libswak.a
 src/Ase: deps/swak/deps/yaml-cpp/libyaml-cpp.a
 src/Ase: ../../lib/libbamtools.so.1.0.2
 src/Ase: deps/vcftools/libvcftools.a
+src/Ase: src/CMakeFiles/Ase.dir/build.make
 src/Ase: src/CMakeFiles/Ase.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable Ase"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Ase.dir/link.txt --verbose=$(VERBOSE)

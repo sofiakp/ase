@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/swak/test/CMakeFiles/TestSwak.dir/TestSwak.cpp.o.provides: deps/swak/test/C
 .PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestSwak.cpp.o.provides
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestSwak.cpp.o.provides.build: deps/swak/test/CMakeFiles/TestSwak.dir/TestSwak.cpp.o
+.PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestSwak.cpp.o.provides.build
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestHelpers.cpp.o: deps/swak/test/CMakeFiles/TestSwak.dir/flags.make
 deps/swak/test/CMakeFiles/TestSwak.dir/TestHelpers.cpp.o: ../../deps/swak/test/TestHelpers.cpp
@@ -94,6 +92,7 @@ deps/swak/test/CMakeFiles/TestSwak.dir/TestHelpers.cpp.o.provides: deps/swak/tes
 .PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestHelpers.cpp.o.provides
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestHelpers.cpp.o.provides.build: deps/swak/test/CMakeFiles/TestSwak.dir/TestHelpers.cpp.o
+.PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestHelpers.cpp.o.provides.build
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestSystem.cpp.o: deps/swak/test/CMakeFiles/TestSwak.dir/flags.make
 deps/swak/test/CMakeFiles/TestSwak.dir/TestSystem.cpp.o: ../../deps/swak/test/TestSystem.cpp
@@ -117,6 +116,7 @@ deps/swak/test/CMakeFiles/TestSwak.dir/TestSystem.cpp.o.provides: deps/swak/test
 .PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestSystem.cpp.o.provides
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestSystem.cpp.o.provides.build: deps/swak/test/CMakeFiles/TestSwak.dir/TestSystem.cpp.o
+.PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestSystem.cpp.o.provides.build
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestSafeVec.cpp.o: deps/swak/test/CMakeFiles/TestSwak.dir/flags.make
 deps/swak/test/CMakeFiles/TestSwak.dir/TestSafeVec.cpp.o: ../../deps/swak/test/TestSafeVec.cpp
@@ -140,6 +140,7 @@ deps/swak/test/CMakeFiles/TestSwak.dir/TestSafeVec.cpp.o.provides: deps/swak/tes
 .PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestSafeVec.cpp.o.provides
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestSafeVec.cpp.o.provides.build: deps/swak/test/CMakeFiles/TestSwak.dir/TestSafeVec.cpp.o
+.PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestSafeVec.cpp.o.provides.build
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestExtractDigits.cpp.o: deps/swak/test/CMakeFiles/TestSwak.dir/flags.make
 deps/swak/test/CMakeFiles/TestSwak.dir/TestExtractDigits.cpp.o: ../../deps/swak/test/TestExtractDigits.cpp
@@ -163,6 +164,7 @@ deps/swak/test/CMakeFiles/TestSwak.dir/TestExtractDigits.cpp.o.provides: deps/sw
 .PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestExtractDigits.cpp.o.provides
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestExtractDigits.cpp.o.provides.build: deps/swak/test/CMakeFiles/TestSwak.dir/TestExtractDigits.cpp.o
+.PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestExtractDigits.cpp.o.provides.build
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestBinaryIO.cpp.o: deps/swak/test/CMakeFiles/TestSwak.dir/flags.make
 deps/swak/test/CMakeFiles/TestSwak.dir/TestBinaryIO.cpp.o: ../../deps/swak/test/TestBinaryIO.cpp
@@ -186,6 +188,7 @@ deps/swak/test/CMakeFiles/TestSwak.dir/TestBinaryIO.cpp.o.provides: deps/swak/te
 .PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestBinaryIO.cpp.o.provides
 
 deps/swak/test/CMakeFiles/TestSwak.dir/TestBinaryIO.cpp.o.provides.build: deps/swak/test/CMakeFiles/TestSwak.dir/TestBinaryIO.cpp.o
+.PHONY : deps/swak/test/CMakeFiles/TestSwak.dir/TestBinaryIO.cpp.o.provides.build
 
 # Object files for target TestSwak
 TestSwak_OBJECTS = \
@@ -205,9 +208,9 @@ deps/swak/test/TestSwak: deps/swak/test/CMakeFiles/TestSwak.dir/TestSystem.cpp.o
 deps/swak/test/TestSwak: deps/swak/test/CMakeFiles/TestSwak.dir/TestSafeVec.cpp.o
 deps/swak/test/TestSwak: deps/swak/test/CMakeFiles/TestSwak.dir/TestExtractDigits.cpp.o
 deps/swak/test/TestSwak: deps/swak/test/CMakeFiles/TestSwak.dir/TestBinaryIO.cpp.o
-deps/swak/test/TestSwak: deps/swak/test/CMakeFiles/TestSwak.dir/build.make
 deps/swak/test/TestSwak: deps/swak/src/libswak.a
 deps/swak/test/TestSwak: deps/swak/deps/yaml-cpp/libyaml-cpp.a
+deps/swak/test/TestSwak: deps/swak/test/CMakeFiles/TestSwak.dir/build.make
 deps/swak/test/TestSwak: deps/swak/test/CMakeFiles/TestSwak.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable TestSwak"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/deps/swak/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/TestSwak.dir/link.txt --verbose=$(VERBOSE)

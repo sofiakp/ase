@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_convert.cpp.o.provide
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_convert.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_convert.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_convert.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_convert.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_count.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_count.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_count.cpp
@@ -94,6 +92,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_count.cpp.o.provides:
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_count.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_count.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_count.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_count.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_coverage.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_coverage.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_coverage.cpp
@@ -117,6 +116,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_coverage.cpp.o.provid
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_coverage.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_coverage.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_coverage.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_coverage.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_filter.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_filter.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_filter.cpp
@@ -140,6 +140,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_filter.cpp.o.provides
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_filter.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_filter.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_filter.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_filter.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_header.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_header.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_header.cpp
@@ -163,6 +164,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_header.cpp.o.provides
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_header.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_header.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_header.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_header.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_index.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_index.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_index.cpp
@@ -186,6 +188,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_index.cpp.o.provides:
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_index.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_index.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_index.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_index.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_merge.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_merge.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_merge.cpp
@@ -209,6 +212,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_merge.cpp.o.provides:
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_merge.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_merge.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_merge.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_merge.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_random.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_random.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_random.cpp
@@ -232,6 +236,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_random.cpp.o.provides
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_random.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_random.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_random.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_random.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_resolve.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_resolve.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_resolve.cpp
@@ -255,6 +260,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_resolve.cpp.o.provide
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_resolve.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_resolve.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_resolve.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_resolve.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_revert.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_revert.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_revert.cpp
@@ -278,6 +284,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_revert.cpp.o.provides
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_revert.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_revert.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_revert.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_revert.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_sort.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_sort.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_sort.cpp
@@ -301,6 +308,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_sort.cpp.o.provides: 
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_sort.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_sort.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_sort.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_sort.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_split.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_split.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_split.cpp
@@ -324,6 +332,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_split.cpp.o.provides:
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_split.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_split.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_split.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_split.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_stats.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_stats.cpp.o: ../../deps/bamtools/src/toolkit/bamtools_stats.cpp
@@ -347,6 +356,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_stats.cpp.o.provides:
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_stats.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_stats.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_stats.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_stats.cpp.o.provides.build
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools.cpp.o: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/flags.make
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools.cpp.o: ../../deps/bamtools/src/toolkit/bamtools.cpp
@@ -370,6 +380,7 @@ deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools.cpp.o.provides: deps/
 .PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools.cpp.o.provides
 
 deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools.cpp.o.provides.build: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools.cpp.o
+.PHONY : deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools.cpp.o.provides.build
 
 # Object files for target bamtools
 bamtools_OBJECTS = \
@@ -405,11 +416,11 @@ bamtools_EXTERNAL_OBJECTS =
 ../../bin/bamtools: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_split.cpp.o
 ../../bin/bamtools: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools_stats.cpp.o
 ../../bin/bamtools: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/bamtools.cpp.o
-../../bin/bamtools: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/build.make
 ../../bin/bamtools: ../../lib/libbamtools.so.1.0.2
 ../../bin/bamtools: ../../lib/libbamtools-utils.so.1.0.2
 ../../bin/bamtools: ../../lib/libjsoncpp.so.1.0.0
 ../../bin/bamtools: ../../lib/libbamtools.so.1.0.2
+../../bin/bamtools: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/build.make
 ../../bin/bamtools: deps/bamtools/src/toolkit/CMakeFiles/bamtools.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable ../../../../../../bin/bamtools"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/deps/bamtools/src/toolkit && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/bamtools.dir/link.txt --verbose=$(VERBOSE)

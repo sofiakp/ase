@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/emittertests.cpp.o.provide
 .PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/emittertests.cpp.o.provides
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/emittertests.cpp.o.provides.build: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/emittertests.cpp.o
+.PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/emittertests.cpp.o.provides.build
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/main.cpp.o: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/flags.make
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/main.cpp.o: ../../deps/swak/deps/yaml-cpp/test/main.cpp
@@ -94,6 +92,7 @@ deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/main.cpp.o.provides: deps/
 .PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/main.cpp.o.provides
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/main.cpp.o.provides.build: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/main.cpp.o
+.PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/main.cpp.o.provides.build
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/parsertests.cpp.o: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/flags.make
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/parsertests.cpp.o: ../../deps/swak/deps/yaml-cpp/test/parsertests.cpp
@@ -117,6 +116,7 @@ deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/parsertests.cpp.o.provides
 .PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/parsertests.cpp.o.provides
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/parsertests.cpp.o.provides.build: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/parsertests.cpp.o
+.PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/parsertests.cpp.o.provides.build
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/spectests.cpp.o: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/flags.make
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/spectests.cpp.o: ../../deps/swak/deps/yaml-cpp/test/spectests.cpp
@@ -140,6 +140,7 @@ deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/spectests.cpp.o.provides: 
 .PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/spectests.cpp.o.provides
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/spectests.cpp.o.provides.build: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/spectests.cpp.o
+.PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/spectests.cpp.o.provides.build
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/tests.cpp.o: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/flags.make
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/tests.cpp.o: ../../deps/swak/deps/yaml-cpp/test/tests.cpp
@@ -163,6 +164,7 @@ deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/tests.cpp.o.provides: deps
 .PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/tests.cpp.o.provides
 
 deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/tests.cpp.o.provides.build: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/tests.cpp.o
+.PHONY : deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/tests.cpp.o.provides.build
 
 # Object files for target run-tests
 run__tests_OBJECTS = \
@@ -180,8 +182,8 @@ deps/swak/deps/yaml-cpp/test/run-tests: deps/swak/deps/yaml-cpp/test/CMakeFiles/
 deps/swak/deps/yaml-cpp/test/run-tests: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/parsertests.cpp.o
 deps/swak/deps/yaml-cpp/test/run-tests: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/spectests.cpp.o
 deps/swak/deps/yaml-cpp/test/run-tests: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/tests.cpp.o
-deps/swak/deps/yaml-cpp/test/run-tests: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/build.make
 deps/swak/deps/yaml-cpp/test/run-tests: deps/swak/deps/yaml-cpp/libyaml-cpp.a
+deps/swak/deps/yaml-cpp/test/run-tests: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/build.make
 deps/swak/deps/yaml-cpp/test/run-tests: deps/swak/deps/yaml-cpp/test/CMakeFiles/run-tests.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable run-tests"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/deps/swak/deps/yaml-cpp/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/run-tests.dir/link.txt --verbose=$(VERBOSE)

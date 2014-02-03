@@ -27,12 +27,3 @@ SET(CMAKE_MULTIPLE_OUTPUT_PAIRS
 SET(CMAKE_TARGET_LINKED_INFO_FILES
   "/media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/deps/bamtools/src/api/CMakeFiles/BamTools.dir/DependInfo.cmake"
   )
-
-# The include file search paths:
-SET(CMAKE_C_TARGET_INCLUDE_PATH
-  "../../deps/bamtools/src"
-  "../../deps/bamtools/src/api"
-  )
-SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
-SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
-SET(CMAKE_ASM_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

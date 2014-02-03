@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -42,14 +39,11 @@ CMAKE_BINARY_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp/build/rel
 
 # Utility rule file for releasable.
 
-# Include the progress variables for this target.
-include deps/swak/deps/yaml-cpp/CMakeFiles/releasable.dir/progress.make
-
 deps/swak/deps/yaml-cpp/CMakeFiles/releasable:
 	$(CMAKE_COMMAND) -E cmake_progress_report /media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold "Adjusting settings for release compilation"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/deps/swak/deps/yaml-cpp && $(MAKE) clean
-	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/deps/swak/deps/yaml-cpp && /usr/local/bin/cmake -DCMAKE_BUILD_TYPE=Release /media/fusion10/work/chromatinVariation/src/ase_cpp
+	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/deps/swak/deps/yaml-cpp && /usr/bin/cmake -DCMAKE_BUILD_TYPE=Release /media/fusion10/work/chromatinVariation/src/ase_cpp
 
 releasable: deps/swak/deps/yaml-cpp/CMakeFiles/releasable
 releasable: deps/swak/deps/yaml-cpp/CMakeFiles/releasable.dir/build.make

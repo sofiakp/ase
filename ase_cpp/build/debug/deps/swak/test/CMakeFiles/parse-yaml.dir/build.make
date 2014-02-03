@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/swak/test/CMakeFiles/parse-yaml.dir/parse.cpp.o.provides: deps/swak/test/CM
 .PHONY : deps/swak/test/CMakeFiles/parse-yaml.dir/parse.cpp.o.provides
 
 deps/swak/test/CMakeFiles/parse-yaml.dir/parse.cpp.o.provides.build: deps/swak/test/CMakeFiles/parse-yaml.dir/parse.cpp.o
+.PHONY : deps/swak/test/CMakeFiles/parse-yaml.dir/parse.cpp.o.provides.build
 
 # Object files for target parse-yaml
 parse__yaml_OBJECTS = \
@@ -80,8 +78,8 @@ parse__yaml_OBJECTS = \
 parse__yaml_EXTERNAL_OBJECTS =
 
 deps/swak/test/parse-yaml: deps/swak/test/CMakeFiles/parse-yaml.dir/parse.cpp.o
-deps/swak/test/parse-yaml: deps/swak/test/CMakeFiles/parse-yaml.dir/build.make
 deps/swak/test/parse-yaml: deps/swak/deps/yaml-cpp/libyaml-cpp.a
+deps/swak/test/parse-yaml: deps/swak/test/CMakeFiles/parse-yaml.dir/build.make
 deps/swak/test/parse-yaml: deps/swak/test/CMakeFiles/parse-yaml.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable parse-yaml"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/debug/deps/swak/test && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/parse-yaml.dir/link.txt --verbose=$(VERBOSE)

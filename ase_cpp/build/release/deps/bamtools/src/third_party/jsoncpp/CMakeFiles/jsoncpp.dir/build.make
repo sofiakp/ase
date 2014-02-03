@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_reader.cpp.o.p
 .PHONY : deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_reader.cpp.o.provides
 
 deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_reader.cpp.o.provides.build: deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_reader.cpp.o
+.PHONY : deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_reader.cpp.o.provides.build
 
 deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_value.cpp.o: deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/flags.make
 deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_value.cpp.o: ../../deps/bamtools/src/third_party/jsoncpp/json_value.cpp
@@ -94,6 +92,7 @@ deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_value.cpp.o.pr
 .PHONY : deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_value.cpp.o.provides
 
 deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_value.cpp.o.provides.build: deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_value.cpp.o
+.PHONY : deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_value.cpp.o.provides.build
 
 deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_writer.cpp.o: deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/flags.make
 deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_writer.cpp.o: ../../deps/bamtools/src/third_party/jsoncpp/json_writer.cpp
@@ -117,6 +116,7 @@ deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_writer.cpp.o.p
 .PHONY : deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_writer.cpp.o.provides
 
 deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_writer.cpp.o.provides.build: deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_writer.cpp.o
+.PHONY : deps/bamtools/src/third_party/jsoncpp/CMakeFiles/jsoncpp.dir/json_writer.cpp.o.provides.build
 
 # Object files for target jsoncpp
 jsoncpp_OBJECTS = \

@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/parse.cpp.o.provides: deps/swa
 .PHONY : deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/parse.cpp.o.provides
 
 deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/parse.cpp.o.provides.build: deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/parse.cpp.o
+.PHONY : deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/parse.cpp.o.provides.build
 
 # Object files for target parse
 parse_OBJECTS = \
@@ -80,8 +78,8 @@ parse_OBJECTS = \
 parse_EXTERNAL_OBJECTS =
 
 deps/swak/deps/yaml-cpp/util/parse: deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/parse.cpp.o
-deps/swak/deps/yaml-cpp/util/parse: deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/build.make
 deps/swak/deps/yaml-cpp/util/parse: deps/swak/deps/yaml-cpp/libyaml-cpp.a
+deps/swak/deps/yaml-cpp/util/parse: deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/build.make
 deps/swak/deps/yaml-cpp/util/parse: deps/swak/deps/yaml-cpp/util/CMakeFiles/parse.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable parse"
 	cd /media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/deps/swak/deps/yaml-cpp/util && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/parse.dir/link.txt --verbose=$(VERBOSE)

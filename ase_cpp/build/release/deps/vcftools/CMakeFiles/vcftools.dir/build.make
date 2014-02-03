@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/output_log.cpp.o.provides: deps/vcftools/C
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/output_log.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/output_log.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/output_log.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/output_log.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/parameters.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/parameters.cpp.o: ../../deps/vcftools/parameters.cpp
@@ -94,6 +92,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/parameters.cpp.o.provides: deps/vcftools/C
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/parameters.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/parameters.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/parameters.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/parameters.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry.cpp.o: ../../deps/vcftools/vcf_entry.cpp
@@ -117,6 +116,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry.cpp.o.provides: deps/vcftools/CM
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_getters.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_getters.cpp.o: ../../deps/vcftools/vcf_entry_getters.cpp
@@ -140,6 +140,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_getters.cpp.o.provides: deps/vcf
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_getters.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_getters.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_getters.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_getters.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_setters.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_setters.cpp.o: ../../deps/vcftools/vcf_entry_setters.cpp
@@ -163,6 +164,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_setters.cpp.o.provides: deps/vcf
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_setters.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_setters.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_setters.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_entry_setters.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file.cpp.o: ../../deps/vcftools/vcf_file.cpp
@@ -186,6 +188,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/vcf_file.cpp.o.provides: deps/vcftools/CMa
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/vcf_file.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_diff.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_diff.cpp.o: ../../deps/vcftools/vcf_file_diff.cpp
@@ -209,6 +212,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_diff.cpp.o.provides: deps/vcftool
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_diff.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_diff.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_diff.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_diff.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_filters.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_filters.cpp.o: ../../deps/vcftools/vcf_file_filters.cpp
@@ -232,6 +236,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_filters.cpp.o.provides: deps/vcft
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_filters.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_filters.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_filters.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_filters.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_format_convert.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_format_convert.cpp.o: ../../deps/vcftools/vcf_file_format_convert.cpp
@@ -255,6 +260,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_format_convert.cpp.o.provides: de
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_format_convert.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_format_convert.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_format_convert.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_format_convert.cpp.o.provides.build
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_output.cpp.o: deps/vcftools/CMakeFiles/vcftools.dir/flags.make
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_output.cpp.o: ../../deps/vcftools/vcf_file_output.cpp
@@ -278,6 +284,7 @@ deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_output.cpp.o.provides: deps/vcfto
 .PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_output.cpp.o.provides
 
 deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_output.cpp.o.provides.build: deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_output.cpp.o
+.PHONY : deps/vcftools/CMakeFiles/vcftools.dir/vcf_file_output.cpp.o.provides.build
 
 # Object files for target vcftools
 vcftools_OBJECTS = \

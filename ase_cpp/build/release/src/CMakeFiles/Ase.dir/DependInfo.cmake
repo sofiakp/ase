@@ -23,17 +23,3 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
   "/media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/deps/bamtools/src/api/CMakeFiles/BamTools.dir/DependInfo.cmake"
   "/media/fusion10/work/chromatinVariation/src/ase_cpp/build/release/deps/vcftools/CMakeFiles/vcftools.dir/DependInfo.cmake"
   )
-
-# The include file search paths:
-SET(CMAKE_C_TARGET_INCLUDE_PATH
-  "../../src/."
-  "../../src/../deps/swak/src"
-  "../../src/../deps/swak/deps/yaml-cpp/include"
-  "../../include"
-  "../../include/api"
-  "../../include/shared"
-  "../../src/../deps/vcftools"
-  )
-SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
-SET(CMAKE_Fortran_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})
-SET(CMAKE_ASM_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

@@ -3,6 +3,7 @@ FILE(REMOVE_RECURSE
   "CMakeFiles/Ase.dir/Reconcile.cpp.o"
   "CMakeFiles/Ase.dir/AseQuantMultiRG.cpp.o"
   "CMakeFiles/Ase.dir/AseQuantMultiBAM.cpp.o"
+  "CMakeFiles/Ase.dir/AseRegion.cpp.o"
   "Ase.pdb"
   "Ase"
 )

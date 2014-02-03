@@ -1,10 +1,10 @@
 # CMake stuff
 CMakeCache.txt
-CMakeFiles
-Makefile
+#CMakeFiles
+#Makefile
 cmake_install.cmake
 install_manifest.txt
-CMakeLists
+#CMakeLists
 
 # Data and test dirs
 .*.swp
@@ -17,3 +17,4 @@ DebugRna
 test_data/
 *.history
 play/
+build/

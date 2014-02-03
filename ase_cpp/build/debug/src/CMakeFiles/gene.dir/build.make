@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ src/CMakeFiles/gene.dir/Gene.cpp.o.provides: src/CMakeFiles/gene.dir/Gene.cpp.o.
 .PHONY : src/CMakeFiles/gene.dir/Gene.cpp.o.provides
 
 src/CMakeFiles/gene.dir/Gene.cpp.o.provides.build: src/CMakeFiles/gene.dir/Gene.cpp.o
+.PHONY : src/CMakeFiles/gene.dir/Gene.cpp.o.provides.build
 
 src/CMakeFiles/gene.dir/Gff.cpp.o: src/CMakeFiles/gene.dir/flags.make
 src/CMakeFiles/gene.dir/Gff.cpp.o: ../../src/Gff.cpp
@@ -94,6 +92,7 @@ src/CMakeFiles/gene.dir/Gff.cpp.o.provides: src/CMakeFiles/gene.dir/Gff.cpp.o.re
 .PHONY : src/CMakeFiles/gene.dir/Gff.cpp.o.provides
 
 src/CMakeFiles/gene.dir/Gff.cpp.o.provides.build: src/CMakeFiles/gene.dir/Gff.cpp.o
+.PHONY : src/CMakeFiles/gene.dir/Gff.cpp.o.provides.build
 
 src/CMakeFiles/gene.dir/GeneReader.cpp.o: src/CMakeFiles/gene.dir/flags.make
 src/CMakeFiles/gene.dir/GeneReader.cpp.o: ../../src/GeneReader.cpp
@@ -117,6 +116,7 @@ src/CMakeFiles/gene.dir/GeneReader.cpp.o.provides: src/CMakeFiles/gene.dir/GeneR
 .PHONY : src/CMakeFiles/gene.dir/GeneReader.cpp.o.provides
 
 src/CMakeFiles/gene.dir/GeneReader.cpp.o.provides.build: src/CMakeFiles/gene.dir/GeneReader.cpp.o
+.PHONY : src/CMakeFiles/gene.dir/GeneReader.cpp.o.provides.build
 
 # Object files for target gene
 gene_OBJECTS = \

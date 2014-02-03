@@ -4,7 +4,7 @@
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -26,13 +26,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -71,6 +68,7 @@ src/CMakeFiles/vcf.dir/VcfUtil.cpp.o.provides: src/CMakeFiles/vcf.dir/VcfUtil.cp
 .PHONY : src/CMakeFiles/vcf.dir/VcfUtil.cpp.o.provides
 
 src/CMakeFiles/vcf.dir/VcfUtil.cpp.o.provides.build: src/CMakeFiles/vcf.dir/VcfUtil.cpp.o
+.PHONY : src/CMakeFiles/vcf.dir/VcfUtil.cpp.o.provides.build
 
 # Object files for target vcf
 vcf_OBJECTS = \

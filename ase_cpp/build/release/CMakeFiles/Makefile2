@@ -16,7 +16,7 @@ preinstall:
 #=============================================================================
 # Special targets provided by cmake.
 
-# Disable implicit rules so canonical targets will work.
+# Disable implicit rules so canoncical targets will work.
 .SUFFIXES:
 
 # Remove some rules from gmake that .SUFFIXES does not remove.
@@ -38,13 +38,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
-
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/local/bin/ccmake
+RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
 CMAKE_SOURCE_DIR = /media/fusion10/work/chromatinVariation/src/ase_cpp
@@ -910,8 +907,8 @@ src/preinstall:
 # Target rules for target src/CMakeFiles/Ase.dir
 
 # All Build rule for target.
-src/CMakeFiles/Ase.dir/all: deps/swak/src/CMakeFiles/swak.dir/all
 src/CMakeFiles/Ase.dir/all: deps/swak/deps/yaml-cpp/CMakeFiles/yaml-cpp.dir/all
+src/CMakeFiles/Ase.dir/all: deps/swak/src/CMakeFiles/swak.dir/all
 src/CMakeFiles/Ase.dir/all: src/CMakeFiles/gene.dir/all
 src/CMakeFiles/Ase.dir/all: src/CMakeFiles/bam.dir/all
 src/CMakeFiles/Ase.dir/all: src/CMakeFiles/vcf.dir/all
