@@ -5,6 +5,7 @@ CMakeCache.txt
 cmake_install.cmake
 install_manifest.txt
 #CMakeLists
+CMakeOutput
 
 # Data and test dirs
 .*.swp
