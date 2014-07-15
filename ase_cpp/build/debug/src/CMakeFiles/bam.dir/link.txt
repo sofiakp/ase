@@ -1,2 +1,0 @@
-/usr/bin/ar cr libbam.a  CMakeFiles/bam.dir/BamUtil.cpp.o
-/usr/bin/ranlib libbam.a

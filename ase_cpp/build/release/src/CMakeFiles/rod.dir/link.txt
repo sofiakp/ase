@@ -1,2 +1,0 @@
-/usr/bin/ar cr librod.a  CMakeFiles/rod.dir/RodUtil.cpp.o
-/usr/bin/ranlib librod.a

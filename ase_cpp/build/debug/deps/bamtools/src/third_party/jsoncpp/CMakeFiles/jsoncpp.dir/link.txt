@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC   -D_FILE_OFFSET_BITS=64 -Wall -Wextra -Wno-sign-compare -Wno-deprecated -g -DDEBUG=1 -O0  -shared -Wl,-soname,libjsoncpp.so.1.0.0 -o ../../../../../../../lib/libjsoncpp.so.1.0.0 CMakeFiles/jsoncpp.dir/json_reader.cpp.o CMakeFiles/jsoncpp.dir/json_value.cpp.o CMakeFiles/jsoncpp.dir/json_writer.cpp.o 

@@ -1,2 +1,0 @@
-/usr/bin/ar cr libgene.a  CMakeFiles/gene.dir/Gene.cpp.o CMakeFiles/gene.dir/Gff.cpp.o CMakeFiles/gene.dir/GeneReader.cpp.o
-/usr/bin/ranlib libgene.a
