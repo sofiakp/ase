@@ -1,1 +1,0 @@
-/usr/bin/c++     -D_FILE_OFFSET_BITS=64 -Wall -Wextra -Wno-sign-compare -Wno-deprecated -O2   CMakeFiles/TestRna.dir/TestRna.cpp.o  -o TestRna -rdynamic ../deps/swak/src/libswak.a ../src/libgene.a ../deps/swak/src/libswak.a ../deps/swak/deps/yaml-cpp/libyaml-cpp.a -lz 

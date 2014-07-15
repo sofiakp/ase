@@ -1,2 +1,0 @@
-/usr/bin/ar cr libvcf.a  CMakeFiles/vcf.dir/VcfUtil.cpp.o
-/usr/bin/ranlib libvcf.a

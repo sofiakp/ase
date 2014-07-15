@@ -1,1 +1,0 @@
-/usr/bin/c++     -D_FILE_OFFSET_BITS=64 -Wall -Wextra -Wno-sign-compare -Wno-deprecated  -D_FILE_OFFSET_BITS=64 -Wall -Wextra -Wno-sign-compare -D_FILE_OFFSET_BITS=64 -Wall -Wextra -Wno-sign-compare -Wno-deprecated -O2   CMakeFiles/parse-yaml.dir/parse.cpp.o  -o parse-yaml -rdynamic ../deps/yaml-cpp/libyaml-cpp.a 
